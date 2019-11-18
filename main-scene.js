@@ -17,9 +17,24 @@ class Assignment_Three_Scene extends Scene_Component
                                 // TODO:  Fill in as many additional shape instances as needed in this key/value table.
                                 //        (Requirement 1)
                        }
-        this.submit_shapes( context, shapes );
+
+        
+        this.geese = {
+          g1: new Goose(1),
+          g2: new Goose(2),
+          g3: new Goose(3),
+        }
+
+        for (let g in this.geese) {
+          for (let shape in this.geese[g].shapes) {
+            shapes[shape] = this.geese[g].shapes[shape];
+          }
+        }
+
+        this.submit_shapes( context, shapes);
+
                                      
-                                     // Make some Material objects available to you:
+                                     // Make so3me Material objects available to you:
         this.materials =
           { test:     context.get_instance( Phong_Shader ).material( Color.of( 1,1,0,1 ), { ambient:.2 } ),
             ring:     context.get_instance( Ring_Shader  ).material()
@@ -47,9 +62,20 @@ class Assignment_Three_Scene extends Scene_Component
         
 
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 2 and 3)
-
-
-        this.shapes.torus2.draw( graphics_state, Mat4.identity(), this.materials.test );
+        let h = 0;
+        for (let g in this.geese) {
+          let i = 0;
+          for (let shape in this.geese[g].shapes) {
+            if (h == 0)
+              this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape].times(Mat4.translation([i, 0, 0])), this.materials.test);
+            if (h == 1)
+              this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape].times(Mat4.translation([0, i, 0])), this.materials.test);
+            if (h == 2)
+              this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape].times(Mat4.translation([0, 0, i])), this.materials.test);
+              i++;
+          }
+          h++;
+        }
 
       }
   }
