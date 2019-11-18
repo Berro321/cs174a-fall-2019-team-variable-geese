@@ -338,7 +338,7 @@ class Movement_Controls extends Scene_Component    // Movement_Controls is a Sce
       context.globals.movement_controls_invert = this.will_invert = () => true;
       context.globals.has_controls = true;
 
-      [ this.radians_per_frame, this.meters_per_frame, this.speed_multiplier ] = [ 1/200, 20, 1 ];
+      [ this.radians_per_frame, this.meters_per_frame, this.speed_multiplier ] = [ 1/200, 10, 1 ];
       
       // *** Mouse controls: ***
       this.mouse = { "from_center": Vec.of( 0,0 ) };                           // Measure mouse steering, for rotating the flyaround camera:
@@ -355,9 +355,9 @@ class Movement_Controls extends Scene_Component    // Movement_Controls is a Sce
     { const globals = this.globals;
       this.control_panel.innerHTML += "Click and drag the scene to <br> spin your viewpoint around it.<br>";
       this.key_triggered_button( "Up",     [ " " ], () => this.thrust[1] = -1, undefined, () => this.thrust[1] = 0 );
-      this.key_triggered_button( "Forward",[ "w" ], () => this.thrust[2] =  1, undefined, () => this.thrust[2] = 0 );  this.new_line();
+      this.key_triggered_button( "Forward",[ "w" ], () => {this.thrust[2] =  1, this.thrust[1] = -1;}, undefined, () => {this.thrust[2] = 0; this.thrust[1] = 0;} );  this.new_line();
       this.key_triggered_button( "Left",   [ "a" ], () => this.thrust[0] =  1, undefined, () => this.thrust[0] = 0 );
-      this.key_triggered_button( "Back",   [ "s" ], () => this.thrust[2] = -1, undefined, () => this.thrust[2] = 0 );
+      this.key_triggered_button( "Back",   [ "s" ], () => {this.thrust[2] =  -Math.sqrt(2), this.thrust[1] = Math.sqrt(2);}, undefined, () => {this.thrust[2] = 0; this.thrust[1] = 0;} );
       this.key_triggered_button( "Right",  [ "d" ], () => this.thrust[0] = -1, undefined, () => this.thrust[0] = 0 );  this.new_line();
       this.key_triggered_button( "Down",   [ "z" ], () => this.thrust[1] =  1, undefined, () => this.thrust[1] = 0 ); 
 
@@ -398,6 +398,8 @@ class Movement_Controls extends Scene_Component    // Movement_Controls is a Sce
         }
       if( this.roll != 0 ) do_operation( Mat4.rotation( sign * .1, Vec.of(0, 0, this.roll ) ) );
                                                   // Now apply translation movement of the camera, in the newest local coordinate frame.
+      if (Math.abs(this.thrust.norm()) > Number.EPSILON)  // Normalize to have uniform movement
+        this.thrust.normalize();
       do_operation( Mat4.translation( this.thrust.times( sign * meters_per_frame ) ) );
     }
   third_person_arcball( radians_per_frame )

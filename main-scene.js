@@ -5,14 +5,15 @@ class Assignment_Three_Scene extends Scene_Component
         if( !context.globals.has_controls   ) 
           context.register_scene_component( new Movement_Controls( context, control_box.parentElement.insertCell() ) ); 
 
-        context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,10,20 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+        context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,10,10 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
         this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
 
         const r = context.width/context.height;
         context.globals.graphics_state.projection_transform = Mat4.perspective( Math.PI/4, r, .1, 1000 );
 
         const shapes = { torus:  new Torus( 15, 15 ),
-                         torus2: new ( Torus.prototype.make_flat_shaded_version() )( 15, 15 )
+                         torus2: new ( Torus.prototype.make_flat_shaded_version() )( 15, 15 ),
+                         arena: new Square()
  
                                 // TODO:  Fill in as many additional shape instances as needed in this key/value table.
                                 //        (Requirement 1)
@@ -44,6 +45,7 @@ class Assignment_Three_Scene extends Scene_Component
           }
 
         this.lights = [ new Light( Vec.of( 5,-10,5,1 ), Color.of( 0, 1, 1, 1 ), 1000 ) ];
+        this.arena_transform = Mat4.scale([30,1,30]).times(Mat4.rotation(Math.PI / 4, Vec.of(-1,0,0)));
       }
     make_control_panel()            // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
       { this.key_triggered_button( "View solar system",  [ "0" ], () => this.attached = () => this.initial_camera_location );
@@ -76,7 +78,7 @@ class Assignment_Three_Scene extends Scene_Component
           }
           h++;
         }
-
+        this.shapes.arena.draw(graphics_state, this.arena_transform, this.materials.test);
       }
   }
 
