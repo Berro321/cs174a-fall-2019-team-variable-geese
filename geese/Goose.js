@@ -4,7 +4,7 @@
 // shapes and transforms that pertain the body parts
 // of this goose.
 class Goose {
-    constructor( goose_id ) {
+    constructor(goose_id) {
 
         this.stats = {
             health: 50,
@@ -15,36 +15,45 @@ class Goose {
         };
 
         // shape -> shape's constructor
-        this.shapes = {
-            head:       new Subdivision_Sphere( 3 ),
-            left_eye:   new Subdivision_Sphere( 3 ),
-            right_eye:  new Subdivision_Sphere( 3 ),
-            beak:       new Subdivision_Sphere( 3 ),
-            neck:       new Subdivision_Sphere( 3 ),
-            left_wing:  new Subdivision_Sphere( 3 ),
-            body:       new Subdivision_Sphere( 3 ),
-            right_wing: new Subdivision_Sphere( 3 ),
-            left_leg:   new Subdivision_Sphere( 3 ),
-            right_leg:  new Subdivision_Sphere( 3 ),
-            left_foot:  new Subdivision_Sphere( 3 ),
-            right_foot: new Subdivision_Sphere( 3 ),
-        };
+
+
+        let shape_names = [
+            "head",
+            // "left_eye",
+            // "right_eye",
+            // "beak",
+            // "neck",
+            // "left_wing",
+            // "body",
+            // "right_wing",
+            // "left_leg",
+            // "right_leg",
+            // "left_foot",
+            // "right_foot",
+        ];
+
+        let shape_transforms = [
+
+        ];
+
+
+        // shape -> shape's constructor
+        this.shapes = {};
+        this.transforms = {};
+        for (let i = 0; i < shape_names.length; i++) {
+            this.shapes[shape_names[i] + '_' + this.constructor.name] = new Subdivision_Sphere(3);
+            this.transforms[shape_names[i] + '_' + this.constructor.name] = Mat4.identity();
+        }
         
-        // shape -> current transform, need to initialize
-        this.transforms = {
-            head:       Mat4.identity(),
-            left_eye:   Mat4.identity(),
-            right_eye:  Mat4.identity(),
-            beak:       Mat4.identity(),
-            neck:       Mat4.identity(),
-            left_wing:  Mat4.identity(),
-            body:       Mat4.identity(),
-            right_wing: Mat4.identity(),
-            left_leg:   Mat4.identity(),
-            right_leg:  Mat4.identity(),
-            left_foot:  Mat4.identity(),
-            right_foot: Mat4.identity(),
-        };
+    }
+
+    animateMove(frameNumber) {
+        let animation_transforms = this.transforms;
+        // console.log(animation_transforms);
+        for (let shape in animation_transforms) {
+            console.log(animation_transforms[shape]);
+            animation_transforms[shape] = animation_transforms[shape].times(Mat4.translation([Math.cos(Math.PI / 2 / (frameNumber+1)), Math.sin(Math.PI / 2 / (frameNumber+1)), 0]));
+        }
     }
 }
 
