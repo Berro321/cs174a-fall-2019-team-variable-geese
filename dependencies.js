@@ -30,6 +30,82 @@ class Square extends Shape              // A square, demonstrating two triangles
     }
 }
 
+window.Cube = window.classes.Cube =
+class Cube extends Shape    // A cube inserts six square strips into its arrays.
+{ constructor()  
+    { super( "positions", "normals", "texture_coords" );
+      for( var i = 0; i < 3; i++ )                    
+        for( var j = 0; j < 2; j++ )
+        { var square_transform = Mat4.rotation( i == 0 ? Math.PI/2 : 0, Vec.of(1, 0, 0) )
+                         .times( Mat4.rotation( Math.PI * j - ( i == 1 ? Math.PI/2 : 0 ), Vec.of( 0, 1, 0 ) ) )
+                         .times( Mat4.translation([ 0, 0, 1 ]) );
+          Square.insert_transformed_copy_into( this, [], square_transform );
+        }
+    }
+}
+
+window.Body = window.classes.Body =
+class Body extends Shape    // A cube inserts six square strips into its arrays.
+{ constructor()  
+    { super( "positions", "normals", "texture_coords" );
+
+      this.positions     .push( ...Vec.cast( [ 0, 0, 0], [ 1, 0, 0], [ 1.3, 0.8, 0], [ -0.4, 0.5, 0],
+                                             [ 0, 0, -1], [ 1, 0, -1], [ 1.3, 0.8, -1], [ -0.4, 0.5, -1],
+                                             [ 0, 0, 0], [ 1, 0, 0], [ 1.3, 0.8, 0], [ -0.4, 0.5, 0],
+                                             [ 0, 0, -1], [ 1, 0, -1], [ 1.3, 0.8, -1], [ -0.4, 0.5, -1],
+                                             [ 0, 0, 0], [ 1, 0, 0], [ 1.3, 0.8, 0], [ -0.4, 0.5, 0],
+                                             [ 0, 0, -1], [ 1, 0, -1], [ 1.3, 0.8, -1], [ -0.4, 0.5, -1], ) );
+             
+      this.normals       .push( ...Vec.cast( [ 0.0, 0.0, 1.0], [ 0.0, 0.0, 1.0], [ 0.0, 0.0, 1.0], [ 0.0, 0.0, 1.0],
+                                             [ 0.0, 0.0,-1.0], [ 0.0, 0.0,-1.0], [ 0.0, 0.0,-1.0], [ 0.0, 0.0,-1.0],
+                                             [-0.5,-0.4, 0.0], [ 0.8,-0.3, 0.0], [ 0.8,-0.3, 0.0], [-0.5,-0.4, 0.0],
+                                             [-0.5,-0.4, 0.0], [ 0.8,-0.3, 0.0], [ 0.8,-0.3, 0.0], [-0.5,-0.4, 0.0],
+                                             [ 0.0,-1.0, 0.0], [ 0.0,-1.0, 0.0], [-0.3, 1.7, 0.0], [-0.3, 1.7, 0.0],
+                                             [ 0.0,-1.0, 0.0], [ 0.0,-1.0, 0.0], [-0.3, 1.7, 0.0], [-0.3, 1.7, 0.0] ) );
+
+      this.texture_coords.push( ...Vec.cast( [ 0, 0], [ 1, 0], [ 0, 1], [ 1, 1] ) );
+      this.indices       .push( 0, 1, 2,    0, 2, 3,    4, 5, 6,    4, 6, 7,
+                                9, 13, 14,  9, 14, 10,  12, 8, 11,  12, 11, 15,
+                                19, 18, 22, 19, 22, 23, 20, 21, 17, 20, 17, 16 );  // Vertices are shared multiple times with this method.
+
+    }
+}
+
+window.Wing = window.classes.Wing =
+class Wing extends Shape    // A cube inserts six square strips into its arrays.
+{ constructor()  
+    { super( "positions", "normals", "texture_coords" );
+
+      this.positions     .push( ...Vec.cast( [ 0.0, 2.5, 0], [ 1.25, 0.75, 0], [ 3.5, 0.25, 0], [ 4.5, 1.0, 0], [ 5.0, 2.5, 0],
+                                             [ 1.25, 0.75, 0.25], [ 3.5, 0.25, 0.7], [ 4.5, 1.0, 0.9], [ 5.0, 2.5, 1],
+
+                                             [ 0.0, 2.5, 0],
+
+                                             [ 0.0, 2.5, 0], [ 1.25, 0.75, 0], [ 3.5, 0.25, 0], [ 4.5, 1.0, 0], [ 5.0, 2.5, 0],
+                                             [ 1.25, 0.75, 0.25], [ 3.5, 0.25, 0.7], [ 4.5, 1.0, 0.9], [ 5.0, 2.5, 1],
+
+                                             [ 0.0, 2.5, 0], [ 1.25, 0.75, 0], [ 3.5, 0.25, 0], [ 4.5, 1.0, 0], [ 5.0, 2.5, 0],
+                                             [ 1.25, 0.75, 0.25], [ 3.5, 0.25, 0.7], [ 4.5, 1.0, 0.9], [ 5.0, 2.5, 1] ) );
+             
+      
+    
+
+      this.normals       .push( ...Vec.cast( [ 0, 0,-1], [ 0, 0,-1], [ 0, 0,-1], [ 0, 0,-1], [ 0, 0,-1],
+                                             [-1.5, 0, 7.5], [-1.5, 0, 7.5], [-1.5, 0, 7.5], [-1.5, 0, 7.5], [-1.5, 0, 7.5],
+
+                                             [ 0, 1, 0], [ -0.125, -0.5625, 0], [ -0.125, -0.5625, 0], [ 1.35, -0.45, 0], [ 1.35, -0.45, 0],
+                                             [ -0.125, -0.5625, 0], [ -0.125, -0.5625, 0], [ 1.35, -0.45, 0], [ 1.35, -0.45, 0],
+
+                                             [ -0.4375, -0.3125,0], [ -0.4375, -0.3125,0], [ 0.65, -0.9, 0], [ 0.65, -0.9, 0], [ 0, 1, 0],
+                                             [ -0.4375, -0.3125,0], [ 0.65, -0.9, 0], [ 0.65, -0.9, 0], [ 0, 1, 0] ) );
+
+      this.texture_coords.push( ...Vec.cast( [ 0, 0], [ 1, 0], [ 0, 1], [ 1, 1] ) );
+      this.indices       .push( 0, 1, 2,   0, 2, 3,   0, 3, 4,
+                                9, 5, 6,   9, 6, 7,   9, 7, 8,
+                                19, 20, 24,   10, 27, 23,
+                                11, 12, 16,   11, 16, 15,   21, 22, 26,   21, 26, 25,   13, 14, 18,   13, 18, 17 );  // Vertices are shared multiple times with this method.
+    }
+}
 
 window.Tetrahedron = window.classes.Tetrahedron =
 class Tetrahedron extends Shape                       // The Tetrahedron shape demonstrates flat vs smooth shading (a boolean argument 
@@ -486,6 +562,15 @@ class Surface_Of_Revolution extends Grid_Patch      // SURFACE OF REVOLUTION: Pr
     }
 }
 
+window.Rounded_Capped_Cylinder = window.classes.Rounded_Capped_Cylinder =
+class Rounded_Capped_Cylinder extends Surface_Of_Revolution   // An alternative without three separate sections
+  { constructor ( rows, columns, radius, height, texture_range ) { super( rows, columns, Vec.cast( [-radius, 0, height], [radius, 0, height], [radius, 0, 0], [-radius, 0, 0] ), texture_range ); } }
+
+window.Rounded_Cone = window.classes.Rounded_Closed_Cone =
+class Rounded_Closed_Cone extends Surface_Of_Revolution   // An alternative without two separate sections
+  { constructor( rows, columns, radius, height, curvature_angle, texture_range ) { super( rows, columns, Vec.cast( [0, 0, height], [0.2, 0, height], [radius, 0, 0], [0, 0, 0] ), texture_range, curvature_angle ) ; } }
+  
+  
 window.Torus = window.classes.Torus =
 class Torus extends Shape                                         // Build a donut shape.  An example of a surface of revolution.
   { constructor( rows, columns )  

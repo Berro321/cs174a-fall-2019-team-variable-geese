@@ -12,7 +12,12 @@ class Game_Scene extends Scene_Component {
     const r = context.width/context.height;
     context.globals.graphics_state.projection_transform = Mat4.perspective( Math.PI/4, r, .1, 1000 );
 
-    const shapes = {};
+    const shapes = {
+                         body_sample: new Body(),
+                         leg_sample: new Rounded_Capped_Cylinder(12, 12, 1, 10, [0,1]),
+                         beak_sample: new Rounded_Cone(12, 12, 1, 2, Math.PI, [0,1]),
+                         wing_sample: new Wing()
+                   }
     
     // instantiate geese
     this.geese = {
@@ -64,6 +69,11 @@ class Game_Scene extends Scene_Component {
       }
       h++;
     }
+    
+    //this.shapes.beak_sample.draw(graphics_state, Mat4.rotation(-0.2*(1+Math.sin(5*Math.PI*t)), Vec.of(1,0,0)), this.materials.test);
+    //this.shapes.beak_sample.draw(graphics_state, Mat4.rotation(Math.PI, Vec.of(0,0,1)).times(Mat4.rotation(-0.2*(1+Math.sin(5*Math.PI*t)), Vec.of(1,0,0))), this.materials.test);
+    
+    //this.shapes.wing_sample.draw( graphics_state, Mat4.identity(), this.materials.test );
 
   }
 }
