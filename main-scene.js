@@ -48,9 +48,6 @@ class Game_Scene extends Scene_Component {
 
       // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
       this.lights = [ new Light( Vec.of( 0,0,5,1 ), Color.of( 0, 1, 1, 1 ), 1000 ) ];
-
-      this.animate = false;
-      this.framesLeft = 60;
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
@@ -61,15 +58,11 @@ class Game_Scene extends Scene_Component {
     graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
-    console.log("t: " + t + " dt: " + dt);
+    // console.log("t: " + t + " dt: " + dt);
     let h = 0;
     for (let g in this.geese) {
-      if (this.animate) {
-        this.framesLeft = this.geese[g].flap(this.framesLeft);
-        if (this.framesLeft == 0) {
-          this.animate = false;
-          this.framesLeft = 60;
-        }
+      if(this.geese[g].state.animating) {
+        this.geese[g].moveOneCell();
       }
       for (let shape in this.geese[g].shapes) {
         this.shapes[shape].draw(graphics_state, Mat4.translation([h, 0, h]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);

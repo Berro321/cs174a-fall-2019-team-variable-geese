@@ -14,6 +14,11 @@ class Goose {
             goose_id: goose_id,
         };
 
+        this.state = {
+            animating: true,
+            frameNumber: 0,
+        };
+
         let shape_names = [
             "head",
             "left_eye",
@@ -92,6 +97,20 @@ class Goose {
             this.colors[shape_names[i] + '_' + this.constructor.name + goose_id] = shape_colors[i];
         }
         
+    }
+
+    moveOneCell = () => {
+        console.log(this.state.frameNumber)
+        if (this.state.frameNumber == 0)
+            this.state.frameNumber = 100;
+
+        for (let shape in this.transforms) {
+            this.transforms[shape] = Mat4.translation([-0.1,0,0]).times(this.transforms[shape]);
+        }
+
+        this.state.frameNumber--;
+        if (this.state.frameNumber == 0)
+            this.state.animating = false;
     }
 
     flap = (framesLeft) => {
