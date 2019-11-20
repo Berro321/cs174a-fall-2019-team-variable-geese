@@ -19,7 +19,8 @@ class Game_Scene extends Scene_Component {
                          wing_sample: new Wing(),
                          head_sample: new Subdivision_Sphere( 3 ),
                          neck_sample: new Rounded_Capped_Cylinder(12, 12, .6, 4, [0,1]),
-                         eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1])
+                         eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
+                         foot_sample: new Foot()
                    }
     
     // instantiate geese
@@ -96,6 +97,9 @@ class Game_Scene extends Scene_Component {
 
     this.shapes.leg_sample.draw( graphics_state, Mat4.translation([ -4, -6.75, .75]).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), this.materials.orange );
     this.shapes.leg_sample.draw( graphics_state, Mat4.translation([ -4, -6.75, -.75]).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), this.materials.orange );
+
+    this.shapes.foot_sample.draw( graphics_state, Mat4.translation([ -4.25, -9.25, .75]), this.materials.orange );
+    this.shapes.foot_sample.draw( graphics_state, Mat4.translation([ -4.25, -9.25, -.75]), this.materials.orange );
   }
 }
 
