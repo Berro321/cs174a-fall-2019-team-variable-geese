@@ -50,7 +50,7 @@ class Game_Scene extends Scene_Component {
       this.lights = [ new Light( Vec.of( 0,0,5,1 ), Color.of( 0, 1, 1, 1 ), 1000 ) ];
 
       this.animate = false;
-      this.framesLeft = 180;
+      this.framesLeft = 60;
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
@@ -68,7 +68,7 @@ class Game_Scene extends Scene_Component {
         this.framesLeft = this.geese[g].flap(this.framesLeft);
         if (this.framesLeft == 0) {
           this.animate = false;
-          this.framesLeft = 180;
+          this.framesLeft = 60;
         }
       }
       for (let shape in this.geese[g].shapes) {
