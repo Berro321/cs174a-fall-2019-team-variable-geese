@@ -21,6 +21,7 @@ class Game_Scene extends Scene_Component {
                          neck_sample: new Rounded_Capped_Cylinder(12, 12, .6, 4, [0,1]),
                          eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
                          foot_sample: new Foot(),
+                         eyebrow_sample: new Cube(),
                          arena: new Square()
                    }
     
@@ -43,8 +44,8 @@ class Game_Scene extends Scene_Component {
     this.materials =
       { white:     context.get_instance( Phong_Shader ).material( Color.of( 1,1,1,1 ), { ambient:.5 } ),
         black:     context.get_instance( Phong_Shader ).material( Color.of( 0,0,0,1 ), { ambient:.5 } ),
-        orange:     context.get_instance( Phong_Shader ).material( Color.of( 1,.7,.4,1 ), { ambient:.5 } ),
-        green: context.get_instance( Phong_Shader ).material( Color.of(0.2,0.5,0.2, 1), {ambient: 0.5} ),
+        orange:    context.get_instance( Phong_Shader ).material( Color.of( 1,.7,.4,1 ), { ambient:.5 } ),
+        green:     context.get_instance( Phong_Shader ).material( Color.of(.2,.5,.2,1 ), {ambient: 0.5} ),
 
       }
 
@@ -72,7 +73,8 @@ class Game_Scene extends Scene_Component {
       }
     }
     // Draw arena
-    this.shapes.arena.draw(graphics_state, this.arena_transform, this.materials.green);
+    this.shapes.arena.draw(graphics_state, Mat4.translation([ 0, -9.25, 0]).times(this.arena_transform), this.materials.green);
+    
   }
 }
 
