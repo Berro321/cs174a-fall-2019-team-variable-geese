@@ -20,7 +20,7 @@ class Game_Scene extends Scene_Component {
                          head_sample: new Subdivision_Sphere( 3 ),
                          neck_sample: new Rounded_Capped_Cylinder(12, 12, .6, 4, [0,1]),
                          eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
-                         foot_sample: new Foot()
+                         foot_sample: new Foot(),
                    }
     
     // instantiate geese
@@ -46,60 +46,38 @@ class Game_Scene extends Scene_Component {
 
       }
 
-      this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
+      // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
+      this.lights = [ new Light( Vec.of( 0,0,5,1 ), Color.of( 0, 1, 1, 1 ), 1000 ) ];
+
+      this.animate = false;
+      this.framesLeft = 180;
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
-
+    this.key_triggered_button("Flap em", ["q"], () => this.animate = !this.animate);
   }
 
   display( graphics_state ) { 
     graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
-    /*
+    console.log("t: " + t + " dt: " + dt);
     let h = 0;
     for (let g in this.geese) {
-      let i = 0;
-      this.geese[g].animateMove(t%10);
-      for (let shape in this.geese[g].shapes) {
-        if (h == 0)
-          this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape].times(Mat4.translation([i, 0, 0])), this.materials.test);
-        if (h == 1)
-          this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape].times(Mat4.translation([0, i, 0])), this.materials.test);
-        if (h == 2)
-          this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape].times(Mat4.translation([0, 0, i])), this.materials.test);
-          i++;
+      if (this.animate) {
+        this.framesLeft = this.geese[g].flap(this.framesLeft);
+        if (this.framesLeft == 0) {
+          this.animate = false;
+          this.framesLeft = 180;
+        }
       }
-      h++;
+      for (let shape in this.geese[g].shapes) {
+        this.shapes[shape].draw(graphics_state, Mat4.translation([h, 0, h]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
+      }
+
+      h += 10;
     }
-    */
-    
 
-    /* For Beak Motion */
-    //this.shapes.beak_sample.draw(graphics_state, Mat4.rotation(-0.2*(1+Math.sin(5*Math.PI*t)), Vec.of(1,0,0)), this.materials.test);
-    //this.shapes.beak_sample.draw(graphics_state, Mat4.rotation(Math.PI, Vec.of(0,0,1)).times(Mat4.rotation(-0.2*(1+Math.sin(5*Math.PI*t)), Vec.of(1,0,0))), this.materials.test);
-    
-    this.shapes.head_sample.draw( graphics_state, Mat4.identity(), this.materials.white );
-
-    this.shapes.eye_sample.draw( graphics_state, Mat4.rotation(-Math.PI/3, Vec.of(0,1,0)).times(Mat4.rotation( Math.PI/6, Vec.of(1,0,0)).times(Mat4.translation([ 0, 0,-1]))), this.materials.black );
-    this.shapes.eye_sample.draw( graphics_state, Mat4.rotation( Math.PI/3, Vec.of(0,1,0)).times(Mat4.rotation(-Math.PI/6, Vec.of(1,0,0)).times(Mat4.translation([ 0, 0, 1]))), this.materials.black );
-
-    this.shapes.beak_sample.draw( graphics_state, Mat4.translation([ 0, -0.1, 0]).times(Mat4.scale([ 0.9, 0.7, 0.9])).times(Mat4.rotation( Math.PI/2, Vec.of(0,1,0))), this.materials.orange );
-    this.shapes.beak_sample.draw( graphics_state, Mat4.translation([ 0, -0.1, 0]).times(Mat4.scale([ 0.9, 0.7, 0.9])).times(Mat4.rotation( Math.PI, Vec.of(1,0,0))).times(Mat4.rotation( Math.PI/2, Vec.of(0,1,0))), this.materials.orange );
-    
-    this.shapes.neck_sample.draw( graphics_state, Mat4.translation([ -0.4, 0, 0]).times(Mat4.rotation( Math.PI/2, Vec.of(1,0,0))), this.materials.white );
-
-    this.shapes.body_sample.draw( graphics_state, Mat4.translation([ -6, -7.5, 1]), this.materials.white );
-
-    this.shapes.wing_sample.draw( graphics_state, Mat4.translation([ -7, -7.5, 0]).times(Mat4.translation([ 0, 0, 1])).times(Mat4.scale([ 1.2, 1.2, 1.2])), this.materials.white );
-    this.shapes.wing_sample.draw( graphics_state, Mat4.translation([ -7, -7.5, 0]).times(Mat4.scale([ 1, 1,-1])).times(Mat4.translation([ 0, 0, 1])).times(Mat4.scale([ 1.2, 1.2, 1.2])), this.materials.white );
-
-    this.shapes.leg_sample.draw( graphics_state, Mat4.translation([ -4, -6.75, .75]).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), this.materials.orange );
-    this.shapes.leg_sample.draw( graphics_state, Mat4.translation([ -4, -6.75, -.75]).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), this.materials.orange );
-
-    this.shapes.foot_sample.draw( graphics_state, Mat4.translation([ -4.25, -9.25, .75]), this.materials.orange );
-    this.shapes.foot_sample.draw( graphics_state, Mat4.translation([ -4.25, -9.25, -.75]), this.materials.orange );
   }
 }
 
