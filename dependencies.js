@@ -468,7 +468,7 @@ class Movement_Controls extends Scene_Component    // Movement_Controls is a Sce
       context.globals.movement_controls_invert = this.will_invert = () => true;
       context.globals.has_controls = true;
 
-      [ this.radians_per_frame, this.meters_per_frame, this.speed_multiplier ] = [ 1/200, 10, 1 ];
+      [ this.radians_per_frame, this.meters_per_frame, this.speed_multiplier ] = [ 1/200, 40, 1 ];
       
       // *** Mouse controls: ***
       this.mouse = { "from_center": Vec.of( 0,0 ) };                           // Measure mouse steering, for rotating the flyaround camera:

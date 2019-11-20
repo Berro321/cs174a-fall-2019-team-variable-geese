@@ -98,6 +98,21 @@ function calculate_click_ray(event, camera_transform, projection_matrix, canvas,
   return {origin: eye_loc, direction: ray_world.normalized()};
 }
 
+// Takes in the camera matrix and repositions it some distance from the value
+// in a smoothed out way. Camera will look down the -x axis.
+// Returns an object with the new camera transform, and a boolean to indicate
+// if the animation is done.
+// This function is generally called until it finished and moves on to the battle
+// scene.
+function move_camera_matrix_to_pos(camera_transform, target_location, frame, max_frames)
+{
+  const target_local_transform =
+    Mat4.translation([target_location[0], target_location[1], target_location[2]] ).times(Mat4.rotation(Math.PI/2, Vec.of(0,1,0)));
+  let target_transform = Mat4.inverse(target_local_transform);
+  target_transform = target_transform.map( (x, i) => Vec.from(camera_transform[i] ).mix(x, frame / max_frames));
+  return target_transform;
+}
+
 // Find the world position of the model transform matrix.
 function calculate_world_position(model_transform)
 {
@@ -111,4 +126,82 @@ function calculate_world_position(model_transform)
     world_pos = world_pos.plus(tmp); 
   }
   return world_pos;
+}
+
+// These are functions that are used for camera animations, zoom in and out
+// and also keep state
+class Camera_Animations_Manager {
+  constructor() {
+    this.original_camera_transform = undefined;
+    this.battle_camera_transform = undefined;
+    this.frame = 0.0;
+    this.zoom_in_max_frames = 60;
+    this.zoom_out_max_frames = 60;
+    this.animating = true;
+    this.animation_type = 0;
+  }
+
+  // 1 = zoom in
+  // 2 = zoom out
+  change_animation(animation_type, original_camera_transform = undefined, battle_camera_transform = undefined ) {
+    this.animation_type = animation_type;
+  }
+
+  play_animation() {
+    if (this.animation_type == 1) {
+      return this.play_zoom_in();
+    } else if (this.animation_type == 2) {
+      return this.play_zoom_out();
+    }
+  }
+
+  // Sets the battle camera transform to look at the certain location from
+  // a certain distance, looking towards the camera_look_vector direction
+  // (assume normalized) and on xz plane
+  set_battle_camera_location(target_location, camera_look_vector) {
+    const angle = Math.acos(Vec.of(0,0,1).dot(camera_look_vector));
+    let result = Mat4.translation([target_location[0], target_location[1], target_location[2]] ).times(Mat4.rotation(angle, Vec.of(0,1,0)));
+    this.battle_camera_transform = Mat4.inverse(result);
+  }
+
+  // Plays the camera zoom in animation until it is done. returns the current matrix
+  // when it is done. May also return true if it is in an incorrect state.
+  // original_camera_transform must be set.
+  // battle_camera_transform must be set.
+  // When it finishes, it keeps the original camera location
+  play_zoom_in() {
+    if (this.original_camera_transform && this.battle_camera_transform) {
+      this.animating = true;
+      this.frame += 1.0;
+      if (this.frame > this.zoom_in_max_frames) {
+        this.frame = 0.0;
+        let result = this.battle_camera_transform;
+        this.battle_camera_transform = undefined;
+        this.animating = false; 
+        this.animation_type = 0;
+        return result;
+      }
+      return this.battle_camera_transform.map( (x, i) => Vec.from(this.original_camera_transform[i] ).mix(x, this.frame / this.zoom_in_max_frames));
+    }
+  }
+
+  // Plays the camera zoom out animation until it is done. Returns the current
+  // camera matrix this frame. When it finishes, it sets this.animating to false.
+  play_zoom_out() {
+    if (this.original_camera_transform && this.battle_camera_transform) {
+      this.animating = true;
+      this.frame += 1.0;
+      if (this.frame > this.zoom_out_max_frames) {
+        this.frame = 0.0;
+        let result = this.original_camera_transform;
+        this.original_camera_transform = undefined;
+        this.battle_camera_transform = undefined;
+        this.animating = false;
+        this.animation_type = 0;
+        return result;
+      }
+      return this.original_camera_transform.map( (x, i) => Vec.from(this.battle_camera_transform[i] ).mix(x, this.frame / this.zoom_out_max_frames));
+    }
+  }
+
 }

@@ -6,7 +6,7 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,20,20 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,90,90 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
 
     const r = context.width/context.height;
@@ -21,7 +21,7 @@ class Game_Scene extends Scene_Component {
                          neck_sample: new Rounded_Capped_Cylinder(12, 12, .6, 4, [0,1]),
                          eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
                          foot_sample: new Foot(),
-                         arena: new Square()
+                         arena: new Square(),
                    }
     
     // instantiate geese
@@ -51,10 +51,22 @@ class Game_Scene extends Scene_Component {
       // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
       this.lights = [ new Light( Vec.of( 0,0,5,1 ), Color.of( 0, 1, 1, 1 ), 1000 ) ];
       this.arena_transform = Mat4.scale([30,1,30]).times(Mat4.rotation(Math.PI / 2, Vec.of(1,0,0)));
+      
+      // This setup trigger to activate camera zoom in whenever in the game.
+      // TODO: Remove the trigger once the battle system is setup.
+      this.setup_trigger = 0;
+      this.camera_animation_manager = new Camera_Animations_Manager();
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
     this.key_triggered_button("Flap em", ["q"], () => this.animate = !this.animate);
+    this.key_triggered_button("Camera and action!", ["2"], () => this.setup_trigger = 1);
+    this.key_triggered_button("Reverse camera to original pos", ["1"], () => this.setup_trigger = 2);
+  }
+
+  // 1 = zoom in
+  // 2 = zoom out
+  setup_camera_animation(animation_type, graphics_state) {
   }
 
   display( graphics_state ) { 
@@ -72,6 +84,20 @@ class Game_Scene extends Scene_Component {
       }
 
       h += 10;
+    }
+    if (this.setup_trigger == 1) {
+      this.camera_animation_manager.change_animation(1);
+      // Setup necessary parameters
+      this.camera_animation_manager.original_camera_transform = graphics_state.camera_transform;
+      this.camera_animation_manager.set_battle_camera_location(Vec.of(0,5,0), Vec.of(-1,0,0));
+      this.setup_trigger = 0;
+    } else if (this.setup_trigger == 2) {
+      this.camera_animation_manager.change_animation(2);
+      this.camera_animation_manager.battle_camera_transform = graphics_state.camera_transform;
+      this.setup_trigger = 0;
+    }
+    if (this.camera_animation_manager.animation_type != 0) {
+      graphics_state.camera_transform = this.camera_animation_manager.play_animation();
     }
     // Draw arena
     this.shapes.arena.draw(graphics_state, this.arena_transform, this.materials.green);
