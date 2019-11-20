@@ -15,7 +15,7 @@ class Goose {
         };
 
         this.state = {
-            animating: true,
+            animating: false,
             frameNumber: 0,
         };
 
@@ -99,43 +99,45 @@ class Goose {
         
     }
 
-    moveOneCell = () => {
-        console.log(this.state.frameNumber)
+    flap = () => {
+        let t_frames = 100;
         if (this.state.frameNumber == 0)
-            this.state.frameNumber = 100;
+            this.state.frameNumber = t_frames;
 
-        for (let shape in this.transforms) {
-            this.transforms[shape] = Mat4.translation([-0.1,0,0]).times(this.transforms[shape]);
+        let left_wing = 'left_wing' + '_' + this.constructor.name + this.stats.goose_id;
+        let right_wing = 'right_wing' + '_' + this.constructor.name + this.stats.goose_id;
+        if (this.state.frameNumber > t_frames/2) {
+            let adjustment = 0.1 * (100 - this.state.frameNumber);
+            this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
+                .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
+                .times(this.transforms[left_wing]);
+            this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
+                .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5 - adjustment,1]))
+                .times(this.transforms[right_wing]);
+            for (let shape in this.transforms) {
+                this.transforms[shape] = Mat4.translation([0.1,0.1,0]).times(this.transforms[shape]);
+            }
+        }
+        else {
+            let adjustment = 0.1 * this.state.frameNumber;
+            this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
+                .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
+                .times(this.transforms[left_wing]);
+            this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
+                .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5 - adjustment,1]))
+                .times(this.transforms[right_wing]);
+            for (let shape in this.transforms) {
+                this.transforms[shape] = Mat4.translation([0.1,-0.1,0]).times(this.transforms[shape]);
+            }
         }
 
         this.state.frameNumber--;
         if (this.state.frameNumber == 0)
             this.state.animating = false;
-    }
-
-    flap = (framesLeft) => {
-        if (framesLeft > 30) {
-            this.transforms['left_wing' + '_' + this.constructor.name + this.stats.goose_id] = Mat4.translation([ -7,-4.5,1])
-                .times(Mat4.rotation(-Math.PI / 60, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5,-1]))
-                .times(this.transforms['left_wing' + '_' + this.constructor.name + this.stats.goose_id]);
-            this.transforms['right_wing' + '_' + this.constructor.name + this.stats.goose_id] = Mat4.translation([ -7,-4.5,-1])
-                .times(Mat4.rotation(Math.PI / 60, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5,1]))
-                .times(this.transforms['right_wing' + '_' + this.constructor.name + this.stats.goose_id]);
-        }
-        else {
-            this.transforms['left_wing' + '_' + this.constructor.name + this.stats.goose_id] = Mat4.translation([ -7,-4.5,1])
-                .times(Mat4.rotation(Math.PI / 60, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5,-1]))
-                .times(this.transforms['left_wing' + '_' + this.constructor.name + this.stats.goose_id]);
-            this.transforms['right_wing' + '_' + this.constructor.name + this.stats.goose_id] = Mat4.translation([ -7,-4.5,-1])
-                .times(Mat4.rotation(-Math.PI / 60, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5,1]))
-                .times(this.transforms['right_wing' + '_' + this.constructor.name + this.stats.goose_id]);
-        }
-        
-        return framesLeft-1;
     }
 }
 

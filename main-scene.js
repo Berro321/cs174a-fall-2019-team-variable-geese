@@ -54,7 +54,7 @@ class Game_Scene extends Scene_Component {
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
-    this.key_triggered_button("Flap em", ["q"], () => this.animate = !this.animate);
+    this.key_triggered_button("Flap em", ["q"], () => this.geese['g1'].state.animating = !this.geese['g1'].state.animating);
   }
 
   display( graphics_state ) { 
@@ -62,16 +62,14 @@ class Game_Scene extends Scene_Component {
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
     // console.log("t: " + t + " dt: " + dt);
-    let h = 0;
+    // this.geese['g1'].state.animating = true;
     for (let g in this.geese) {
       if(this.geese[g].state.animating) {
-        this.geese[g].moveOneCell();
+        this.geese[g].flap();
       }
       for (let shape in this.geese[g].shapes) {
-        this.shapes[shape].draw(graphics_state, Mat4.translation([h, 9.5, h]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
+        this.shapes[shape].draw(graphics_state, Mat4.rotation(-Math.PI / 2, Vec.of(0,1,0)).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
       }
-
-      h += 10;
     }
     // Draw arena
     this.shapes.arena.draw(graphics_state, this.arena_transform, this.materials.green);
