@@ -21,7 +21,8 @@ class Game_Scene extends Scene_Component {
                          neck_sample: new Rounded_Capped_Cylinder(12, 12, .6, 4, [0,1]),
                          eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
                          foot_sample: new Foot(),
-                         arena: new Square(),
+                         eyebrow_sample: new Cube(),
+                         arena: new Square()
                    }
     
     // instantiate geese
@@ -43,8 +44,8 @@ class Game_Scene extends Scene_Component {
     this.materials =
       { white:     context.get_instance( Phong_Shader ).material( Color.of( 1,1,1,1 ), { ambient:.5 } ),
         black:     context.get_instance( Phong_Shader ).material( Color.of( 0,0,0,1 ), { ambient:.5 } ),
-        orange:     context.get_instance( Phong_Shader ).material( Color.of( 1,.7,.4,1 ), { ambient:.5 } ),
-        green: context.get_instance( Phong_Shader ).material( Color.of(0.2,0.5,0.2, 1), {ambient: 0.5} ),
+        orange:    context.get_instance( Phong_Shader ).material( Color.of( 1,.7,.4,1 ), { ambient:.5 } ),
+        green:     context.get_instance( Phong_Shader ).material( Color.of(.2,.5,.2,1 ), {ambient: 0.5} ),
 
       }
 
@@ -59,14 +60,9 @@ class Game_Scene extends Scene_Component {
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
-    this.key_triggered_button("Flap em", ["q"], () => this.animate = !this.animate);
+    this.key_triggered_button("Flap em", ["q"], () => this.geese['g1'].state.animating = !this.geese['g1'].state.animating);
     this.key_triggered_button("Camera and action!", ["2"], () => this.setup_trigger = 1);
     this.key_triggered_button("Reverse camera to original pos", ["1"], () => this.setup_trigger = 2);
-  }
-
-  // 1 = zoom in
-  // 2 = zoom out
-  setup_camera_animation(animation_type, graphics_state) {
   }
 
   display( graphics_state ) { 
@@ -74,22 +70,20 @@ class Game_Scene extends Scene_Component {
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
     // console.log("t: " + t + " dt: " + dt);
-    let h = 0;
+    // this.geese['g1'].state.animating = true;
     for (let g in this.geese) {
       if(this.geese[g].state.animating) {
-        this.geese[g].moveOneCell();
+        this.geese[g].flap();
       }
       for (let shape in this.geese[g].shapes) {
-        this.shapes[shape].draw(graphics_state, Mat4.translation([h, 9.5, h]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
+        this.shapes[shape].draw(graphics_state, Mat4.rotation(-Math.PI / 2, Vec.of(0,1,0)).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
       }
-
-      h += 10;
     }
     if (this.setup_trigger == 1) {
       this.camera_animation_manager.change_animation(1);
       // Setup necessary parameters
       this.camera_animation_manager.original_camera_transform = graphics_state.camera_transform;
-      this.camera_animation_manager.set_battle_camera_location(Vec.of(0,5,0), Vec.of(-1,0,0));
+      this.camera_animation_manager.set_battle_camera_location(Vec.of(0,-5,0), Vec.of(-1,0,0));
       this.setup_trigger = 0;
     } else if (this.setup_trigger == 2) {
       this.camera_animation_manager.change_animation(2);
@@ -100,7 +94,8 @@ class Game_Scene extends Scene_Component {
       graphics_state.camera_transform = this.camera_animation_manager.play_animation();
     }
     // Draw arena
-    this.shapes.arena.draw(graphics_state, this.arena_transform, this.materials.green);
+    this.shapes.arena.draw(graphics_state, Mat4.translation([ 0, -9.25, 0]).times(this.arena_transform), this.materials.green);
+    
   }
 }
 
