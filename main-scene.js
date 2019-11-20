@@ -6,7 +6,7 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,10,20 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,20,20 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
 
     const r = context.width/context.height;
@@ -21,6 +21,7 @@ class Game_Scene extends Scene_Component {
                          neck_sample: new Rounded_Capped_Cylinder(12, 12, .6, 4, [0,1]),
                          eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
                          foot_sample: new Foot(),
+                         arena: new Square()
                    }
     
     // instantiate geese
@@ -43,11 +44,13 @@ class Game_Scene extends Scene_Component {
       { white:     context.get_instance( Phong_Shader ).material( Color.of( 1,1,1,1 ), { ambient:.5 } ),
         black:     context.get_instance( Phong_Shader ).material( Color.of( 0,0,0,1 ), { ambient:.5 } ),
         orange:     context.get_instance( Phong_Shader ).material( Color.of( 1,.7,.4,1 ), { ambient:.5 } ),
+        green: context.get_instance( Phong_Shader ).material( Color.of(0.2,0.5,0.2, 1), {ambient: 0.5} ),
 
       }
 
       // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
       this.lights = [ new Light( Vec.of( 0,0,5,1 ), Color.of( 0, 1, 1, 1 ), 1000 ) ];
+      this.arena_transform = Mat4.scale([30,1,30]).times(Mat4.rotation(Math.PI / 2, Vec.of(1,0,0)));
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
@@ -65,12 +68,13 @@ class Game_Scene extends Scene_Component {
         this.geese[g].moveOneCell();
       }
       for (let shape in this.geese[g].shapes) {
-        this.shapes[shape].draw(graphics_state, Mat4.translation([h, 0, h]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
+        this.shapes[shape].draw(graphics_state, Mat4.translation([h, 9.5, h]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
       }
 
       h += 10;
     }
-
+    // Draw arena
+    this.shapes.arena.draw(graphics_state, this.arena_transform, this.materials.green);
   }
 }
 
