@@ -106,6 +106,30 @@ class Goose {
         }
         
     }
+    
+    spin_neck = () => {
+        let t_frames = 100;
+        if (this.state.frameNumber == 0)
+            this.state.frameNumber = t_frames;
+
+        let neck_down_transform = Mat4.translation([ -0.4, -4, 0]) // move neck independently
+            .times(Mat4.rotation(-Math.PI / t_frames / 2, Vec.of(0,0,1)))
+            .times(Mat4.translation([0.4,4,0]));
+
+        let body_down_transform = Mat4.translation([-4,-6.75, 0]) // move neck with body
+            .times(Mat4.rotation(-Math.PI / t_frames / 3, Vec.of(0,0,1)))
+            .times(Mat4.translation([4,6.75,0]));
+
+        let neck = 'neck' + '_' + this.constructor.name + this.stats.goose_id;
+
+        this.transforms[neck] = neck_down_transform.times(body_down_transform)
+            .times(this.transforms[neck]);
+
+
+        this.state.frameNumber--;
+        if (this.state.frameNumber == 0)
+            this.state.animating = false;
+    }
 
     flap = () => {
         let t_frames = 100;

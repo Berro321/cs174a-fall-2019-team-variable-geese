@@ -6,7 +6,7 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,90,90 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,5,10 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
 
     const r = context.width/context.height;
@@ -27,7 +27,7 @@ class Game_Scene extends Scene_Component {
     
     // instantiate geese
     this.geese = {
-      g1: new Goose(1),
+      g1: new Honk(1),
       // g2: new Goose(2),
       // g3: new Goose(3),
     }
@@ -70,20 +70,22 @@ class Game_Scene extends Scene_Component {
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
     // console.log("t: " + t + " dt: " + dt);
-    // this.geese['g1'].state.animating = true;
+    this.geese['g1'].state.animating = true;
     for (let g in this.geese) {
       if(this.geese[g].state.animating) {
-        this.geese[g].flap();
+        this.geese[g].attack();
       }
       for (let shape in this.geese[g].shapes) {
-        this.shapes[shape].draw(graphics_state, Mat4.rotation(-Math.PI / 2, Vec.of(0,1,0)).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
+        // this.shapes[shape].draw(graphics_state, Mat4.rotation(-Math.PI / 2, Vec.of(0,1,0)).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
+        this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape], this.materials[this.geese[g].colors[shape]]);
+
       }
     }
     if (this.setup_trigger == 1) {
       this.camera_animation_manager.change_animation(1);
       // Setup necessary parameters
       this.camera_animation_manager.original_camera_transform = graphics_state.camera_transform;
-      this.camera_animation_manager.set_battle_camera_location(Vec.of(0,-5,0), Vec.of(-1,0,0));
+      this.camera_animation_manager.set_battle_camera_location(Vec.of(10,-5,0), Vec.of(-1,0,0));
       this.setup_trigger = 0;
     } else if (this.setup_trigger == 2) {
       this.camera_animation_manager.change_animation(2);
