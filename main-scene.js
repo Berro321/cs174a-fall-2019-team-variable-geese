@@ -6,12 +6,15 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,5,10 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,0,10 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
+    // Add a canvas listener for picking
+    this.click_ray = undefined;
+    context.canvas.addEventListener( "mousedown", e => { e.preventDefault();
+       this.click_ray = calculate_click_ray_2(e, context.globals.graphics_state.camera_transform, context.globals.graphics_state.projection_transform, context.canvas); } );
 
     const r = context.width/context.height;
     context.globals.graphics_state.projection_transform = Mat4.perspective( Math.PI/4, r, .1, 1000 );
-
     const shapes = {
                          body_sample: new Body(),
                          leg_sample : new Rounded_Capped_Cylinder(12, 12, .2, 2.5, [0,1]),
@@ -22,9 +25,10 @@ class Game_Scene extends Scene_Component {
                          eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
                          foot_sample: new Foot(),
                          eyebrow_sample: new Cube(),
-                         arena: new Square()
+                         arena: new Square(),
+                         menu_quad: new Square(),
+                         text_line: new Text_Line(50),
                    }
-    
     // instantiate geese
     this.geese = {
       g1: new Honk(1),
@@ -40,13 +44,15 @@ class Game_Scene extends Scene_Component {
     }
 
     this.submit_shapes( context, shapes);
-
+    this.context = context.gl;
     this.materials =
       { white:     context.get_instance( Phong_Shader ).material( Color.of( 1,1,1,1 ), { ambient:.5 } ),
         black:     context.get_instance( Phong_Shader ).material( Color.of( 0,0,0,1 ), { ambient:.5 } ),
         orange:    context.get_instance( Phong_Shader ).material( Color.of( 1,.7,.4,1 ), { ambient:.5 } ),
         green:     context.get_instance( Phong_Shader ).material( Color.of(.2,.5,.2,1 ), {ambient: 0.5} ),
-
+        text_image: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,1),
+          {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/text.png", true)}),
+        menu_image: context.get_instance( Phong_Shader ).material( Color.of(1,1,0,1), {ambient: 1, diffusivity: 0, specularity: 0}),  // Material for menu objects
       }
 
       // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
@@ -57,12 +63,20 @@ class Game_Scene extends Scene_Component {
       // TODO: Remove the trigger once the battle system is setup.
       this.setup_trigger = 0;
       this.camera_animation_manager = new Camera_Animations_Manager();
+      let menu_transform_1 =Mat4.translation([0.02,0.02,-0.11]).times(Mat4.scale([0.01, 0.007, 1]));
+      let text_transform_1 = Mat4.translation([-0.5,0,0.001]).times(Mat4.scale([0.15,0.5,1]));
+      let menu_transform_2 = Mat4.translation([0.02,-0.02,-0.11]).times(Mat4.rotation(Math.PI/4,Vec.of(0,0,-1)).times(Mat4.scale([0.01, 0.007, 1])));
+      let text_transform_2 = Mat4.translation([-0.5,0,0.001]).times(Mat4.scale([0.15,0.5,1]));
+      let menu_obj = {menu_transform: menu_transform_1, menu_material: this.materials.menu_image, tag: "menu 1", text: "hello", text_transform: text_transform_1,  clickable: true};
+      let menu_obj2 = {menu_transform: menu_transform_2, menu_material: this.materials.menu_image, tag: "menu 2", text: "honk", text_transform: text_transform_2,  clickable: true};
+      this.menu_manager = new Menu_Manager([menu_obj, menu_obj2], this.shapes.menu_quad, this.shapes.text_line, this.materials.text_image);
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
     this.key_triggered_button("Flap em", ["q"], () => this.geese['g1'].state.animating = !this.geese['g1'].state.animating);
     this.key_triggered_button("Camera and action!", ["2"], () => this.setup_trigger = 1);
     this.key_triggered_button("Reverse camera to original pos", ["1"], () => this.setup_trigger = 2);
+    this.key_triggered_button("Disable/Enable menus", ["4"], () => this.menu_manager.enabled = !this.menu_manager.enabled);
   }
 
   display( graphics_state ) { 
@@ -95,9 +109,18 @@ class Game_Scene extends Scene_Component {
     if (this.camera_animation_manager.animation_type != 0) {
       graphics_state.camera_transform = this.camera_animation_manager.play_animation();
     }
+    this.menu_manager.update_transforms(graphics_state.camera_transform);
+    // Check collisions
+    if (this.click_ray) {
+      console.log(this.click_ray);
+      console.log(this.menu_manager.check_collisions(this.click_ray));
+      this.click_ray = undefined;
+    }
+
     // Draw arena
     this.shapes.arena.draw(graphics_state, Mat4.translation([ 0, -9.25, 0]).times(this.arena_transform), this.materials.green);
-    
+    // Then draw other stuff (Menu stuff, debugging)
+    this.menu_manager.draw_menus(graphics_state, this.context);
   }
 }
 

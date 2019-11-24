@@ -16,7 +16,7 @@ function check_ray_intersect_AABB(ray, aabb, model_transform, intersect_point )
 {
   // Move the ray to the object coordinates to easily test intersection
   let inverse_matrix = Mat4.inverse(model_transform);
-  let inverse_matrix_vec = inverse_matrix.transposed();
+  let inverse_matrix_vec = model_transform.transposed();
   let ray_origin = inverse_matrix.times(ray.origin.to4(1)).to3();
   let ray_direction = inverse_matrix_vec.times(ray.direction.to4(0)).to3();
   ray_direction.normalize();
@@ -80,22 +80,109 @@ function check_ray_intersect_AABB(ray, aabb, model_transform, intersect_point )
   return false;
 }
 
+// plane: {mid_point: Vec3 (in obj space), normal: Vec3 d: [dx, dy]}
+// returns true if hit
+function check_ray_intersect_plane(ray, plane, model_transform, intersect_point)
+{
+  let inverse_matrix = Mat4.inverse(model_transform);
+  let inverse_matrix_vec = inverse_matrix.transposed();
+  let ray_origin = inverse_matrix.times(ray.origin.to4(1.0)).to3();
+  let ray_direction = inverse_matrix_vec.times(ray.direction.to4(0.0)).to3().normalized();
+  // let scale_factors = calculate_scale_factor(model_transform);
+  // let plane_d = Vec.of(plane.d[0] * scale_factors[0], plane.d[1] * scale_factors[1]);
+  // If the ray is perpendicular to the plane, then there is no intersection
+  if (Math.abs(ray_direction.dot(plane.normal)) < Number.EPSILON) return false;
+  // ray plane intersection
+  let t =
+    plane.mid_point.minus(ray_origin).dot(plane.normal) / ray_direction.dot(plane.normal);
+  let int_p = ray_direction.times(t).plus(ray_origin);
+  if (int_p[0] < plane.mid_point[0] + plane.d[0] &&
+      int_p[0] > plane.mid_point[0] - plane.d[0] &&
+      int_p[1] < plane.mid_point[1] + plane.d[1] &&
+      int_p[1] > plane.mid_point[1] - plane.d[1]) {
+    intersect_point.point = ray_direction.times(t).plus(ray_origin);
+    intersect_point.point = model_transform.times(intersect_point.point.to4(1)).to3();
+    return true;
+  }
+  return false;
+}
+
+// Assumes all of the menu items came from a 2x2 square
+function check_mouse_click_menu_item(event, camera_transform, projection_matrix, menu_transform, canvas)
+{
+  const mouse_position = ( e, rect = canvas.getBoundingClientRect() ) => 
+    Vec.of( 2 * e.clientX / (rect.right - rect.left) - 1, 1 - 2 * e.clientY / (rect.bottom - rect.top) );
+  let to_clip_from_world = projection_matrix * camera_transform;
+  let x_max = to_clip_from_world.times(Mat4.translation([1,0,0])),
+      x_min = to_clip_from_world.times(Mat4.translation([-1,0,0])),
+      y_max = to_clip_from_world.times(Mat4.translation([0,1,0])),
+      y_min = to_clip_from_world.times(Mat4.translation([0,-1,0]));
+   return false;
+}
+
+// plane -> {mid_point: Vec3, normal: Vec3, dx: Vec3, dy: Vec3 }, these are in model coordinates
+function check_ray_intersect_plane_2(ray, plane, model_transform, intersect_point)
+{
+  let plane_normal = model_transform.times(plane.normal.to4(0)).to3();
+  let dx = model_transform.times(plane.dx.to4(0.0)).to3();
+  let dy = model_transform.times(plane.dy.to4(0.0)).to3();
+  let plane_point = model_transform.times(plane.mid_point.to4(1.0)).to3();
+  // Calculate the intersection poitn on the plane
+  // If the ray is perpendicular to the plane, then there is no intersection
+  if (Math.abs(ray.direction.dot(plane_normal)) < Number.EPSILON) return false;
+  let t =
+    plane_point.minus(ray.origin).dot(plane_normal) / ray.direction.dot(plane_normal);
+  if (t < 0.0) return false;
+  let intersection = ray.direction.times(t).plus(ray.origin);
+  // Project onto the width and height vector and make sure that it is within the rect.
+  let plane_vector = intersection.minus(plane_point);
+  let width = dx.norm(), height = dy.norm();
+  let proj_vec_to_width = plane_vector.dot(dx) / width;
+  let proj_vec_to_height = plane_vector.dot(dy) / height;
+  // There is only an intersection if the projection lies within the width and height values
+  if (Math.abs(proj_vec_to_height) < height && Math.abs(proj_vec_to_width) < width)
+  {
+    intersect_point.point = intersection;
+    return true;
+  }
+  return false;
+}
+
 // Calculates ray from the camera origin to where in the screen the user has clicked;
 function calculate_click_ray(event, camera_transform, projection_matrix, canvas,) {
   const mouse_position = ( e, rect = canvas.getBoundingClientRect() ) => 
     Vec.of( 2 * e.clientX / (rect.right - rect.left) - 1, 1 - 2 * e.clientY / (rect.bottom - rect.top) ); 
   let mouse_pos = mouse_position(event);
   // Convert from screen to clip coordinates
-  const ray_clip = Vec.of(mouse_pos[0], mouse_pos[1], -0.1, 1);
+  const ray_clip = Vec.of(mouse_pos[0], mouse_pos[1], -1.0, 1.0);
   // Inverse the ray into the eye space.
   let ray_eye = Mat4.inverse(projection_matrix).times(ray_clip);
   // Treat it as a vector now
-  ray_eye = Vec.of(ray_eye[0], ray_eye[1], -1, 0);
+  ray_eye = Vec.of(ray_eye[0], ray_eye[1], -0.1, 0.0);
   // Bring it to world coordinates
   let ray_world = camera_transform.transposed().times(ray_eye).to3();
   // Calculate eye location
   let eye_loc = Mat4.inverse(camera_transform).times(Vec.of(0,0,0,1)).to3(); 
   return {origin: eye_loc, direction: ray_world.normalized()};
+}
+
+// Calculates ray from the position in screen space in terms of world space coordinates, towards that direction.
+// Gotten from: https://stackoverflow.com/questions/20140711/picking-in-3d-with-ray-tracing-using-ninevehgl-or-opengl-i-phone/20143963#20143963
+// Returns a ray object -> {origin: Vec3, direction: Vec3 }
+function calculate_click_ray_2(event, camera_transform, projection_matrix, canvas) {
+  const mouse_position = ( e, rect = canvas.getBoundingClientRect() ) => 
+    Vec.of( 2 * e.clientX / (rect.right - rect.left) - 1, 1 - 2 * e.clientY / (rect.bottom - rect.top) ); 
+  let mouse_pos = mouse_position(event);
+  // Since it is in NDC, we create to points from the near to far plane (which are mapped from -1 to 1)
+  let near_pos = Vec.of(mouse_pos[0], mouse_pos[1], -1.0, 1.0);
+  let far_pos = Vec.of(mouse_pos[0], mouse_pos[1], 1.0, 1.0);
+  let to_world_from_clip = Mat4.inverse(projection_matrix.times(camera_transform));
+  near_pos = to_world_from_clip.times(near_pos);
+  far_pos = to_world_from_clip.times(far_pos);
+  // Perspective divide since these are points
+  near_pos = near_pos.times(1.0 / near_pos[3]);
+  far_pos = far_pos.times(1.0 / far_pos[3]);
+  return {origin: near_pos.to3(), direction: (far_pos.minus(near_pos)).normalized().to3()};
 }
 
 // Takes in the camera matrix and repositions it some distance from the value
@@ -126,6 +213,14 @@ function calculate_world_position(model_transform)
     world_pos = world_pos.plus(tmp); 
   }
   return world_pos;
+}
+
+function calculate_scale_factor(model_transform) {
+  let scale_factors = Vec.of(1,1,1);
+  for (let i = 0; i < 3; i++) {
+    scale_factors[i] = Vec.of(model_transform[0][i], model_transform[1][i], model_transform[2][i]).norm();
+  }
+  return scale_factors;
 }
 
 // These are functions that are used for camera animations, zoom in and out
@@ -203,5 +298,100 @@ class Camera_Animations_Manager {
       return this.original_camera_transform.map( (x, i) => Vec.from(this.battle_camera_transform[i] ).mix(x, this.frame / this.zoom_out_max_frames));
     }
   }
+}
 
+// Draws menu items with text and handles the user clicking on these items
+// Can be enabled or disabled by modifying .enabled.
+class Menu_Manager
+{
+  // menus is a list of objects in this format:
+  // -> { menu_transform: Mat4, tag: string, menu_material: material, text: string, clickable: boolean}
+  //  menu_transform is the transform of the menu item, tag is the unique name of this menu item (keeping track on the caller's end)
+  //  menu_material -> associated material with menu , clickable -> true if this item can be clicked on
+  //  text -> string containing text on item if needed (undefined otherwise), text_transform -> transform for text;
+  // we will only use one shape for the menu (squares).
+  constructor(menus, menu_shape, text_shape, text_material)
+  {
+    this.enabled = true;  // This is to quickly enable/disable the menus
+    this.menu_shape = menu_shape;
+    this.text_shape = text_shape;
+    this.text_material = text_material;
+    this.menus = {};
+    this.clickable_items = [];
+    for(let item in menus) {
+      this.add_menu(menus[item]);
+    }
+  }
+
+  // all : boolean -> if set to true, clears all menu items
+  // item_tags : array of strings -> if all is false, then clear items with these tags
+  clear_menus(all, item_tags)
+  {
+    if (all)
+    {
+      this.menu_items = [];
+    }
+  }
+
+  // add a menu to be handled
+  // if it fails, returns false
+  add_menu(menu)
+  {
+    this.menus[menu.tag] = {obj_transform: menu.menu_transform, material: menu.menu_material, text: menu.text, text_transform: menu.text_transform, world_transform: undefined};
+    if (menu.clickable)
+    {
+      this.clickable_items.push(menu.tag);
+    }
+    return true;
+  }
+
+  // Update the world transforms of all menu items.
+  // Must be called before check_collisions is called in a frame, and before draw_menus is called
+  update_transforms(camera_transform)
+  {
+    const inverse = Mat4.inverse(camera_transform);
+    for (let item in this.menus)
+    {
+      this.menus[item].world_transform = inverse.times(this.menus[item].obj_transform);
+    }
+  }
+
+  update_menu_transform(tag, menu_transform)
+  {
+    menu.obj_transform = menu_transform;
+  }
+
+  // If there are any items being clicked with this ray, returns a list of tags
+  // otherwise returns an empty list.
+  check_collisions(ray)
+  {
+    if (!this.enabled) return [];
+    let clicked_on_tags = [];
+    // Since we are assuming everything is a square, we can use one collision body for all menu items
+    const plane_collision = {mid_point: Vec.of(0,0,0), normal: Vec.of(0,0,1), dx: Vec.of(1,0,0), dy: Vec.of(0,1,0)};
+    for(let tag_i in this.clickable_items)
+    {
+      let menu = this.menus[this.clickable_items[tag_i]];
+      if (check_ray_intersect_plane_2(ray, plane_collision, menu.world_transform, {point: undefined}))
+      {
+        clicked_on_tags.push(this.clickable_items[tag_i]);
+      }
+    }
+    return clicked_on_tags;
+  }
+
+  draw_menus(graphics_state, context)
+  {
+    if (!this.enabled) return;
+    for(let item_id in this.menus)
+    {
+      let item = this.menus[item_id];
+      this.menu_shape.draw(graphics_state, item.world_transform, item.material);
+      if (item.text)
+      {
+        this.text_shape.set_string(item.text, context);
+        this.text_shape.draw(graphics_state, item.world_transform.times(item.text_transform), this.text_material);
+      }
+    }
+  }
 }
