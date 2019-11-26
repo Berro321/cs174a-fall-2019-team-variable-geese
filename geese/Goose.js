@@ -10,13 +10,19 @@ class Goose {
             health: 50,
             attack: 1,
             defense: 1,
-            range: 1,
+            movement_range: 2,  // These are based on manhattan distance for tiles
+            attack_range: 1,
             goose_id: goose_id,
         };
 
         this.state = {
             animating: false,
             frameNumber: 0,
+        };
+
+        this.tile_position = {
+            x: 0,
+            z: 0,
         };
 
         let shape_names = [

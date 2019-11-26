@@ -223,6 +223,39 @@ function calculate_scale_factor(model_transform) {
   return scale_factors;
 }
 
+// Generates the positions for the tiles for movement and attack
+function generate_action_tiles_locations(goose_stat, current_tile_x, current_tile_z, width, length)
+{
+  let move_range = goose_stat.movement_range;
+  let attack_range = goose_stat.attack_range;
+  let move_positions = [];
+  let attack_positions = [];
+  let total_square = move_range + attack_range;
+  for (let i = -1 * total_square; i <= total_square; i++){
+    for (let j = -1 * total_square; j <= total_square; j++) {
+        if (i == 0 && j == 0) continue;
+        let manhattan_distance = Math.abs(i) + Math.abs(j);
+        if (manhattan_distance <= move_range) {
+          move_positions.push(calculate_world_pos_from_tile(current_tile_x + i, current_tile_z + j, width, length));
+        } else if (manhattan_distance <= total_square) {
+          attack_positions.push(calculate_world_pos_from_tile(current_tile_x + i, current_tile_z + j, width, length));
+        }
+    }
+  }
+  // Generate the maximum attack range tiles
+  return {mv_pos: move_positions, at_pos: attack_positions};
+}
+
+// Calculate the world position of an object originally at position (0,0,0)
+// to the center of the tile denoted by num_tile_x, num_tile_z, with a tile
+// length and width (Note: num_tile_x/z starts from 0 );
+function calculate_world_pos_from_tile(num_tile_x, num_tile_z, width, length)
+{
+  let posx = width * num_tile_x + (width / 2.0);
+  let posz = length * num_tile_z + (length / 2.0);
+  return Vec.of(posx, 0, posz);
+}
+
 // These are functions that are used for camera animations, zoom in and out
 // and also keep state
 class Camera_Animations_Manager {
