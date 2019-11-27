@@ -312,7 +312,6 @@ class Subdivision_Sphere extends Shape  // This Shape defines a Sphere surface, 
     }
 }
 
-
 window.Phong_Shader = window.classes.Phong_Shader =
 class Phong_Shader extends Shader          // THE DEFAULT SHADER: This uses the Phong Reflection Model, with optional Gouraud shading. 
                                            // Wikipedia has good defintions for these concepts.  Subclasses of class Shader each store 
@@ -600,6 +599,46 @@ class Movement_Controls extends Scene_Component    // Movement_Controls is a Sce
       this.pos = inv.times( Vec.of( 0,0,0,1 ) ); this.z_axis = inv.times( Vec.of( 0,0,1,0 ) );      // Log some values.
     }
 }
+
+// Gives a radial blur effect to the texture, used for multi-pass rendering
+// Credit: https://stackoverflow.com/questions/4579020/how-do-i-use-a-glsl-shader-to-apply-a-radial-blur-to-an-entire-scene
+window.Radial_Blur_Shader = window.classes.Radial_Blur_Shader =
+class Radial_Blur_Shader extends Phong_Shader
+{
+  fragment_glsl_code()         // ********* FRAGMENT SHADER ********* 
+    {                          // A fragment is a pixel that's overlapped by the current triangle.
+                               // Fragments affect the final image or get discarded due to depth.                                
+      return `
+        uniform sampler2D texture;
+
+        void main()
+          {        
+            float samples[10];
+            samples[0] = -0.06;
+            samples[1] = -0.05;
+            samples[2] = -0.03;
+            samples[3] = -0.02;
+            samples[4] = -0.01;
+            samples[5] =  0.01;
+            samples[6] =  0.02;
+            samples[7] =  0.03;
+            samples[8] =  0.05;
+            samples[9] =  0.06;                                     // Sample the texture image in the correct place:
+            vec2 dir = 0.5 - f_tex_coord;
+            float dist = sqrt(dir.x * dir.x + dir.y*dir.y);
+            dir = dir / dist;
+            vec4 tex_color = texture2D( texture, f_tex_coord );
+            vec4 sum = tex_color;
+            for (int i = 0; i < 10; i++)
+              sum += texture2D(texture, f_tex_coord + dir * samples[i]);
+            sum *= 1.0/11.0;
+            float t = dist * 2.2;
+            t = clamp(t, 0.0, 1.0);
+            gl_FragColor = mix(tex_color, sum, t);
+          } ` ;
+    }
+}
+
 
 window.Movement_Controls_Arena = window.classes.Movement_Controls_Arena =
 class Movement_Controls_Arena extends Scene_Component    // Movement_Controls is a Scene_Component that can be attached to a canvas, like any 

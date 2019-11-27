@@ -50,6 +50,14 @@ class Arena_Scene extends Scene_Component {
     this.submit_shapes( context, shapes);
     this.context = context.gl;
     this.canvas = context.canvas;
+        // Initialize for multi-pass rendering gotten from the Encyclopedia of Code
+    this.scratchpad = document.createElement('canvas');
+    // A hidden canvas for re-sizing the real canvas:
+    this.scratchpad_context = this.scratchpad.getContext('2d');
+    this.scratchpad.width   = 1024;
+    this.scratchpad.height  = 512;
+    this.fb_texture = new Texture(context.gl, "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", true ); 
+
     this.materials =
       { white:     context.get_instance( Phong_Shader ).material( Color.of( 1,1,1,1 ), { ambient:.5 } ),
         black:     context.get_instance( Phong_Shader ).material( Color.of( 0,0,0,1 ), { ambient:.5 } ),
@@ -61,17 +69,21 @@ class Arena_Scene extends Scene_Component {
         marker_tile: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,0.8), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/marker_tile.png", true)}),
         move_tile: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,0.5), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/move_tile.png", true)}),
         attack_tile: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,0.5), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/attack_tile.png", true)}),
+        radial_blur_material: context.get_instance(Radial_Blur_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
       }
 
-      // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
-      this.lights = [ new Light( Vec.of( 0,0,5,1 ), Color.of( 0, 1, 1, 1 ), 1000 ) ];
-      this.arena_transform = Mat4.scale([100,1,100]).times(Mat4.rotation(Math.PI / 2, Vec.of(1,0,0)));
-      this.marker_tile_def_transform = Mat4.translation([0,0.1,0]).times(Mat4.scale([5,0,5]).times(Mat4.rotation(Math.PI/2, Vec.of(-1,0,0))));
-      this.marker_tile_world_transform = this.marker_tile_def_transform;
+    // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
+    this.lights = [ new Light( Vec.of( 0,0,5,1 ), Color.of( 0, 1, 1, 1 ), 1000 ) ];
+    this.arena_transform = Mat4.scale([100,1,100]).times(Mat4.rotation(Math.PI / 2, Vec.of(1,0,0)));
+    this.marker_tile_def_transform = Mat4.translation([0,0.1,0]).times(Mat4.scale([5,0,5]).times(Mat4.rotation(Math.PI/2, Vec.of(-1,0,0))));
+    this.marker_tile_world_transform = this.marker_tile_def_transform;   
+    this.screen_quad_transform = Mat4.translation([0,0,-0.1]).times(Mat4.scale([0.075,.042,1]));
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
-  }
+  this.result_img = this.control_panel.appendChild( Object.assign( document.createElement( "img" ), 
+  { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) );  
+    }
 
   // Handles intersection with arena and calculates area to place cursor
   handle_mouse_movement(mouse_ray) {
@@ -153,6 +165,19 @@ class Arena_Scene extends Scene_Component {
     this.shapes.arena.draw(graphics_state, Mat4.translation([ 0, 0, 0]).times(this.arena_transform), this.materials.green);
     this.shapes.menu_quad.draw(graphics_state, this.marker_tile_world_transform, this.materials.marker_tile);
 
+    // Multi-pass rendering
+    this.scratchpad_context.drawImage( this.canvas, 0, 0, 1024, 512 );
+    this.result_img.src = this.scratchpad.toDataURL("image/png");
+                                // Don't call copy to GPU until the event loop has had a chance
+                                // to act on our SRC setting once:
+    if( this.skipped_first_frame )
+                                                    // Update the texture with the current scene:
+        this.fb_texture.image.src = this.result_img.src;
+    this.skipped_first_frame = true;
+        // Start over on a new drawing, never displaying the prior one:
+    // this.context.clear( this.context.COLOR_BUFFER_BIT | this.context.DEPTH_BUFFER_BIT);
+    // let final_transform = Mat4.inverse(graphics_state.camera_transform).times(this.screen_quad_transform);
+    // this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
   }
 }
 

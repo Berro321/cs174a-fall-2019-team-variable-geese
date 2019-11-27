@@ -263,8 +263,8 @@ class Camera_Animations_Manager {
     this.original_camera_transform = undefined;
     this.battle_camera_transform = undefined;
     this.frame = 0.0;
-    this.zoom_in_max_frames = 60;
-    this.zoom_out_max_frames = 60;
+    this.zoom_in_max_frames = 30;
+    this.zoom_out_max_frames = 30;
     this.animating = true;
     this.animation_type = 0;
   }

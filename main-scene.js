@@ -6,7 +6,7 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,0,10 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,90,90 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     // Add a canvas listener for picking
     this.click_ray = undefined;
@@ -45,6 +45,16 @@ class Game_Scene extends Scene_Component {
 
     this.submit_shapes( context, shapes);
     this.context = context.gl;
+    this.canvas = context.canvas;
+    // Initialize for multi-pass rendering gotten from the Encyclopedia of Code
+    this.scratchpad = document.createElement('canvas');
+    // A hidden canvas for multi-pass rendering:
+    // Since we can only use powers of 2 for a texture, use the closest canvas resolution
+    this.scratchpad_context = this.scratchpad.getContext('2d');
+    this.scratchpad.width   = 1024;
+    this.scratchpad.height  = 512;
+    // Save the image somewhere temporarily
+    this.fb_texture = new Texture(context.gl, "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", true );
     this.materials =
       { white:     context.get_instance( Phong_Shader ).material( Color.of( 1,1,1,1 ), { ambient:.5 } ),
         black:     context.get_instance( Phong_Shader ).material( Color.of( 0,0,0,1 ), { ambient:.5 } ),
@@ -53,6 +63,7 @@ class Game_Scene extends Scene_Component {
         text_image: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,1),
           {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/text.png", true)}),
         menu_image: context.get_instance( Phong_Shader ).material( Color.of(1,1,0,1), {ambient: 1, diffusivity: 0, specularity: 0}),  // Material for menu objects
+        radial_blur_material: context.get_instance(Radial_Blur_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
       }
 
       // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
@@ -70,6 +81,7 @@ class Game_Scene extends Scene_Component {
       let menu_obj = {menu_transform: menu_transform_1, menu_material: this.materials.menu_image, tag: "menu 1", text: "hello", text_transform: text_transform_1,  clickable: true};
       let menu_obj2 = {menu_transform: menu_transform_2, menu_material: this.materials.menu_image, tag: "menu 2", text: "honk", text_transform: text_transform_2,  clickable: true};
       this.menu_manager = new Menu_Manager([menu_obj, menu_obj2], this.shapes.menu_quad, this.shapes.text_line, this.materials.text_image);
+      this.screen_quad_transform = Mat4.translation([0,0,-0.1]).times(Mat4.scale([0.075,.042,1]));  // Transform for quad that appears in front of camera for multi-pass
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
@@ -95,6 +107,9 @@ class Game_Scene extends Scene_Component {
 
       }
     }
+
+    // If the user clicked the zoom-in/out button, set up the parameters to do
+    // the animation
     if (this.setup_trigger == 1) {
       this.camera_animation_manager.change_animation(1);
       // Setup necessary parameters
@@ -121,6 +136,24 @@ class Game_Scene extends Scene_Component {
     this.shapes.arena.draw(graphics_state, Mat4.translation([ 0, -9.25, 0]).times(this.arena_transform), this.materials.green);
     // Then draw other stuff (Menu stuff, debugging)
     this.menu_manager.draw_menus(graphics_state, this.context);
+
+    if (this.camera_animation_manager.animation_type != 0) {
+      // Multi-pass rendering for radial blur if camera is zooming in/out
+      // Draw image to hidden canvas
+      this.scratchpad_context.drawImage( this.canvas, 0, 0, 1024, 512 );
+      this.result_img = this.scratchpad.toDataURL("image/png");
+                                  // Don't call copy to GPU until the event loop has had a chance
+                                  // to act on our SRC setting once:
+      if( this.skipped_first_frame )
+                                                      // Update the texture with the current scene:
+          this.fb_texture.image.src = this.result_img;
+      this.skipped_first_frame = true;
+      // Start over on a new drawing, never displaying the prior one:
+      this.context.clear( this.context.COLOR_BUFFER_BIT | this.context.DEPTH_BUFFER_BIT);
+      // Draw the quad in front of camera with new texture
+      let final_transform = Mat4.inverse(graphics_state.camera_transform).times(this.screen_quad_transform);
+      this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
+    }
   }
 }
 
