@@ -6,6 +6,7 @@ class Lonk extends Goose {
         super ( goose_id );
 
         let tag = '_' + this.constructor.name + this.stats.goose_id;
+        let neck = 'neck' + tag;
         let head = 'head' + tag;
         let left_eyebrow = 'left_eyebrow' + tag;
         let right_eyebrow = 'right_eyebrow' + tag;

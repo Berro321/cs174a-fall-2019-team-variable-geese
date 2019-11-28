@@ -22,7 +22,7 @@ class Game_Scene extends Scene_Component {
                    }
     // instantiate geese
     this.geese = {
-      g1: new Lonk(1),
+      g1: new Honk(1),
       // g2: new Goose(2),
       // g3: new Goose(3),
     }
