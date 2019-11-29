@@ -19,6 +19,7 @@ class Arena_Scene extends Scene_Component {
 
     const r = context.width/context.height;
     context.globals.graphics_state.projection_transform = Mat4.perspective( Math.PI/4, r, .1, 1000 );
+    this.tile_generator = new Tile_Generator(context);
     const shapes = {
                          body_sample: new Body(),
                          leg_sample : new Rounded_Capped_Cylinder(12, 12, .2, 2.5, [0,1]),
@@ -29,7 +30,7 @@ class Arena_Scene extends Scene_Component {
                          eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
                          foot_sample: new Foot(),
                          eyebrow_sample: new Cube(),
-                         arena: new Square(),
+                         arena: new Arena(this.tile_generator.map, 10, 10),
                          menu_quad: new Square(),
                          text_line: new Text_Line(50),
                    }
@@ -73,7 +74,7 @@ class Arena_Scene extends Scene_Component {
       }
 
     // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
-    this.lights = [ new Light( Vec.of( 0,0,5,1 ), Color.of( 0, 1, 1, 1 ), 1000 ) ];
+    this.lights = [ new Light( Vec.of( 50,100,-50,1 ), Color.of( 1, 1, 1, 1 ), 10**4 ) ];
     this.arena_transform = Mat4.scale([100,1,100]).times(Mat4.rotation(Math.PI / 2, Vec.of(1,0,0)));
     this.marker_tile_def_transform = Mat4.translation([0,0.1,0]).times(Mat4.scale([5,0,5]).times(Mat4.rotation(Math.PI/2, Vec.of(-1,0,0))));
     this.marker_tile_world_transform = this.marker_tile_def_transform;   
@@ -162,18 +163,18 @@ class Arena_Scene extends Scene_Component {
         }
     }
     // Draw arena
-    this.shapes.arena.draw(graphics_state, Mat4.translation([ 0, 0, 0]).times(this.arena_transform), this.materials.green);
+    this.tile_generator.render_tiles(this.shapes.arena, graphics_state);
     this.shapes.menu_quad.draw(graphics_state, this.marker_tile_world_transform, this.materials.marker_tile);
 
-    // Multi-pass rendering
-    this.scratchpad_context.drawImage( this.canvas, 0, 0, 1024, 512 );
-    this.result_img.src = this.scratchpad.toDataURL("image/png");
-                                // Don't call copy to GPU until the event loop has had a chance
-                                // to act on our SRC setting once:
-    if( this.skipped_first_frame )
-                                                    // Update the texture with the current scene:
-        this.fb_texture.image.src = this.result_img.src;
-    this.skipped_first_frame = true;
+    // Multi-pass rendering TODO: Make this run faster (drops framerate by a lot when a lot fills the screen)
+    // this.scratchpad_context.drawImage( this.canvas, 0, 0, 1024, 512 );
+    // this.result_img.src = this.scratchpad.toDataURL("image/png");
+    //                             // Don't call copy to GPU until the event loop has had a chance
+    //                             // to act on our SRC setting once:
+    // if( this.skipped_first_frame )
+    //                                                 // Update the texture with the current scene:
+    //     this.fb_texture.image.src = this.result_img.src;
+    // this.skipped_first_frame = true;
         // Start over on a new drawing, never displaying the prior one:
     // this.context.clear( this.context.COLOR_BUFFER_BIT | this.context.DEPTH_BUFFER_BIT);
     // let final_transform = Mat4.inverse(graphics_state.camera_transform).times(this.screen_quad_transform);
