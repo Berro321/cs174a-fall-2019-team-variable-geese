@@ -659,9 +659,9 @@ class Negative_Shader extends Phong_Shader
         void main()
           {
             // Sample the texture image in the correct place:
-            float delta_time = animation_time - animation_start_time;
+            float delta_time = animation_time - (animation_start_time / 1000.0);
             vec4 tex_color = texture2D( texture, f_tex_coord );
-            float dist_thresh = -delta_time*0.0001;
+            float dist_thresh = delta_time * 0.7;
             vec2 dir = 0.5 - f_tex_coord;
             float dist = sqrt(dir.x * dir.x + dir.y*dir.y);
             if (dist < dist_thresh)
