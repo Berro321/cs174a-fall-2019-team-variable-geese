@@ -34,6 +34,7 @@ class Arena_Scene extends Scene_Component {
                          menu_quad: new Square(),
                          text_line: new Text_Line(50),
                    }
+                
     // instantiate geese
     this.geese = {
       g1: new Honk(1),
@@ -117,7 +118,7 @@ class Arena_Scene extends Scene_Component {
     let intersection = mouse_ray.direction.times(t).plus(mouse_ray.origin);
     // Calculate where the marker should be placed assuming its size is 5x5 in xz plane
     let num_tile_x = Math.floor(intersection[0] / width) ;
-    let num_tile_z = Math.floor(intersection[2] / length);
+    let num_tile_z = Math.floor(-intersection[2] / length);
     return {x: num_tile_x, z: num_tile_z};
   }
 

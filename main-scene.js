@@ -55,6 +55,7 @@ class Game_Scene extends Scene_Component {
           {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/text.png", true)}),
         menu_image: context.get_instance( Phong_Shader ).material( Color.of(1,1,0,1), {ambient: 1, diffusivity: 0, specularity: 0}),  // Material for menu objects
         radial_blur_material: context.get_instance(Radial_Blur_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
+        negative_material: context.get_instance(Negative_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
       }
 
       // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
@@ -107,6 +108,7 @@ class Game_Scene extends Scene_Component {
       // Setup necessary parameters
       this.camera_animation_manager.set_original_camera_transform( graphics_state.camera_transform);
       this.camera_animation_manager.set_battle_camera_location(Vec.of(10,-5,0), Vec.of(-1,0,0));
+      this.materials.negative_material = this.materials.negative_material.override({initial_animation_time: graphics_state.animation_time});
       this.setup_trigger = 0;
     } else if (this.setup_trigger == 2) {
       this.camera_animation_manager.change_animation(2);
@@ -146,7 +148,7 @@ class Game_Scene extends Scene_Component {
       this.context.clear( this.context.COLOR_BUFFER_BIT | this.context.DEPTH_BUFFER_BIT);
       // Draw the quad in front of camera with new texture
       let final_transform = Mat4.inverse(graphics_state.camera_transform).times(this.screen_quad_transform);
-      this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
+      this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.negative_material);
     }
     
   }

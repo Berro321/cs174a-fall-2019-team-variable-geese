@@ -639,6 +639,38 @@ class Radial_Blur_Shader extends Phong_Shader
     }
 }
 
+window.Negative_Shader = window.classes.Negative_Shader =
+class Negative_Shader extends Phong_Shader
+{
+  update_GPU(g_state, model_transform, material, gpu = this.g_addrs, gl = this.gl)
+  {
+    super.update_GPU(g_state, model_transform, material, gpu, gl);
+    // Add initial animation_time
+    gl.uniform1f(gpu.animation_start_time_loc, material.initial_animation_time);
+  }
+
+  fragment_glsl_code()         // ********* FRAGMENT SHADER ********* 
+    {                          // A fragment is a pixel that's overlapped by the current triangle.
+                               // Fragments affect the final image or get discarded due to depth.                                
+      return `
+        uniform sampler2D texture;
+        uniform float animation_start_time;
+
+        void main()
+          {
+            // Sample the texture image in the correct place:
+            float delta_time = animation_time - animation_start_time;
+            vec4 tex_color = texture2D( texture, f_tex_coord );
+            float dist_thresh = -delta_time*0.0001;
+            vec2 dir = 0.5 - f_tex_coord;
+            float dist = sqrt(dir.x * dir.x + dir.y*dir.y);
+            if (dist < dist_thresh)
+              gl_FragColor = vec4(1.0 - tex_color[0], 1.0 - tex_color[1], 1.0 - tex_color[2], tex_color[3]);
+            else
+              gl_FragColor = tex_color;
+          } ` ;
+    }
+}
 
 window.Movement_Controls_Arena = window.classes.Movement_Controls_Arena =
 class Movement_Controls_Arena extends Scene_Component    // Movement_Controls is a Scene_Component that can be attached to a canvas, like any 

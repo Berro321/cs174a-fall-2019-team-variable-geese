@@ -253,7 +253,7 @@ function calculate_world_pos_from_tile(num_tile_x, num_tile_z, width, length)
 {
   let posx = width * num_tile_x + (width / 2.0);
   let posz = length * num_tile_z + (length / 2.0);
-  return Vec.of(posx, 0, posz);
+  return Vec.of(posx, 0, -posz);
 }
 
 // These are functions that are used for camera animations, zoom in and out
