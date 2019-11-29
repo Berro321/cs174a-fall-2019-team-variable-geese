@@ -4,6 +4,7 @@
 class Honk extends Goose {
     constructor(goose_id) { 
         super ( goose_id );
+        this.head_pos = [0, 0];
     }
 
     attack = () => {
@@ -23,9 +24,6 @@ class Honk extends Goose {
         let body = 'body' + tag;
         let left_wing = 'left_wing' + tag;
         let right_wing = 'right_wing' + tag;
-
-        let head_down_transform;
-        let head_up_transform;
         
         let neck_down_transform = Mat4.translation([-0.4, -4, 0]) // move neck independently
             .times(Mat4.rotation(-Math.PI / t_frames / 2, Vec.of(0,0,1)))
@@ -41,34 +39,35 @@ class Honk extends Goose {
             .times(Mat4.rotation(Math.PI / t_frames / 3, Vec.of(0,0,1)))
             .times(Mat4.translation([4,6.75,0]));
 
+        
         if (this.state.frameNumber > t_frames/2 + t_frames * 0.1) {
             this.transforms[head] = body_down_transform
                 .times(neck_down_transform)
                 .times(this.transforms[head]);
-                
-            this.transforms[left_eyebrow] = body_down_transform
-                .times(neck_down_transform)
+
+            let new_pos = body_down_transform.times(neck_down_transform).times(Vec.of(this.head_pos[0],this.head_pos[1],0,1));
+            let face_transform = Mat4.translation([new_pos[0] - this.head_pos[0], new_pos[1] - this.head_pos[1], 0]);
+
+            this.transforms[left_eyebrow] = face_transform
                 .times(this.transforms[left_eyebrow]);
                 
-            this.transforms[right_eyebrow] = body_down_transform
-                .times(neck_down_transform)
+            this.transforms[right_eyebrow] = face_transform
                 .times(this.transforms[right_eyebrow]);
                 
-            this.transforms[left_eye] = body_down_transform
-                .times(neck_down_transform)
+            this.transforms[left_eye] = face_transform
                 .times(this.transforms[left_eye]);
                 
-            this.transforms[right_eye] = body_down_transform
-                .times(neck_down_transform)
+            this.transforms[right_eye] = face_transform
                 .times(this.transforms[right_eye]);
                 
-            this.transforms[top_beak] = body_down_transform
-                .times(neck_down_transform)
+            this.transforms[top_beak] = face_transform
                 .times(this.transforms[top_beak]);
                 
-            this.transforms[bottom_beak] = body_down_transform
-                .times(neck_down_transform)
+            this.transforms[bottom_beak] = face_transform
                 .times(this.transforms[bottom_beak]);
+
+            this.head_pos = [new_pos[0], new_pos[1]];
+
                 
             this.transforms[left_wing] = body_down_transform
                 .times(this.transforms[left_wing]);    
@@ -91,30 +90,30 @@ class Honk extends Goose {
             this.transforms[head] = neck_up_transform
                 .times(body_up_transform)
                 .times(this.transforms[head]);
+            
+            let new_pos = neck_up_transform.times(body_up_transform).times(Vec.of(this.head_pos[0],this.head_pos[1],0,1));
+            let face_transform = Mat4.translation([new_pos[0] - this.head_pos[0], new_pos[1] - this.head_pos[1], 0]);
 
-            this.transforms[left_eyebrow] = neck_up_transform
-                .times(body_up_transform)
+            this.transforms[left_eyebrow] = face_transform
                 .times(this.transforms[left_eyebrow]);
 
-            this.transforms[right_eyebrow] = neck_up_transform
-                .times(body_up_transform)
+            this.transforms[right_eyebrow] = face_transform
                 .times(this.transforms[right_eyebrow]);
                 
-            this.transforms[left_eye] = neck_up_transform
-                .times(body_up_transform)
+            this.transforms[left_eye] = face_transform
                 .times(this.transforms[left_eye]);
                 
-            this.transforms[right_eye] = neck_up_transform
-                .times(body_up_transform)
+            this.transforms[right_eye] = face_transform
                 .times(this.transforms[right_eye]);
                 
-            this.transforms[top_beak] = neck_up_transform
-                .times(body_up_transform)
+            this.transforms[top_beak] = face_transform
                 .times(this.transforms[top_beak]);
                 
-            this.transforms[bottom_beak] = neck_up_transform
-                .times(body_up_transform)
+            this.transforms[bottom_beak] = face_transform
                 .times(this.transforms[bottom_beak]);
+
+            this.head_pos = [new_pos[0], new_pos[1]];
+            
              
             this.transforms[neck] = neck_up_transform
                 .times(body_up_transform)

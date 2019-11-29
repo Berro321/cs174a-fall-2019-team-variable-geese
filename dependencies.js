@@ -632,7 +632,7 @@ class Radial_Blur_Shader extends Phong_Shader
             for (int i = 0; i < 10; i++)
               sum += texture2D(texture, f_tex_coord + dir * samples[i]);
             sum *= 1.0/11.0;
-            float t = dist * 2.2;
+            float t = dist * 1.5;
             t = clamp(t, 0.0, 1.0);
             gl_FragColor = mix(tex_color, sum, t);
           } ` ;

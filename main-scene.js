@@ -6,7 +6,7 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,90,90 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 20,10,10 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     // Add a canvas listener for picking
     this.click_ray = undefined;
@@ -16,15 +16,6 @@ class Game_Scene extends Scene_Component {
     const r = context.width/context.height;
     context.globals.graphics_state.projection_transform = Mat4.perspective( Math.PI/4, r, .1, 1000 );
     const shapes = {
-                         body_sample: new Body(),
-                         leg_sample : new Rounded_Capped_Cylinder(12, 12, .2, 2.5, [0,1]),
-                         beak_sample: new Rounded_Cone(12, 12, 1, 2, Math.PI, [0,1]),
-                         wing_sample: new Wing(),
-                         head_sample: new Subdivision_Sphere( 3 ),
-                         neck_sample: new Rounded_Capped_Cylinder(12, 12, .6, 4, [0,1]),
-                         eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
-                         foot_sample: new Foot(),
-                         eyebrow_sample: new Cube(),
                          arena: new Square(),
                          menu_quad: new Square(),
                          text_line: new Text_Line(50),
@@ -110,6 +101,7 @@ class Game_Scene extends Scene_Component {
 
     // If the user clicked the zoom-in/out button, set up the parameters to do
     // the animation
+    
     if (this.setup_trigger == 1) {
       this.camera_animation_manager.change_animation(1);
       // Setup necessary parameters
@@ -125,6 +117,7 @@ class Game_Scene extends Scene_Component {
       graphics_state.camera_transform = this.camera_animation_manager.play_animation();
     }
     this.menu_manager.update_transforms(graphics_state.camera_transform);
+
     // Check collisions
     if (this.click_ray) {
       console.log(this.click_ray);
@@ -135,8 +128,9 @@ class Game_Scene extends Scene_Component {
     // Draw arena
     this.shapes.arena.draw(graphics_state, Mat4.translation([ 0, -9.25, 0]).times(this.arena_transform), this.materials.green);
     // Then draw other stuff (Menu stuff, debugging)
-    this.menu_manager.draw_menus(graphics_state, this.context);
+    //this.menu_manager.draw_menus(graphics_state, this.context);
 
+    
     if (this.camera_animation_manager.animation_type != 0) {
       // Multi-pass rendering for radial blur if camera is zooming in/out
       // Draw image to hidden canvas
@@ -154,6 +148,7 @@ class Game_Scene extends Scene_Component {
       let final_transform = Mat4.inverse(graphics_state.camera_transform).times(this.screen_quad_transform);
       this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
     }
+    
   }
 }
 
