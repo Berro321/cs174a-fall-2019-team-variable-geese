@@ -67,12 +67,12 @@ class Goose {
             Mat4.identity().times(Mat4.translation([ 0.5, 0.75, 0.4])).times(Mat4.rotation(-Math.PI/6, Vec.of(0,1,0))).times(Mat4.rotation( Math.PI/4, Vec.of(0,0,1))).times(Mat4.rotation( Math.PI/12, Vec.of(1,0,0))).times(Mat4.scale([ 0.05, 0.04, 0.25])), // 'right_eyebrow'
             Mat4.identity().times(Mat4.rotation(-Math.PI/3, Vec.of(0,1,0))).times(Mat4.rotation( Math.PI/6, Vec.of(1,0,0)).times(Mat4.translation([ 0, 0,-1]))), // 'left_eye'
             Mat4.identity().times(Mat4.rotation( Math.PI/3, Vec.of(0,1,0))).times(Mat4.rotation(-Math.PI/6, Vec.of(1,0,0)).times(Mat4.translation([ 0, 0, 1]))), // 'right_eye'
-            Mat4.identity().times(Mat4.translation([ 0, -0.1, 0])).times(Mat4.scale([ 0.9, 0.7, 0.9])).times(Mat4.rotation( Math.PI/2, Vec.of(0,1,0))), // 'top_beak'
-            Mat4.identity().times(Mat4.translation([ 0, -0.1, 0])).times(Mat4.scale([ 0.9, 0.7, 0.9])).times(Mat4.rotation( Math.PI, Vec.of(1,0,0))).times(Mat4.rotation( Math.PI/2, Vec.of(0,1,0))), // 'bottom_beak'
+            Mat4.identity().times(Mat4.translation([ 0, -0.1, 0])).times(Mat4.scale([ 0.9, 0.6, 0.9])).times(Mat4.rotation( Math.PI/2, Vec.of(0,1,0))), // 'top_beak'
+            Mat4.identity().times(Mat4.translation([ 0, -0.1, 0])).times(Mat4.scale([ 0.9, 0.6, 0.9])).times(Mat4.rotation( Math.PI, Vec.of(1,0,0))).times(Mat4.rotation( Math.PI/2, Vec.of(0,1,0))), // 'bottom_beak'
             Mat4.identity().times(Mat4.translation([ -0.4, 0, 0])).times(Mat4.rotation( Math.PI/2, Vec.of(1,0,0))), // 'neck'
-            Mat4.identity().times(Mat4.translation([ -7, -7.5, 0])).times(Mat4.translation([ 0, 0, 1])).times(Mat4.scale([ 1.2, 1.2, 1.2])), // 'left_wing'
+            Mat4.identity().times(Mat4.translation([ -7, -7.5,-1])).times(Mat4.scale([ 1.2, 1.2,-1.2])), // 'left_wing'
             Mat4.identity().times(Mat4.translation([ -6, -7.5, 1])), // 'body'
-            Mat4.identity().times(Mat4.translation([ -7, -7.5, 0])).times(Mat4.scale([ 1, 1,-1])).times(Mat4.translation([ 0, 0, 1])).times(Mat4.scale([ 1.2, 1.2, 1.2])), // 'right_wing'
+            Mat4.identity().times(Mat4.translation([ -7, -7.5, 1])).times(Mat4.scale([ 1.2, 1.2, 1.2])), // 'right_wing'
             Mat4.identity().times(Mat4.translation([ -4, -5.75, .75])).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), // 'left_leg'
             Mat4.identity().times(Mat4.translation([ -4, -5.75, -.75])).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), // 'right_leg'
             Mat4.identity().times(Mat4.translation([ -4.25, -9.25, .75])), // 'left_foot'
@@ -122,13 +122,13 @@ class Goose {
         let right_wing = 'right_wing' + '_' + this.constructor.name + this.stats.goose_id;
         if (this.state.frameNumber > t_frames/2) {
             let adjustment = 0.1 * (100 - this.state.frameNumber);
-            this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
-                .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
-                .times(this.transforms[left_wing]);
-            this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
+            this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
                 .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
                 .times(Mat4.translation([ 7,4.5 - adjustment,1]))
+                .times(this.transforms[left_wing]);
+            this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
+                .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
                 .times(this.transforms[right_wing]);
             for (let shape in this.transforms) {
                 this.transforms[shape] = Mat4.translation([0.1,0.1,0]).times(this.transforms[shape]);
@@ -136,13 +136,13 @@ class Goose {
         }
         else {
             let adjustment = 0.1 * this.state.frameNumber;
-            this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
-                .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
-                .times(this.transforms[left_wing]);
-            this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
+            this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
                 .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
                 .times(Mat4.translation([ 7,4.5 - adjustment,1]))
+                .times(this.transforms[left_wing]);
+            this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
+                .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
                 .times(this.transforms[right_wing]);
             for (let shape in this.transforms) {
                 this.transforms[shape] = Mat4.translation([0.1,-0.1,0]).times(this.transforms[shape]);

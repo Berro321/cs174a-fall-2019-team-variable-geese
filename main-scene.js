@@ -6,7 +6,7 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,50,50 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 20,20,20 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     // Add a canvas listener for picking
     this.click_ray = undefined;
@@ -22,7 +22,7 @@ class Game_Scene extends Scene_Component {
                    }
     // instantiate geese
     this.geese = {
-      g1: new Honk(1),
+      g1: new Lonk(1),
       // g2: new Goose(2),
       // g3: new Goose(3),
     }
@@ -51,6 +51,8 @@ class Game_Scene extends Scene_Component {
         black:     context.get_instance( Phong_Shader ).material( Color.of( 0,0,0,1 ), { ambient:.5 } ),
         orange:    context.get_instance( Phong_Shader ).material( Color.of( 1,.7,.4,1 ), { ambient:.5 } ),
         green:     context.get_instance( Phong_Shader ).material( Color.of(.2,.5,.2,1 ), {ambient: 0.5} ),
+        gold:      context.get_instance( Phong_Shader ).material( Color.of(.7,.4,.2,1), {ambient: .5}),
+        gray:      context.get_instance( Phong_Shader ).material( Color.of(.5,.5,.5,1), {ambient: .5}),
         text_image: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,1),
           {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/text.png", true)}),
         menu_image: context.get_instance( Phong_Shader ).material( Color.of(1,1,0,1), {ambient: 1, diffusivity: 0, specularity: 0}),  // Material for menu objects

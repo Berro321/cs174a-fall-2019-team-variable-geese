@@ -5,13 +5,18 @@ class Honk extends Goose {
     constructor(goose_id) { 
         super ( goose_id );
         this.head_pos = [0, 0];
+        this.body_angle = 0;
     }
 
     attack = () => {
-        let t_frames = 100;
-        if (this.state.frameNumber == 0)
+        let t_frames = 140;
+        //let factor = t_frames / 100;
+        if (this.state.frameNumber == 0) {
             this.state.frameNumber = t_frames;
-
+            this.head_pos = [0, 0];
+            this.body_angle = 0;
+        }
+            
         let tag = '_' + this.constructor.name + this.stats.goose_id;
         let head = 'head' + tag;
         let left_eyebrow = 'left_eyebrow' + tag;
@@ -26,27 +31,47 @@ class Honk extends Goose {
         let right_wing = 'right_wing' + tag;
         
         let neck_down_transform = Mat4.translation([-0.4, -4, 0]) // move neck independently
-            .times(Mat4.rotation(-Math.PI / t_frames / 2, Vec.of(0,0,1)))
+            .times(Mat4.rotation(-Math.PI / 100 / 1.5, Vec.of(0,0,1)))
             .times(Mat4.translation([0.4,4,0]));
         let neck_up_transform = Mat4.translation([-0.4, -4, 0]) // move neck independently
-            .times(Mat4.rotation(Math.PI / t_frames / 2, Vec.of(0,0,1)))
+            .times(Mat4.rotation(Math.PI / 100 / 1.5, Vec.of(0,0,1)))
             .times(Mat4.translation([0.4,4,0]));
             
         let body_down_transform = Mat4.translation([-4,-6.75, 0]) // move neck with body
-            .times(Mat4.rotation(-Math.PI / t_frames / 3, Vec.of(0,0,1)))
+            .times(Mat4.rotation(-Math.PI / 100 / 2.25, Vec.of(0,0,1)))
             .times(Mat4.translation([4,6.75,0]));
         let body_up_transform = Mat4.translation([-4,-6.75, 0]) // move neck with body
-            .times(Mat4.rotation(Math.PI / t_frames / 3, Vec.of(0,0,1)))
+            .times(Mat4.rotation(Math.PI / 100 / 2.25, Vec.of(0,0,1)))
             .times(Mat4.translation([4,6.75,0]));
 
         
-        if (this.state.frameNumber > t_frames/2 + t_frames * 0.1) {
+        if (this.state.frameNumber > t_frames * 12/14) {
+            this.transforms[left_eyebrow] = Mat4.translation([ 0.5, 0.75,-0.4])
+                .times(Mat4.rotation( Math.PI/6, Vec.of(0,1,0)))
+                .times(Mat4.rotation( Math.PI/4, Vec.of(0,0,1)))
+                .times(Mat4.rotation( Math.PI / 100 / 1.2, Vec.of(1,0,0)))
+                .times(Mat4.rotation(-Math.PI/4, Vec.of(0,0,1)))
+                .times(Mat4.rotation(-Math.PI/6, Vec.of(0,1,0)))
+                .times(Mat4.translation([ -0.5, -0.75, 0.4]))
+                .times(this.transforms[left_eyebrow]);
+
+            this.transforms[right_eyebrow] = Mat4.translation([ 0.5, 0.75, 0.4])
+                .times(Mat4.rotation(-Math.PI/6, Vec.of(0,1,0)))
+                .times(Mat4.rotation( Math.PI/4, Vec.of(0,0,1)))
+                .times(Mat4.rotation(-Math.PI / 100 / 1.2, Vec.of(1,0,0)))
+                .times(Mat4.rotation(-Math.PI/4, Vec.of(0,0,1)))
+                .times(Mat4.rotation( Math.PI/6, Vec.of(0,1,0)))
+                .times(Mat4.translation([ -0.5, -0.75,-0.4]))
+                .times(this.transforms[right_eyebrow]);
+        }
+        else if (this.state.frameNumber > t_frames * 9/14) {
             this.transforms[head] = body_down_transform
                 .times(neck_down_transform)
                 .times(this.transforms[head]);
 
-            let new_pos = body_down_transform.times(neck_down_transform).times(Vec.of(this.head_pos[0],this.head_pos[1],0,1));
-            let face_transform = Mat4.translation([new_pos[0] - this.head_pos[0], new_pos[1] - this.head_pos[1], 0]);
+            let new_head_pos = body_down_transform.times(neck_down_transform).times(Vec.of(this.head_pos[0],this.head_pos[1],0,1));
+            let face_transform = Mat4.translation([new_head_pos[0] - this.head_pos[0], new_head_pos[1] - this.head_pos[1], 0]);
+            this.head_pos = [new_head_pos[0], new_head_pos[1]];
 
             this.transforms[left_eyebrow] = face_transform
                 .times(this.transforms[left_eyebrow]);
@@ -60,39 +85,62 @@ class Honk extends Goose {
             this.transforms[right_eye] = face_transform
                 .times(this.transforms[right_eye]);
                 
-            this.transforms[top_beak] = face_transform
+            this.transforms[top_beak] = Mat4.translation([this.head_pos[0] + 1, this.head_pos[1], 0])
+                .times(Mat4.rotation(Math.PI / 100 / 3, Vec.of(0,0,1)))
+                .times(Mat4.translation([-(this.head_pos[0] + 1), -this.head_pos[1], 0]))
+                .times(face_transform)
                 .times(this.transforms[top_beak]);
                 
-            this.transforms[bottom_beak] = face_transform
+            this.transforms[bottom_beak] = Mat4.translation([this.head_pos[0] + 1, this.head_pos[1], 0])
+                .times(Mat4.rotation(-Math.PI / 100 / 2, Vec.of(0,0,1)))
+                .times(Mat4.translation([-(this.head_pos[0] + 1), -this.head_pos[1], 0]))
+                .times(face_transform)
                 .times(this.transforms[bottom_beak]);
 
-            this.head_pos = [new_pos[0], new_pos[1]];
-
-                
-            this.transforms[left_wing] = body_down_transform
-                .times(this.transforms[left_wing]);    
-                
-            this.transforms[neck] = Mat4.identity()
-                .times(body_down_transform)
+            this.transforms[neck] = body_down_transform
                 .times(neck_down_transform)
                 .times(this.transforms[neck]);
             
+            this.body_angle += Math.PI / 100 / 2.25;
+
+            this.transforms[left_wing] = Mat4.translation([-4,-6.75, 0])
+                .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(Mat4.translation([ -7,-4.5,-1]))
+                .times(Mat4.rotation(Math.PI / 100 / 0.6, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5,1]))
+                .times(Mat4.translation([-4,-6.75, 0]))
+                .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(body_down_transform)
+                .times(this.transforms[left_wing]);    
+
             this.transforms[body] = body_down_transform
                 .times(this.transforms[body]);
 
-            this.transforms[right_wing] = body_down_transform
-                .times(this.transforms[right_wing]);  
+            this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
+                .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(Mat4.translation([ -7,-4.5,1]))
+                .times(Mat4.rotation(-Math.PI / 100 / 0.6, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5,-1]))
+                .times(Mat4.translation([-4,-6.75, 0]))
+                .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(body_down_transform)
+                .times(this.transforms[right_wing]);
         }
-        else if (this.state.frameNumber > t_frames/2 - t_frames * 0.1) {
+        else if (this.state.frameNumber > t_frames * 5/14) {
             ;
         }
-        else {
+        else if (this.state.frameNumber > t_frames * 2/14) {
             this.transforms[head] = neck_up_transform
                 .times(body_up_transform)
                 .times(this.transforms[head]);
             
-            let new_pos = neck_up_transform.times(body_up_transform).times(Vec.of(this.head_pos[0],this.head_pos[1],0,1));
-            let face_transform = Mat4.translation([new_pos[0] - this.head_pos[0], new_pos[1] - this.head_pos[1], 0]);
+            let new_head_pos = neck_up_transform.times(body_up_transform).times(Vec.of(this.head_pos[0],this.head_pos[1],0,1));
+            let face_transform = Mat4.translation([new_head_pos[0] - this.head_pos[0], new_head_pos[1] - this.head_pos[1], 0]);
+            this.head_pos = [new_head_pos[0], new_head_pos[1]];
 
             this.transforms[left_eyebrow] = face_transform
                 .times(this.transforms[left_eyebrow]);
@@ -106,31 +154,78 @@ class Honk extends Goose {
             this.transforms[right_eye] = face_transform
                 .times(this.transforms[right_eye]);
                 
-            this.transforms[top_beak] = face_transform
+            this.transforms[top_beak] = Mat4.translation([this.head_pos[0] + 1, this.head_pos[1], 0])
+                .times(Mat4.rotation(-Math.PI / 100 / 3, Vec.of(0,0,1)))
+                .times(Mat4.translation([-(this.head_pos[0] + 1), -this.head_pos[1], 0]))
+                .times(face_transform)
                 .times(this.transforms[top_beak]);
                 
-            this.transforms[bottom_beak] = face_transform
-                .times(this.transforms[bottom_beak]);
-
-            this.head_pos = [new_pos[0], new_pos[1]];
-            
+            this.transforms[bottom_beak] = Mat4.translation([this.head_pos[0] + 1, this.head_pos[1], 0])
+                .times(Mat4.rotation(Math.PI / 100 / 2, Vec.of(0,0,1)))
+                .times(Mat4.translation([-(this.head_pos[0] + 1), -this.head_pos[1], 0]))
+                .times(face_transform)
+                .times(this.transforms[bottom_beak]);            
              
             this.transforms[neck] = neck_up_transform
                 .times(body_up_transform)
                 .times(this.transforms[neck]);
-                
-            this.transforms[left_wing] = body_up_transform
+            
+            this.body_angle -= Math.PI / 100 / 2.25;
+            
+            this.transforms[left_wing] = Mat4.translation([-4,-6.75, 0])
+                .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(Mat4.translation([ -7,-4.5,-1]))
+                .times(Mat4.rotation(-Math.PI / 100 / 0.6, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5,1]))
+                .times(Mat4.translation([-4,-6.75, 0]))
+                .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(body_up_transform)
                 .times(this.transforms[left_wing]);    
 
             this.transforms[body] = body_up_transform
                 .times(this.transforms[body]);
 
-            this.transforms[right_wing] = body_up_transform
-                .times(this.transforms[right_wing]);  
+            this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
+                .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(Mat4.translation([ -7,-4.5,1]))
+                .times(Mat4.rotation(Math.PI / 100 / 0.6, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5,-1]))
+                .times(Mat4.translation([-4,-6.75, 0]))
+                .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(body_up_transform)
+                .times(this.transforms[right_wing]);    
+
+        }
+        else {
+            this.transforms[left_eyebrow] = Mat4.translation([ 0.5, 0.75,-0.4])
+                .times(Mat4.rotation( Math.PI/6, Vec.of(0,1,0)))
+                .times(Mat4.rotation( Math.PI/4, Vec.of(0,0,1)))
+                .times(Mat4.rotation(-Math.PI / 100 / 1.2, Vec.of(1,0,0)))
+                .times(Mat4.rotation(-Math.PI/4, Vec.of(0,0,1)))
+                .times(Mat4.rotation(-Math.PI/6, Vec.of(0,1,0)))
+                .times(Mat4.translation([ -0.5, -0.75, 0.4]))
+                .times(this.transforms[left_eyebrow]);
+
+            this.transforms[right_eyebrow] = Mat4.translation([ 0.5, 0.75, 0.4])
+                .times(Mat4.rotation(-Math.PI/6, Vec.of(0,1,0)))
+                .times(Mat4.rotation( Math.PI/4, Vec.of(0,0,1)))
+                .times(Mat4.rotation( Math.PI / 100 / 1.2, Vec.of(1,0,0)))
+                .times(Mat4.rotation(-Math.PI/4, Vec.of(0,0,1)))
+                .times(Mat4.rotation( Math.PI/6, Vec.of(0,1,0)))
+                .times(Mat4.translation([ -0.5, -0.75,-0.4]))
+                .times(this.transforms[right_eyebrow]);
+
         }
 
         this.state.frameNumber--;
-        if (this.state.frameNumber == 0)
+        if (this.state.frameNumber == 0) {
             this.state.animating = false;
+            this.head_pos = [0, 0];
+            this.body_angle = 0;
+        }
     }
 }

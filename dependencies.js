@@ -848,15 +848,26 @@ window.Rounded_Cone = window.classes.Rounded_Closed_Cone =
 class Rounded_Closed_Cone extends Surface_Of_Revolution   // An alternative without two separate sections
   { constructor( rows, columns, radius, height, curvature_angle, texture_range ) { super( rows, columns, Vec.cast( [0, 0, height], [0.2, 0, height], [radius, 0, 0], [0, 0, 0] ), texture_range, curvature_angle ) ; } }
   
-  
+window.Cone_Tip = window.classes.Cone_Tip =
+class Cone_Tip extends Surface_Of_Revolution        // Note:  Touches the Z axis; squares degenerate into triangles as they sweep around.
+  { constructor( rows, columns, texture_range ) { super( rows, columns, Vec.cast( [0, 0, 1],  [1, 0, -1]  ), texture_range ); } }
+
 window.Torus = window.classes.Torus =
 class Torus extends Shape                                         // Build a donut shape.  An example of a surface of revolution.
   { constructor( rows, columns )  
       { super( "positions", "normals", "texture_coords" );
         const circle_points = Array( rows ).fill( Vec.of( .75,0,0 ) )
-                                           .map( (p,i,a) => Mat4.translation([ -2,0,0 ])
+                                           .map( (p,i,a) => Mat4.translation([ -1.5,0,0 ])
                                                     .times( Mat4.rotation( i/(a.length-1) * 2*Math.PI, Vec.of( 0,-1,0 ) ) )
                                                     .times( p.to4(1) ).to3() );
 
         Surface_Of_Revolution.insert_transformed_copy_into( this, [ rows, columns, circle_points ] );         
+      } }
+
+window.Cymbal = window.classes.Cymbal =
+class Cymbal extends Shape
+  { constructor( rows, columns )  
+      { super( "positions", "normals", "texture_coords" );
+        Torus          .insert_transformed_copy_into( this, [ rows, columns ], Mat4.scale([1, 1, 0.1]));
+        Cone_Tip       .insert_transformed_copy_into( this, [ rows, columns, [0,1]], Mat4.translation([0,0,0.1]).times(Mat4.scale([1,1,0.1])));        
       } }
