@@ -639,6 +639,43 @@ class Radial_Blur_Shader extends Phong_Shader
     }
 }
 
+window.Radial_Blur_Shader_Multi = window.classes.Radial_Blur_Shader_Multi =
+class Radial_Blur_Shader_Multi extends Simple_Shader
+{
+  fragment_glsl_code()         // ********* FRAGMENT SHADER ********* 
+  {                          // A fragment is a pixel that's overlapped by the current triangle.
+                             // Fragments affect the final image or get discarded due to depth.                                
+    return `
+      uniform sampler2D texture;
+
+      void main()
+        {        
+          float samples[10];
+          samples[0] = -0.06;
+          samples[1] = -0.05;
+          samples[2] = -0.03;
+          samples[3] = -0.02;
+          samples[4] = -0.01;
+          samples[5] =  0.01;
+          samples[6] =  0.02;
+          samples[7] =  0.03;
+          samples[8] =  0.05;
+          samples[9] =  0.06;                                     // Sample the texture image in the correct place:
+          vec2 dir = 0.5 - f_tex_coord;
+          float dist = sqrt(dir.x * dir.x + dir.y*dir.y);
+          dir = dir / dist;
+          vec4 tex_color = texture2D( texture, f_tex_coord );
+          vec4 sum = tex_color;
+          for (int i = 0; i < 10; i++)
+            sum += texture2D(texture, f_tex_coord + dir * samples[i]);
+          sum *= 1.0/11.0;
+          float t = dist * 1.5;
+          t = clamp(t, 0.0, 1.0);
+          gl_FragColor = mix(tex_color, sum, t);
+        } ` ;
+  }
+}
+
 window.Negative_Shader = window.classes.Negative_Shader =
 class Negative_Shader extends Phong_Shader
 {

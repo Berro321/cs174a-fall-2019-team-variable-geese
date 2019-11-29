@@ -386,7 +386,8 @@ class Shape extends Vertex_Buffer
 window.Graphics_State = window.tiny_graphics.Graphics_State =
 class Graphics_State                                            // Stores things that affect multiple shapes, such as lights and the camera.
 { constructor( camera_transform = Mat4.identity(), projection_transform = Mat4.identity() ) 
-    { Object.assign( this, { camera_transform, projection_transform, animation_time: 0, animation_delta_time: 0, lights: [] } ); }
+    { Object.assign( this, { camera_transform, projection_transform, animation_time: 0, animation_delta_time: 0, lights: [],
+      multipass: {enabled: false, shape: undefined, material: undefined} } ); }
 }
 
 window.Light = window.tiny_graphics.Light =
@@ -475,7 +476,8 @@ class Texture                                // The Texture class wraps a pointe
     } 
 }
 
-
+// Added multipass via this tutorial:
+// https://webglfundamentals.org/webgl/lessons/webgl-render-to-texture.html
 window.Canvas_Manager = window.tiny_graphics.Canvas_Manager =
 class Canvas_Manager      // This class manages a whole graphics program for one on-page canvas, including its textures, shapes, shaders,
 {                         // and scenes.  In addition to requesting a WebGL context and storing the aforementioned items, it informs the
@@ -483,19 +485,44 @@ class Canvas_Manager      // This class manages a whole graphics program for one
   constructor( canvas, background_color, dimensions )
     { let gl, demos = [];
       Object.assign( this, { instances: new Map(), shapes_in_use: {}, scene_components: [], prev_time: 0, canvas,
-                             globals: { animate: true, graphics_state: new Graphics_State() } } );
+                             globals: { animate: true, graphics_state: new Graphics_State() }, multipass: {enabled: false, shape: undefined, material: undefined, transform: undefined} } );
       
       for ( let name of [ "webgl", "experimental-webgl", "webkit-3d", "moz-webgl" ] )   // Get the GPU ready, creating a new WebGL context
         if (  gl = this.gl = this.canvas.getContext( name ) ) break;                    // for this canvas.
       if   ( !gl ) throw "Canvas failed to make a WebGL context.";
       
       this.set_size( dimensions );
+      // Create a framebuffer for multipass and save to texture
+      this.targetTexture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, this.targetTexture ); // A single red pixel, as a placeholder image to prevent a console warning:
+      gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, 1080, 600, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+      // set the filtering so we don't need mips
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+      // Create and bind the framebuffer
+      this.fb = gl.createFramebuffer();
+      // bind fb
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
+      gl.clearColor.apply( gl, background_color );    // Tell the GPU which color to clear the canvas with each frame.
+      this.rb = gl.createRenderbuffer();
+      gl.bindRenderbuffer(gl.RENDERBUFFER, this.rb);
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 1080, 600);
+      // Bind framebuffer to this render buffer
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.rb);
+      gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+      // attach the texture as the first color attachment
+      const attachmentPoint = gl.COLOR_ATTACHMENT0;
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, this.targetTexture, 0);
+
+      // Default framebuffer options
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       gl.clearColor.apply( gl, background_color );    // Tell the GPU which color to clear the canvas with each frame.
       gl.enable( gl.DEPTH_TEST );   gl.enable( gl.BLEND );            // Enable Z-Buffering test with blending.
       gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );           // Specify an interpolation method for blending "transparent" 
                                                                       // triangles over the existing pixels.
-      gl.bindTexture(gl.TEXTURE_2D, gl.createTexture() ); // A single red pixel, as a placeholder image to prevent a console warning:
-      gl.texImage2D (gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 0, 255]));
          
       window.requestAnimFrame = ( w =>                                    // Find the correct browser's version of requestAnimationFrame()
            w.requestAnimationFrame    || w.webkitRequestAnimationFrame    // needed for queue-ing up re-display events:
@@ -525,12 +552,74 @@ class Canvas_Manager      // This class manages a whole graphics program for one
       if( this.globals.animate ) this.globals.graphics_state.animation_time      += this.globals.graphics_state.animation_delta_time;
       this.prev_time = time;
 
-      this.gl.clear( this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);        // Clear the canvas's pixels and z-buffer.
-     
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+
       for( let live_string of document.querySelectorAll(".live_string") ) live_string.onload( live_string );
+      this.multipass = this.globals.graphics_state.multipass;
+      // this.multipass.enabled = true;
+      if (this.multipass.enabled) {
+        // bind framebuffer for multipass
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fb);
+        this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, this.rb);
+      }
+      this.gl.clear( this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);        // Clear the canvas's pixels and z-buffer.
       for ( let s of this.scene_components ) s.display( this.globals.graphics_state );            // Draw each registered animation.
+      if (this.multipass.enabled) {
+        this.gl.activeTexture(this.gl.TEXTURE1);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.targetTexture);
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+        this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, null);
+
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+        // Draw a square in the screen with the default multipass shader
+        this.multipass.shape.draw(this.globals.graphics_state, this.multipass.transform, this.multipass.material);
+        this.gl.activeTexture(this.gl.TEXTURE0);
+        this.gl.viewport(0, 0, 1080, 600);
+
+      }
+      // If there is a multipass run it again with the shader
       this.event = window.requestAnimFrame( this.render.bind( this ) );   // Now that this frame is drawn, request that render() happen 
     }                                                                     // again as soon as all other web page events are processed.
+}
+
+class Simple_Shader extends Shader {
+  map_attribute_name_to_buffer_name( name )                  // We'll pull single entries out per vertex by field name.  Map
+    {                                                        // those names onto the vertex array names we'll pull them from.
+      return { object_space_pos: "positions", normal: "normals", tex_coord: "texture_coords" }[ name ]; } 
+
+  shared_glsl_code() {
+    return `precision mediump float;
+      varying vec2 f_tex_coord;
+    `;
+  }
+  vertex_glsl_code()
+  { return `
+    attribute vec3 object_space_pos;
+    attribute vec2 tex_coord;
+
+    void main() {
+      gl_Position = vec4(object_space_pos,1.0);
+      f_tex_coord = tex_coord;
+    }
+  `;
+  }
+
+  fragment_glsl_code()
+  { return `
+    precision mediump float;
+    uniform sampler2D texture;
+
+    void main() {
+      gl_FragColor = texture2D( texture, f_tex_coord );// vec4(0.7,0.5,1.0,1.0);
+    }
+  `;
+  }
+
+  update_GPU(g_state, model_transform, material, gpu = this.g_addrs, gl = this.gl)
+  {
+    gl.uniform1f(gpu.animation_time_loc, g_state.animation_time / 1000);
+    gl.uniform1i(gpu.texture_loc, 1);
+  }
 }
 
 window.Scene_Component = window.tiny_graphics.Scene_Component =
@@ -616,7 +705,7 @@ class Canvas_Widget                    // Canvas_Widget embeds a WebGL demo onto
       control_panels.className = "control-box";
       if( !show_controls ) control_panels.style.display = "none";
       const row = control_panels.insertRow( 0 );
-      this.canvas_manager = new Canvas_Manager( canvas, Color.of( 0,0,0,1 ) );  // Second parameter sets background color.
+      this.canvas_manager = new Canvas_Manager( canvas, Color.of( 0.53,0.81,0.92,1 ) );  // Second parameter sets background color.
 
       for( let scene_class_name of scenes )                  // Register the initially requested scenes to the render loop.
         this.canvas_manager.register_scene_component( new window[ scene_class_name ]( this.canvas_manager, row.insertCell() ) );   

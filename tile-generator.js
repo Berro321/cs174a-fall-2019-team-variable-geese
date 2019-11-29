@@ -78,7 +78,7 @@ class Square1 extends Shape              // A square, demonstrating two triangle
     { super( "positions", "normals", "texture_coords" );                                   // Name the values we'll define per each vertex.
       this.positions     .push( ...Vec.cast( [-1,-1,0], [1,-1,0], [-1,1,0], [1,1,0] ) );   // Specify the 4 square corner locations.
       this.normals       .push( ...Vec.cast( [0,0,1],   [0,0,1],  [0,0,1],  [0,0,1] ) );   // Match those up with normal vectors.
-      this.texture_coords.push( ...Vec.cast( [0,0.50],     [0.49,0.50],    [0,1],    [0.49,1]   ) );   // Draw a square in texture coordinates too.
+      this.texture_coords.push( ...Vec.cast( [0,0.51],     [0.49,0.51],    [0,1],    [0.49,1]   ) );   // Draw a square in texture coordinates too.
       this.indices       .push( 0, 1, 2,     1, 3, 2 );                   // Two triangles this time, indexing into four distinct vertices.
     }
 }

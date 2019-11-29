@@ -74,6 +74,8 @@ class Arena_Scene extends Scene_Component {
         move_tile: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,0.5), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/move_tile.png", true)}),
         attack_tile: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,0.5), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/attack_tile.png", true)}),
         radial_blur_material: context.get_instance(Radial_Blur_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
+        simple: { shader: context.get_instance(Simple_Shader) },
+        radial_simple: {shader: context.get_instance(Radial_Blur_Shader_Multi)}
       }
 
     // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
@@ -82,12 +84,15 @@ class Arena_Scene extends Scene_Component {
     this.marker_tile_def_transform = Mat4.translation([0,0.1,0]).times(Mat4.scale([5,0,5]).times(Mat4.rotation(Math.PI/2, Vec.of(-1,0,0))));
     this.marker_tile_world_transform = this.marker_tile_def_transform;   
     this.screen_quad_transform = Mat4.translation([0,0,-0.1]).times(Mat4.scale([0.075,.042,1]));
+
+    this.enable_multi = false;
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
   this.result_img = this.control_panel.appendChild( Object.assign( document.createElement( "img" ), 
   { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) );  
-    }
+  this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);  
+  }
 
   // Handles intersection with arena and calculates area to place cursor
   handle_mouse_movement(mouse_ray) {
@@ -169,18 +174,10 @@ class Arena_Scene extends Scene_Component {
     this.tile_generator.render_tiles(this.shapes.arena, graphics_state);
     this.shapes.menu_quad.draw(graphics_state, this.marker_tile_world_transform, this.materials.marker_tile);
 
-    // Multi-pass rendering TODO: Make this run faster (drops framerate by a lot when a lot fills the screen)
-    // this.scratchpad_context.drawImage( this.canvas, 0, 0, 1024, 512 );
-    // this.result_img.src = this.scratchpad.toDataURL("image/png");
-    //                             // Don't call copy to GPU until the event loop has had a chance
-    //                             // to act on our SRC setting once:
-    // if( this.skipped_first_frame )
-    //                                                 // Update the texture with the current scene:
-    //     this.fb_texture.image.src = this.result_img.src;
-    // this.skipped_first_frame = true;
-        // Start over on a new drawing, never displaying the prior one:
-    // this.context.clear( this.context.COLOR_BUFFER_BIT | this.context.DEPTH_BUFFER_BIT);
-    // let final_transform = Mat4.inverse(graphics_state.camera_transform).times(this.screen_quad_transform);
+    // Multipass rendering options
+    graphics_state.multipass.enabled = this.enable_multi;
+    graphics_state.multipass.shape = this.shapes.menu_quad;
+    graphics_state.multipass.material = this.materials.radial_simple;
     // this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
   }
 }
