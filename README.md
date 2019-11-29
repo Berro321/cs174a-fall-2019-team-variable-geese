@@ -1,8 +1,13 @@
-# Assignment #3
+# Untitled Geese Game
 
-## Due: November 3, 2019 at 11:50pm
+## Due: December 1, 2019 at 11:50pm
 
-### Repository setup:
+### Overview:
+
+### Individual Tasks:
+
+### Citations:
+
 
 1. By now you have followed the link to create your assignment repository. You can find this link under assignment 3 under the resources section on piazza. Please use this link once as it will create an repository we will not check for submissions if you use it multiple times. The repository name should look like **a3-githubusername**. Any others will get removed.
 
