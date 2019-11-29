@@ -6,7 +6,7 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 20,10,10 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,50,50 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     // Add a canvas listener for picking
     this.click_ray = undefined;
@@ -105,7 +105,7 @@ class Game_Scene extends Scene_Component {
     if (this.setup_trigger == 1) {
       this.camera_animation_manager.change_animation(1);
       // Setup necessary parameters
-      this.camera_animation_manager.original_camera_transform = graphics_state.camera_transform;
+      this.camera_animation_manager.set_original_camera_transform( graphics_state.camera_transform);
       this.camera_animation_manager.set_battle_camera_location(Vec.of(10,-5,0), Vec.of(-1,0,0));
       this.setup_trigger = 0;
     } else if (this.setup_trigger == 2) {

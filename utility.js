@@ -287,9 +287,20 @@ class Camera_Animations_Manager {
   // a certain distance, looking towards the camera_look_vector direction
   // (assume normalized) and on xz plane
   set_battle_camera_location(target_location, camera_look_vector) {
+    const distance = 5;
     const angle = Math.acos(Vec.of(0,0,1).dot(camera_look_vector));
     let result = Mat4.translation([target_location[0], target_location[1], target_location[2]] ).times(Mat4.rotation(angle, Vec.of(0,1,0)));
     this.battle_camera_transform = Mat4.inverse(result);
+    this.battle_camera_position = target_location.minus(camera_look_vector.times(distance));
+    this.battle_camera_rotation = Quaternion.fromBetweenVectors([0,0,-1], camera_look_vector);
+  }
+
+  set_original_camera_transform(camera_transform) {
+    this.original_camera_transform = camera_transform;
+    let inv = Mat4.inverse(camera_transform);
+    this.original_camera_position = inv.times(Vec.of(0,0,0,1)).to3();
+    let view_vector = inv.times(Vec.of(0,0,-1,0)).to3();
+    this.original_camera_rotation = Quaternion.fromBetweenVectors([0,0,-1], view_vector );
   }
 
   // Plays the camera zoom in animation until it is done. returns the current matrix
@@ -310,6 +321,14 @@ class Camera_Animations_Manager {
         return result;
       }
       return this.battle_camera_transform.map( (x, i) => Vec.from(this.original_camera_transform[i] ).mix(x, this.frame / this.zoom_in_max_frames));
+      // let new_position = this.original_camera_position.mix(this.battle_camera_position, this.frame / this.zoom_in_max_frames);
+      // let slerp_func = this.original_camera_rotation.slerp(this.battle_camera_rotation);
+
+      // let new_rotation = slerp_func(this.frame / this.zoom_in_max_frames);
+      // let rot_matrix4 = new_rotation.toMatrix4(true);
+      // let rotation_matrix = Mat.of(rot_matrix4[0], rot_matrix4[1], rot_matrix4[2], rot_matrix4[3]);
+      // let new_transform = Mat4.translation([new_position[0], new_position[1], new_position[2]]).times(rotation_matrix); 
+      // return Mat4.inverse(new_transform);
     }
   }
 
