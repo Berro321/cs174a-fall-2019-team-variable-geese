@@ -265,7 +265,7 @@ class Camera_Animations_Manager {
     this.frame = 0.0;
     this.zoom_in_max_frames = 30;
     this.zoom_out_max_frames = 30;
-    this.animating = true;
+    this.animating = false;
     this.animation_type = 0;
   }
 
@@ -286,12 +286,12 @@ class Camera_Animations_Manager {
   // Sets the battle camera transform to look at the certain location from
   // a certain distance, looking towards the camera_look_vector direction
   // (assume normalized) and on xz plane
-  set_battle_camera_location(target_location, camera_look_vector) {
-    const distance = 5;
+  set_battle_camera_location(target_location, camera_look_vector, distance) {
+    // const distance = 5;
     const angle = Math.acos(Vec.of(0,0,1).dot(camera_look_vector));
     let result = Mat4.translation([target_location[0], target_location[1], target_location[2]] ).times(Mat4.rotation(angle, Vec.of(0,1,0)));
     this.battle_camera_transform = Mat4.inverse(result);
-    this.battle_camera_position = target_location.minus(camera_look_vector.times(distance));
+    this.battle_camera_position = target_location.plus(camera_look_vector.times(distance));
     this.battle_camera_rotation = Quaternion.fromBetweenVectors([0,0,-1], camera_look_vector);
   }
 

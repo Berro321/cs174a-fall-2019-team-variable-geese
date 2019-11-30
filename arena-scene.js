@@ -38,9 +38,11 @@ class Arena_Scene extends Scene_Component {
     // instantiate geese
     this.geese = {
       g1: new Honk(1),
-      // g2: new Goose(2),
+      g2: new Honk(2),
       // g3: new Goose(3),
     }
+    this.geese['g1'].tile_position.x = 1; this.geese['g1'].tile_position.z = 0;
+    this.geese['g2'].tile_position.x = 2; this.geese['g2'].tile_position.z = 0;
 
     // add all shapes used by geese to shapes
     for (let g in this.geese) {
@@ -85,13 +87,17 @@ class Arena_Scene extends Scene_Component {
     this.marker_tile_world_transform = this.marker_tile_def_transform;   
     this.screen_quad_transform = Mat4.translation([0,0,-0.1]).times(Mat4.scale([0.075,.042,1]));
 
+    this.camera_animations_manager = new Camera_Animations_Manager();
+    this.battle_scene_manager = new Battle_Scene_Manager();
     this.enable_multi = false;
+    this.setup_trigger = 0;
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
   this.result_img = this.control_panel.appendChild( Object.assign( document.createElement( "img" ), 
   { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) );  
-  this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);  
+  this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);
+  this.key_triggered_button("Disable/Enable camera animation default", ["1"], () => this.setup_trigger = 1)
   }
 
   // Handles intersection with arena and calculates area to place cursor
@@ -132,6 +138,16 @@ class Arena_Scene extends Scene_Component {
   display( graphics_state ) { 
     graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
+    // Animate battle scene
+    if (this.setup_trigger == 1) {
+      this.battle_scene_manager.initiate_battle_sequence(this.geese['g1'], this.geese['g2'], undefined, this.camera_animations_manager);
+      this.setup_trigger = 0;
+    }
+
+    if (this.battle_scene_manager.battle_ongoing) {
+      graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state.camera_transform);
+    }
+
     for (let g in this.geese) {
         // if(this.geese[g].state.animating) {
         //   this.geese[g].attack();
@@ -175,9 +191,14 @@ class Arena_Scene extends Scene_Component {
     this.shapes.menu_quad.draw(graphics_state, this.marker_tile_world_transform, this.materials.marker_tile);
 
     // Multipass rendering options
+    if (this.camera_animations_manager.animating)
+      this.enable_multi = true;
+    else 
+      this.enable_multi = false;
+
     graphics_state.multipass.enabled = this.enable_multi;
     graphics_state.multipass.shape = this.shapes.menu_quad;
-    graphics_state.multipass.material = this.materials.radial_simple;
+    graphics_state.multipass.material = this.materials.radial_simple; 
     // this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
   }
 }

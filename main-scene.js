@@ -6,7 +6,7 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 20,20,20 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,50,50 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     // Add a canvas listener for picking
     this.click_ray = undefined;
@@ -22,10 +22,12 @@ class Game_Scene extends Scene_Component {
                    }
     // instantiate geese
     this.geese = {
-      g1: new Monk(1),
-      // g2: new Goose(2),
+      g1: new Honk(1),
+      g2: new Lonk(2),
       // g3: new Goose(3),
     }
+    this.geese['g1'].tile_position.x = 1;
+    this.geese['g2'].tile_position.z = 0;
 
     // add all shapes used by geese to shapes
     for (let g in this.geese) {
@@ -69,6 +71,7 @@ class Game_Scene extends Scene_Component {
       // TODO: Remove the trigger once the battle system is setup.
       this.setup_trigger = 0;
       this.camera_animation_manager = new Camera_Animations_Manager();
+      this.battle_scene_manager = new Battle_Scene_Manager();
       let menu_transform_1 =Mat4.translation([0.02,0.02,-0.11]).times(Mat4.scale([0.01, 0.007, 1]));
       let text_transform_1 = Mat4.translation([-0.5,0,0.001]).times(Mat4.scale([0.15,0.5,1]));
       let menu_transform_2 = Mat4.translation([0.02,-0.02,-0.11]).times(Mat4.rotation(Math.PI/4,Vec.of(0,0,-1)).times(Mat4.scale([0.01, 0.007, 1])));
@@ -81,8 +84,7 @@ class Game_Scene extends Scene_Component {
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
     this.key_triggered_button("Flap em", ["q"], () => this.geese['g1'].state.animating = !this.geese['g1'].state.animating);
-    this.key_triggered_button("Camera and action!", ["2"], () => this.setup_trigger = 1);
-    this.key_triggered_button("Reverse camera to original pos", ["1"], () => this.setup_trigger = 2);
+    this.key_triggered_button("Camera and action!", ["1"], () => this.setup_trigger = 1);
     this.key_triggered_button("Disable/Enable menus", ["4"], () => this.menu_manager.enabled = !this.menu_manager.enabled);
   }
 
@@ -91,36 +93,39 @@ class Game_Scene extends Scene_Component {
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
     // console.log("t: " + t + " dt: " + dt);
-    this.geese['g1'].state.animating = false;
+    // this.geese['g1'].state.animating = true;
+    // for (let g in this.geese) {
+    //   if(this.geese[g].state.animating) {
+    //     this.geese[g].attack();
+    //   }
+    //   for (let shape in this.geese[g].shapes) {
+    //     // this.shapes[shape].draw(graphics_state, Mat4.rotation(-Math.PI / 2, Vec.of(0,1,0)).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
+    //     this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape], this.materials[this.geese[g].colors[shape]]);
+
+    //   }
+    // }
+
+    if (this.setup_trigger == 1) {
+      this.battle_scene_manager.initiate_battle_sequence(this.geese['g1'], this.geese['g2'], undefined, this.camera_animation_manager);
+      this.setup_trigger = 0;
+    }
+
+    if (this.battle_scene_manager.battle_ongoing) {
+      graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state.camera_transform);
+    }
+
+    // this.geese['g1'].state.animating = true;
     for (let g in this.geese) {
-      if(this.geese[g].state.animating) {
-        this.geese[g].attack();
-      }
+      // if(this.geese[g].state.animating) {
+      //   this.geese[g].attack();
+      // }
       for (let shape in this.geese[g].shapes) {
         // this.shapes[shape].draw(graphics_state, Mat4.rotation(-Math.PI / 2, Vec.of(0,1,0)).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
-        this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape], this.materials[this.geese[g].colors[shape]]);
-
+        let world_offset = calculate_world_pos_from_tile(this.geese[g].tile_position.x,this.geese[g].tile_position.z,10,10); 
+        this.shapes[shape].draw(graphics_state, Mat4.translation([4.25 + world_offset[0],9.35,world_offset[2]]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
       }
     }
 
-    // If the user clicked the zoom-in/out button, set up the parameters to do
-    // the animation
-    
-    if (this.setup_trigger == 1) {
-      this.camera_animation_manager.change_animation(1);
-      // Setup necessary parameters
-      this.camera_animation_manager.set_original_camera_transform( graphics_state.camera_transform);
-      this.camera_animation_manager.set_battle_camera_location(Vec.of(10,-5,0), Vec.of(-1,0,0));
-      this.materials.negative_material = this.materials.negative_material.override({initial_animation_time: graphics_state.animation_time});
-      this.setup_trigger = 0;
-    } else if (this.setup_trigger == 2) {
-      this.camera_animation_manager.change_animation(2);
-      this.camera_animation_manager.battle_camera_transform = graphics_state.camera_transform;
-      this.setup_trigger = 0;
-    }
-    if (this.camera_animation_manager.animation_type != 0) {
-      graphics_state.camera_transform = this.camera_animation_manager.play_animation();
-    }
     this.menu_manager.update_transforms(graphics_state.camera_transform);
 
     // Check collisions
@@ -151,7 +156,7 @@ class Game_Scene extends Scene_Component {
       this.context.clear( this.context.COLOR_BUFFER_BIT | this.context.DEPTH_BUFFER_BIT);
       // Draw the quad in front of camera with new texture
       let final_transform = Mat4.inverse(graphics_state.camera_transform).times(this.screen_quad_transform);
-      this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.negative_material);
+      this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
     }
     
   }
