@@ -62,6 +62,7 @@ class Sonk extends Goose {
         let body = 'body' + tag;
         let left_wing = 'left_wing' + tag;
         let right_wing = 'right_wing' + tag;
+        let marker_strip = 'marker_strip' + tag;
         let left_cymbal = 'left_cymbal' + tag;
         let right_cymbal = 'right_cymbal' + tag;
         let harmonica = 'harmonica' + tag;
@@ -167,6 +168,9 @@ class Sonk extends Goose {
             this.transforms[body] = body_down_transform
                 .times(this.transforms[body]);
             
+            this.transforms[marker_strip] = body_down_transform
+                .times(this.transforms[marker_strip]);
+            
             this.transforms[right_wing] = right_wing_transform
                 .times(this.transforms[right_wing]);
 
@@ -243,6 +247,9 @@ class Sonk extends Goose {
 
             this.transforms[body] = body_up_transform
                 .times(this.transforms[body]);
+            
+            this.transforms[marker_strip] = body_up_transform
+                .times(this.transforms[marker_strip]);
 
             this.transforms[right_wing] = right_wing_transform
                 .times(this.transforms[right_wing]);

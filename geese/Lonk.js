@@ -47,6 +47,7 @@ class Lonk extends Goose {
         let body = 'body' + tag;
         let left_wing = 'left_wing' + tag;
         let right_wing = 'right_wing' + tag;
+        let marker_strip = 'marker_strip' + tag;
 
         let head_down_transform;
         let head_up_transform;
@@ -134,6 +135,9 @@ class Lonk extends Goose {
 
             this.transforms[body] = body_down_transform
                 .times(this.transforms[body]);
+            
+            this.transforms[marker_strip] = body_down_transform
+                .times(this.transforms[marker_strip]);
 
             this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
@@ -199,6 +203,9 @@ class Lonk extends Goose {
 
             this.transforms[body] = body_up_transform
                 .times(this.transforms[body]);
+            
+            this.transforms[marker_strip] = body_up_transform
+                .times(this.transforms[marker_strip]);
 
             this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))

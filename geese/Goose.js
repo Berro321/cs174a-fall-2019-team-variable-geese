@@ -50,6 +50,7 @@ class Goose {
             'right_leg',
             'left_foot',
             'right_foot',
+            'marker_strip',
         ];
 
         let shapes = [
@@ -68,6 +69,7 @@ class Goose {
             new Rounded_Capped_Cylinder(12, 12, .2, 3.5, [0,1]), // 'right_leg'
             new Foot(), // 'left_foot'
             new Foot(), // 'right_foot'
+            new Cube(), // 'marker_strip'
         ];
 
         let shape_transforms = [
@@ -86,6 +88,7 @@ class Goose {
             Mat4.identity().times(Mat4.translation([ -4, -5.75, .75])).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), // 'right_leg'
             Mat4.identity().times(Mat4.translation([ -4.25, -9.25,-.75])), // 'left_foot'
             Mat4.identity().times(Mat4.translation([ -4.25, -9.25, .75])), // 'right_foot'
+            Mat4.identity().times(Mat4.translation([-1,-3.75,0])).times(Mat4.rotation(Math.PI/18, Vec.of(0,0,1))).times(Mat4.translation([-3.1,0,0])).times(Mat4.scale([4, 0.01, 0.5])), //'marker_strip'            
         ];
 
         let shape_colors = [
@@ -104,6 +107,7 @@ class Goose {
             'orange', // 'right_leg'
             'orange', // 'left_foot'
             'orange', // 'right_foot'
+            'red', // 'marker_strip'
         ];
 
         // shape's key is specifically: shape_name + Goose + goose_id

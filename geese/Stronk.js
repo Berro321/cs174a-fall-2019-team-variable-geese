@@ -21,6 +21,7 @@ class Stronk extends Goose {
         let right_leg = 'right_leg' + tag;
         let left_foot = 'left_foot' + tag;
         let right_foot = 'right_foot' + tag;
+        let marker_strip = 'marker_strip' + tag;
 
         //Overwrite these initial transforms.
         this.transforms[left_leg]       = Mat4.translation([ -4, -2.25,-1]).times(Mat4.scale([3,2,3])).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0)));
@@ -39,6 +40,7 @@ class Stronk extends Goose {
         this.transforms[top_beak]       = Mat4.translation([ 0, 3.5, 0]).times(this.transforms[top_beak]);
         this.transforms[bottom_beak]    = Mat4.translation([ 0, 3.5, 0]).times(this.transforms[bottom_beak]);
         this.transforms[neck]           = Mat4.translation([ 0, 3.5, 0]).times(this.transforms[neck]);
+        this.transforms[marker_strip]   = Mat4.translation([ 0, 3.5, 0]).times(this.transforms[marker_strip]);
 
 
         // Add thighs.
@@ -95,6 +97,7 @@ class Stronk extends Goose {
         let right_calf = 'right_calf' + tag;
         let left_foot = 'left_foot' + tag;
         let right_foot = 'right_foot' + tag;
+        let marker_strip = 'marker_strip' + tag;
         
         let body_down_transform = Mat4.translation([-4,-3.25, 0]) // move neck with body
             .times(Mat4.rotation(-Math.PI / 100 / 2.25, Vec.of(0,0,1)))
@@ -172,6 +175,9 @@ class Stronk extends Goose {
 
             this.transforms[body] = body_down_transform
                 .times(this.transforms[body]);
+            
+            this.transforms[marker_strip] = body_down_transform
+                .times(this.transforms[marker_strip]);
 
             this.transforms[right_wing] = Mat4.translation([-4,-3.25, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
@@ -269,6 +275,9 @@ class Stronk extends Goose {
 
             this.transforms[body] = body_up_transform
                 .times(this.transforms[body]);
+            
+            this.transforms[marker_strip] = body_up_transform
+                .times(this.transforms[marker_strip]);
 
             this.transforms[right_wing] = Mat4.translation([-4,-3.25, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))

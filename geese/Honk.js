@@ -30,6 +30,7 @@ class Honk extends Goose {
         let body = 'body' + tag;
         let left_wing = 'left_wing' + tag;
         let right_wing = 'right_wing' + tag;
+        let marker_strip = 'marker_strip' + tag;
         
         let neck_down_transform = Mat4.translation([-0.4, -4, 0]) // move neck independently
             .times(Mat4.rotation(-Math.PI / 100 / 1.5, Vec.of(0,0,1)))
@@ -118,6 +119,9 @@ class Honk extends Goose {
 
             this.transforms[body] = body_down_transform
                 .times(this.transforms[body]);
+            
+            this.transforms[marker_strip] = body_down_transform
+                .times(this.transforms[marker_strip]);
 
             this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
@@ -187,6 +191,9 @@ class Honk extends Goose {
 
             this.transforms[body] = body_up_transform
                 .times(this.transforms[body]);
+            
+            this.transforms[marker_strip] = body_up_transform
+                .times(this.transforms[marker_strip]);
 
             this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))

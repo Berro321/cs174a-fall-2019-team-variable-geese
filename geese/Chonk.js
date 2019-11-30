@@ -10,13 +10,15 @@ class Chonk extends Goose {
         let body = 'body' + tag;
         let left_wing = 'left_wing' + tag;
         let right_wing = 'right_wing' + tag;
+        let marker_strip = 'marker_strip' + tag;
 
 
         //Overwrite these initial transforms.
-        this.transforms[neck]       = Mat4.identity().times(Mat4.translation([ -0.4, 0, 0])).times(Mat4.rotation( Math.PI/2, Vec.of(1,0,0))).times(Mat4.scale([ 1, 1, 0.8])); // 'neck'
-        this.transforms[left_wing]  = Mat4.identity().times(Mat4.translation([ -7, -7.5,-3])).times(Mat4.scale([ 1.2, 1.2,-1.2])); // 'left_wing'
-        this.transforms[body]       = Mat4.identity().times(Mat4.translation([ -6, -7.5, 3])).times(Mat4.scale([ 1, 1.3, 3])); // 'body'
-        this.transforms[right_wing] = Mat4.identity().times(Mat4.translation([ -7, -7.5, 3])).times(Mat4.scale([ 1.2, 1.2, 1.2])); // 'right_wing''
+        this.transforms[neck]         = Mat4.identity().times(Mat4.translation([ -0.4, 0, 0])).times(Mat4.rotation( Math.PI/2, Vec.of(1,0,0))).times(Mat4.scale([ 1, 1, 0.8])); // 'neck'
+        this.transforms[left_wing]    = Mat4.identity().times(Mat4.translation([ -7, -7.5,-3])).times(Mat4.scale([ 1.2, 1.2,-1.2])); // 'left_wing'
+        this.transforms[body]         = Mat4.identity().times(Mat4.translation([ -6, -7.5, 3])).times(Mat4.scale([ 1, 1.3, 3])); // 'body'
+        this.transforms[marker_strip] = Mat4.identity().times(Mat4.translation([-1,-2.65,0])).times(Mat4.rotation(Math.PI/14, Vec.of(0,0,1))).times(Mat4.translation([-3.2,0,0])).times(Mat4.scale([4, 0.01, 0.5])), //'marker_strip'
+        this.transforms[right_wing]   = Mat4.identity().times(Mat4.translation([ -7, -7.5, 3])).times(Mat4.scale([ 1.2, 1.2, 1.2])); // 'right_wing''
 
         // Add 'attack_ball.'
         this.shapes['attack_ball' + '_' + this.constructor.name + goose_id] = new Subdivision_Sphere(4);
@@ -263,6 +265,9 @@ class Chonk extends Goose {
 
             this.transforms[body] = body_down_transform
                 .times(this.transforms[body]);
+            
+            this.transforms[marker_strip] = body_down_transform
+                .times(this.transforms[marker_strip]);
 
             this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))

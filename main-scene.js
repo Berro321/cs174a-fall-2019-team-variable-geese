@@ -76,7 +76,7 @@ class Game_Scene extends Scene_Component {
       let text_transform_2 = Mat4.translation([-0.5,0,0.001]).times(Mat4.scale([0.15,0.5,1]));
       let menu_obj = {menu_transform: menu_transform_1, menu_material: this.materials.menu_image, tag: "menu 1", text: "hello", text_transform: text_transform_1,  clickable: true};
       let menu_obj2 = {menu_transform: menu_transform_2, menu_material: this.materials.menu_image, tag: "menu 2", text: "honk", text_transform: text_transform_2,  clickable: true};
-      this.menu_manager = new Menu_Manager([menu_obj, menu_obj2], this.shapes.menu_quad, this.shapes.text_line, this.materials.text_image);
+      this.menu_manager = new Menu_Manager([/*menu_obj, menu_obj2*/], this.shapes.menu_quad, this.shapes.text_line, this.materials.text_image);
       this.screen_quad_transform = Mat4.translation([0,0,-0.1]).times(Mat4.scale([0.075,.042,1]));  // Transform for quad that appears in front of camera for multi-pass
   }
 
