@@ -38,7 +38,7 @@ class Arena_Scene extends Scene_Component {
     // instantiate geese
     this.geese = {
       g1: new Chonk(1,0,0,3),
-      g2: new Honk(2,1,0,3),
+      g2: new Honk(2,1,3,3),
       g3: new Sonk(3,2,0,3),
       g4: new Stronk(4,3,0,3),
       g5: new Lonk(5,4,0,3),
@@ -95,6 +95,7 @@ class Arena_Scene extends Scene_Component {
     this.battle_scene_manager = new Battle_Scene_Manager();
     this.enable_multi = false;
     this.setup_trigger = 0;
+    this.disable_marker_tile = false;
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
@@ -106,6 +107,7 @@ class Arena_Scene extends Scene_Component {
 
   // Handles intersection with arena and calculates area to place cursor
   handle_mouse_movement(mouse_ray) {
+    if (this.disable_marker_tile) return;
     const width = 10, length = 10;
     // Assume the arena is always at 0,0,0
     // And tiles are arranges such that the center of tile 1 is at [5,5,0]
@@ -117,6 +119,7 @@ class Arena_Scene extends Scene_Component {
 
   // Handles when the user clicks somewhere on the world
   handle_mouse_click(mouse_ray) {
+    if (this.disable_marker_tile) return;
     const width = 10, length = 10;
     // TODO: Collisions against the menu items should override any other collisions.
     let tiles = this.calculate_ray_tile_intersection(mouse_ray, width, length);
@@ -224,7 +227,7 @@ class Arena_Scene extends Scene_Component {
     }
 
     // Draw movement tiles if unit is selected and it is not in attacking
-    if (this.selected_unit && !this.moving && !this.attack_positions) {
+    if (this.selected_unit && !this.moving && !this.attack_positions && !this.battle_scene_manager.battle_ongoing) {
       if (!this.move_positions) {
         this.move_positions = [];
         this.cellToPath = {};
@@ -252,27 +255,37 @@ class Arena_Scene extends Scene_Component {
 
     // Draw attack tiles if they are defined
     if (this.attack_positions) {
-      if (this.selected_unit) {
+      if (this.last_selected_unit) {
+        for (let tile_index in this.attack_positions.positions) {
+          let tile = this.attack_positions.positions[tile_index];
+  
+          this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.attack_tile);
+        }
         // If we selected ourself do nothing otherwise initialize the battle animation
         // if they are within range
-        if (this.selected_unit != this.last_selected_unit) {
+        if (this.selected_unit != this.last_selected_unit && this.selected_unit && this.last_selected_unit) {
           for (let tile_index in this.attack_positions.tiles) {
             let tile = this.attack_positions.tiles[tile_index];
 
             if (tile[0] == this.selected_unit.tile_position.x && tile[1] == this.selected_unit.tile_position.z) {
               this.battle_scene_manager.initiate_battle_sequence(this.last_selected_unit, this.selected_unit, this.menu_manager, this.camera_animations_manager);
+              this.attack_positions = undefined;
+              this.disable_marker_tile = true;
+              break;
             }
           }
         }
       }
-      for (let tile_index in this.attack_positions.positions) {
-        let tile = this.attack_positions.positions[tile_index];
-
-        this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.attack_tile);
-      }
     }
     if (this.battle_scene_manager.battle_ongoing) {
       graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state, this.context);
+      // If it finishes this frame, reset the selected and last selected
+      if (!this.battle_scene_manager.battle_ongoing) {
+        this.selected_unit = undefined;
+        this.last_selected_unit = undefined;
+      }
+    } else {
+      this.disable_marker_tile = false;
     }
 
     // See if moving
@@ -312,7 +325,8 @@ class Arena_Scene extends Scene_Component {
     // Generate the movement and attack tiles and display them if a unit has been selected
     // Draw arena
     this.tile_generator.render_tiles(this.shapes.arena, graphics_state);
-    this.shapes.menu_quad.draw(graphics_state, this.marker_tile_world_transform, this.materials.marker_tile);
+    if (!this.disable_marker_tile)
+      this.shapes.menu_quad.draw(graphics_state, this.marker_tile_world_transform, this.materials.marker_tile);
 
     // Render the menus
     if (this.menu_manager.menus_length != 0) {

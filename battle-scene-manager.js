@@ -54,7 +54,7 @@ class Battle_Scene_Manager {
             }
         } else if (this.queued_action.action == "dead") {
             console.log("dead");
-            this.battle_ongoing = false;
+            this.queued_action = undefined;
         } else if (this.queued_action.action == "camera zoom in") {
             // Initial setup
             if (!this.camera_manager.animating) {
@@ -62,28 +62,107 @@ class Battle_Scene_Manager {
                 const height_offset = 5;
                 this.camera_manager.change_animation(1);
                 this.camera_manager.set_original_camera_transform(camera_transform);
+
+                // Setup the goose rotations to face each other in battle
+                // Special case for diagonals
+                this.atk_goose_old_orientation = this.atk_goose.state.orientation;
+                this.def_goose_old_orientation = this.def_goose.state.orientation;
+                let camera_look_vector = Vec.of(0,0,1); // Defines the look vector in terms of the camera (assume looks at +z).
+                // Check distance in 2D for how to orient them
+                let face_direction =
+                    [this.def_goose.tile_position.x - this.atk_goose.tile_position.x,
+                     this.def_goose.tile_position.z - this.atk_goose.tile_position.z];
+                // Check diagonals first
+                if (face_direction[0] > 0 && face_direction[1] > 0) {
+                    // Attacking goose looks Top right
+                    this.atk_goose_new_orientation = 0.5;
+                    this.def_goose_new_orientation = 2.5;
+                    // Camera faces +x -z
+                    camera_look_vector = Vec.of(1,0,1).normalized();
+                } else if (face_direction[0] < 0 && face_direction[1] > 0) {
+                    // Attacking goose looks Top Left
+                    this.atk_goose_new_orientation = 1.5;
+                    this.def_goose_new_orientation = 3.5;
+                    // Camera faces -x -z
+                    camera_look_vector = Vec.of(-1,0,1).normalized();   
+                } else if (face_direction[0] < 0 && face_direction[1] < 0) {
+                    // Attacking goose looks Bottom Left
+                    this.atk_goose_new_orientation = 2.5;
+                    this.def_goose_new_orientation = 0.5;
+                    // Camera faces -x -z
+                    camera_look_vector = Vec.of(1,0,1).normalized();   
+                } else if (face_direction[0] > 0 && face_direction[1] < 0) {
+                    // Attacking goose looks Bottom right
+                    this.atk_goose_new_orientation = 3.5;
+                    this.def_goose_new_orientation = 1.5;
+                    // Camera faces +x -z
+                    camera_look_vector = Vec.of(-1,0,1).normalized();   
+                } // Manhattan directions
+                 else if (face_direction[0] < 0) {
+                    // Attacking goose looks Left
+                    this.atk_goose_new_orientation = 2;
+                    this.def_goose_new_orientation = 0;
+                    // Camera faces -z
+                    camera_look_vector = Vec.of(0,0,1).normalized();   
+                } else if (face_direction[0] > 0) {
+                    // Attacking goose looks Right
+                    this.atk_goose_new_orientation = 0;
+                    this.def_goose_new_orientation = 2;
+                    // Camera faces towards -z
+                    camera_look_vector = Vec.of(0,0,1).normalized();   
+                } else if (face_direction[1] < 0) {
+                    // Attacking goose looks down
+                    this.atk_goose_new_orientation = 3;
+                    this.def_goose_new_orientation = 1;
+                    // Camera faces towards -x
+                    camera_look_vector = Vec.of(1,0,0).normalized();   
+                } else if (face_direction[1] > 0) {
+                    // Attacking goose looks up
+                    this.atk_goose_new_orientation = 1;
+                    this.def_goose_new_orientation = 3 ;
+                    // Camera faces towards -x
+                    camera_look_vector = Vec.of(1,0,0).normalized();   
+                }
+
                 // The location should be the midpoint between the two goose locations
                 let atk_goose_world_pos = calculate_world_pos_from_tile(this.atk_goose.tile_position.x, this.atk_goose.tile_position.z, 10, 10);
                 let def_goose_world_pos = calculate_world_pos_from_tile(this.def_goose.tile_position.x, this.def_goose.tile_position.z, 10, 10);
-                let position_offset = Vec.of(0,0,1).times(distance_offset).plus(Vec.of(0,height_offset,0));
+                let position_offset = camera_look_vector.times(distance_offset).plus(Vec.of(0,height_offset,0));
                 let midpoint = atk_goose_world_pos.plus(def_goose_world_pos).times(0.5).plus(position_offset);
-                this.camera_manager.set_battle_camera_location (midpoint, Vec.of(0,0,1), 30);
+                this.camera_manager.set_battle_camera_location (midpoint, camera_look_vector, 30);
             }
             this.camera_manager.animating = true;
             camera_transform = this.camera_manager.play_animation();
+            // Linearly rotate the goose into their positions
+            this.atk_goose.lerp_rotate_goose(this.atk_goose_old_orientation, this.atk_goose_new_orientation, this.camera_manager.zoom_in_max_frames);
+            this.def_goose.lerp_rotate_goose(this.def_goose_old_orientation, this.def_goose_new_orientation, this.camera_manager.zoom_in_max_frames);
             if (!this.camera_manager.animating ) {
                 this.queued_action = undefined;
+                this.atk_goose.state.orientation = this.atk_goose_new_orientation;
+                this.def_goose.state.orientation = this.def_goose_new_orientation;
             }
         } else if (this.queued_action.action == "camera zoom out") {
             // Initial setup
             if (!this.camera_manager.animating) {
                 this.camera_manager.change_animation(2);
                 this.camera_manager.battle_camera_transform = camera_transform;
+
+                // update orientations
+                // linearly rotate the goose to the nearest manhattan direction (left, right, up, down)
+                this.atk_goose_old_orientation = this.atk_goose.state.orientation;
+                this.def_goose_old_orientation = this.def_goose.state.orientation;
+                this.atk_goose_new_orientation = Math.ceil(this.atk_goose.state.orientation) % 4;
+                this.def_goose_new_orientation = Math.ceil(this.def_goose.state.orientation) % 4;
             }
             this.camera_manager.animating = true;
             camera_transform = this.camera_manager.play_animation();
+            // Linearly rotate the goose into their positions
+            this.atk_goose.lerp_rotate_goose(this.atk_goose_old_orientation, this.atk_goose_new_orientation, this.camera_manager.zoom_in_max_frames);
+            this.def_goose.lerp_rotate_goose(this.def_goose_old_orientation, this.def_goose_new_orientation, this.camera_manager.zoom_in_max_frames);
             if (!this.camera_manager.animating ) {
                 this.queued_action = undefined;
+                this.atk_goose.state.orientation = this.atk_goose_new_orientation;
+                this.def_goose.state.orientation = this.def_goose_new_orientation;
             }
         }
 

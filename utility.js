@@ -327,9 +327,8 @@ class Camera_Animations_Manager {
   // a certain distance, looking towards the camera_look_vector direction
   // (assume normalized) and on xz plane
   set_battle_camera_location(target_location, camera_look_vector, distance) {
-    // const distance = 5;
-    const angle = Math.acos(Vec.of(0,0,1).dot(camera_look_vector));
-    let result = Mat4.translation([target_location[0], target_location[1], target_location[2]] ).times(Mat4.rotation(angle, Vec.of(0,1,0)));
+    let rotation_matrix = Quaternion.fromBetweenVectors([0,0,1], camera_look_vector).toMatrix4(true);
+    let result = Mat4.translation([target_location[0], target_location[1], target_location[2]] ).times(Mat.of(rotation_matrix[0], rotation_matrix[1], rotation_matrix[2], rotation_matrix[3]));
     this.battle_camera_transform = Mat4.inverse(result);
     this.battle_camera_position = target_location.plus(camera_look_vector.times(distance));
     this.battle_camera_rotation = Quaternion.fromBetweenVectors([0,0,-1], camera_look_vector);

@@ -158,6 +158,21 @@ class Goose {
             this.transforms[transform] = Mat4.rotation(2 * Math.PI / 4 * (new_orientation - old_orientation), Vec.of(0,1,0)).times(this.transforms[transform]);
     }
 
+    // Similar to rotate goose, but does it in an interpolated way within max_frames
+    // also handles new orientations:
+    // up right: 0.5
+    // up left: 1.5
+    // down left: 2.5
+    // down right: 3.5
+    // These are not saved as state when used. This is here for the battle scene manager
+    lerp_rotate_goose(old_orientation, new_orientation, max_frames) {
+        if (old_orientation == new_orientation)
+            return;
+        let pct = Math.PI / 2.0 / max_frames; // Which percentage to rotate
+        for (let transform in this.transforms)
+            this.transforms[transform] = Mat4.rotation(pct * (new_orientation - old_orientation), Vec.of(0,1,0)).times(this.transforms[transform]);
+    }
+
     animate_setup = () => {
         this.rotate_goose(this.state.orientation, 0);
         for (let transform in this.transforms)

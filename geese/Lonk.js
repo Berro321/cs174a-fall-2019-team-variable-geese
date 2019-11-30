@@ -15,6 +15,8 @@ class Lonk extends Goose {
         let top_beak = 'top_beak' + tag;
         let bottom_beak = 'bottom_beak' + tag;
 
+        this.stats.attack_range = 2;
+
         //Overwrite these initial transforms.
         this.transforms[neck]           = Mat4.identity().times(Mat4.translation([ -0.4, 4.0, 0])).times(Mat4.rotation( Math.PI/2, Vec.of(1,0,0))).times(Mat4.scale([ 1, 1, 2]));
         this.transforms[head]           = Mat4.translation([ 0, 4, 0]).times(this.transforms[head]);
