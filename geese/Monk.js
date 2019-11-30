@@ -34,7 +34,11 @@ class Monk extends Goose {
         this.animate_shader = false;
         this.temp_frame = 0;
         this.state_flap = 1;  // 0 = down, 1 = up
+
         this.setup();
+
+        this.head_pos = [0, 0];
+        this.body_angle = 0;
     }
 
     attack = () => {
@@ -55,6 +59,7 @@ class Monk extends Goose {
         let bottom_beak = 'bottom_beak' + tag;
         let neck = 'neck' + tag;
         let body = 'body' + tag;
+        let marker_strip = 'marker_strip' + tag;
         let left_wing = 'left_wing' + tag;
         let right_wing = 'right_wing' + tag;
         let hat_tip = 'hat_tip' + tag;
@@ -75,7 +80,7 @@ class Monk extends Goose {
             .times(Mat4.rotation(Math.PI / 100 / 2.25, Vec.of(0,0,1)))
             .times(Mat4.translation([4,6.75,0]));
 
-        if (this.state.frameNumber > t_frames * 16 / 18) {
+        if (this.state.frameNumber > t_frames * 16/18) {
             this.transforms[left_eyebrow] = Mat4.translation([ 0.5, 0.75,-0.4])
                 .times(Mat4.rotation( Math.PI/6, Vec.of(0,1,0)))
                 .times(Mat4.rotation( Math.PI/4, Vec.of(0,0,1)))
@@ -93,82 +98,89 @@ class Monk extends Goose {
                 .times(Mat4.rotation( Math.PI/6, Vec.of(0,1,0)))
                 .times(Mat4.translation([ -0.5, -0.75,-0.4]))
                 .times(this.transforms[right_eyebrow]);
-        } else if (this.state.frameNumber > t_frames * 13 / 18) {
-        this.transforms[head] = body_up_transform
-            .times(neck_up_transform)
-            .times(this.transforms[head]);
 
-        let new_head_pos = body_up_transform.times(neck_up_transform).times(Vec.of(this.head_pos[0],this.head_pos[1],0,1));
-        let face_transform = Mat4.translation([new_head_pos[0] - this.head_pos[0], new_head_pos[1] - this.head_pos[1], 0]);
-        this.head_pos = [new_head_pos[0], new_head_pos[1]];
-
-        this.transforms[left_eyebrow] = face_transform
-            .times(this.transforms[left_eyebrow]);
-            
-        this.transforms[right_eyebrow] = face_transform
-            .times(this.transforms[right_eyebrow]);
-            
-        this.transforms[left_eye] = face_transform
-            .times(this.transforms[left_eye]);
-            
-        this.transforms[right_eye] = face_transform
-            .times(this.transforms[right_eye]);
-            
-        this.transforms[hat_tip] = face_transform
-            .times(this.transforms[hat_tip]);
-
-        this.transforms[hat_base] = face_transform
-            .times(this.transforms[hat_base]);
-
-        this.transforms[cape] = body_up_transform
-            .times(this.transforms[cape]);
-
-        this.transforms[top_beak] = Mat4.translation([this.head_pos[0] + 1, this.head_pos[1], 0])
-            .times(Mat4.rotation(Math.PI / 100 / 3, Vec.of(0,0,1)))
-            .times(Mat4.translation([-(this.head_pos[0] + 1), -this.head_pos[1], 0]))
-            .times(face_transform)
-            .times(this.transforms[top_beak]);
-            
-        this.transforms[bottom_beak] = Mat4.translation([this.head_pos[0] + 1, this.head_pos[1], 0])
-            .times(Mat4.rotation(-Math.PI / 100 / 2, Vec.of(0,0,1)))
-            .times(Mat4.translation([-(this.head_pos[0] + 1), -this.head_pos[1], 0]))
-            .times(face_transform)
-            .times(this.transforms[bottom_beak]);
-
-        this.transforms[neck] = body_up_transform
-            .times(neck_up_transform)
-            .times(this.transforms[neck]);
+        } 
         
-        this.body_angle += Math.PI / 100 / 2.25;
+        else if (this.state.frameNumber > t_frames * 13/18) {
+            this.transforms[head] = body_up_transform
+                .times(neck_up_transform)
+                .times(this.transforms[head]);
 
-        this.transforms[left_wing] = Mat4.translation([-4,-6.75, 0])
-            .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
-            .times(Mat4.translation([4,6.75,0]))
-            .times(Mat4.translation([ -7,-4.5,-1]))
-            .times(Mat4.rotation(Math.PI / 100 / 0.6, Vec.of(1,0,0)))
-            .times(Mat4.translation([ 7,4.5,1]))
-            .times(Mat4.translation([-4,-6.75, 0]))
-            .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
-            .times(Mat4.translation([4,6.75,0]))
-            .times(body_up_transform)
-            .times(this.transforms[left_wing]);    
+            let new_head_pos = body_up_transform.times(neck_up_transform).times(Vec.of(this.head_pos[0],this.head_pos[1],0,1));
+            let face_transform = Mat4.translation([new_head_pos[0] - this.head_pos[0], new_head_pos[1] - this.head_pos[1], 0]);
+            this.head_pos = [new_head_pos[0], new_head_pos[1]];
 
-        this.transforms[body] = body_up_transform
-            .times(this.transforms[body]);
+            this.transforms[left_eyebrow] = face_transform
+                .times(this.transforms[left_eyebrow]);
 
-        this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
-            .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
-            .times(Mat4.translation([4,6.75,0]))
-            .times(Mat4.translation([ -7,-4.5,1]))
-            .times(Mat4.rotation(-Math.PI / 100 / 0.6, Vec.of(1,0,0)))
-            .times(Mat4.translation([ 7,4.5,-1]))
-            .times(Mat4.translation([-4,-6.75, 0]))
-            .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
-            .times(Mat4.translation([4,6.75,0]))
-            .times(body_up_transform)
-            .times(this.transforms[right_wing]);
+            this.transforms[right_eyebrow] = face_transform
+                .times(this.transforms[right_eyebrow]);
 
-        } else if (this.state.frameNumber > t_frames * 7 / 18) {
+            this.transforms[left_eye] = face_transform
+                .times(this.transforms[left_eye]);
+
+            this.transforms[right_eye] = face_transform
+                .times(this.transforms[right_eye]);
+
+            this.transforms[hat_tip] = face_transform
+                .times(this.transforms[hat_tip]);
+
+            this.transforms[hat_base] = face_transform
+                .times(this.transforms[hat_base]);
+
+            this.transforms[cape] = body_up_transform
+                .times(this.transforms[cape]);
+
+            this.transforms[top_beak] = Mat4.translation([this.head_pos[0] + 1, this.head_pos[1], 0])
+                .times(Mat4.rotation(Math.PI / 100 / 3, Vec.of(0,0,1)))
+                .times(Mat4.translation([-(this.head_pos[0] + 1), -this.head_pos[1], 0]))
+                .times(face_transform)
+                .times(this.transforms[top_beak]);
+
+            this.transforms[bottom_beak] = Mat4.translation([this.head_pos[0] + 1, this.head_pos[1], 0])
+                .times(Mat4.rotation(-Math.PI / 100 / 2, Vec.of(0,0,1)))
+                .times(Mat4.translation([-(this.head_pos[0] + 1), -this.head_pos[1], 0]))
+                .times(face_transform)
+                .times(this.transforms[bottom_beak]);
+
+            this.transforms[neck] = body_up_transform
+                .times(neck_up_transform)
+                .times(this.transforms[neck]);
+
+            this.body_angle += Math.PI / 100 / 2.25;
+
+            this.transforms[left_wing] = Mat4.translation([-4,-6.75, 0])
+                .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(Mat4.translation([ -7,-4.5,-1]))
+                .times(Mat4.rotation(Math.PI / 100 / 0.6, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5,1]))
+                .times(Mat4.translation([-4,-6.75, 0]))
+                .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(body_up_transform)
+                .times(this.transforms[left_wing]);    
+
+            this.transforms[body] = body_up_transform
+                .times(this.transforms[body]);
+            
+            this.transforms[marker_strip] = body_up_transform
+                .times(this.transforms[marker_strip]);
+
+            this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
+                .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(Mat4.translation([ -7,-4.5,1]))
+                .times(Mat4.rotation(-Math.PI / 100 / 0.6, Vec.of(1,0,0)))
+                .times(Mat4.translation([ 7,4.5,-1]))
+                .times(Mat4.translation([-4,-6.75, 0]))
+                .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
+                .times(Mat4.translation([4,6.75,0]))
+                .times(body_up_transform)
+                .times(this.transforms[right_wing]);
+
+        } 
+        else if (this.state.frameNumber > t_frames * 7/18) {
             // Flap wings wildly
             this.animate_shader = true;
             let num_times = 6; // 5.0 / (4.0 * 14);
@@ -201,7 +213,8 @@ class Monk extends Goose {
                 .times(Mat4.translation([4,6.75,0]))
                 .times(body_down_transform)
                 .times(this.transforms[right_wing]); 
-            } else if (this.state_flap == 1) {
+            } 
+            else if (this.state_flap == 1) {
                 // Flap up
                 this.transforms[left_wing] = Mat4.translation([-4,-6.75, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
@@ -228,7 +241,8 @@ class Monk extends Goose {
                 .times(this.transforms[right_wing]);
             }
             this.temp_frame--;
-        } else if (this.state.frameNumber > t_frames * 4 / 18) {
+        } 
+        else if (this.state.frameNumber > t_frames * 4/18) {
             this.animate_shader = false;
             this.transforms[head] = neck_down_transform
                 .times(body_down_transform)
@@ -291,6 +305,9 @@ class Monk extends Goose {
 
             this.transforms[body] = body_down_transform
                 .times(this.transforms[body]);
+            
+            this.transforms[marker_strip] = body_down_transform
+                .times(this.transforms[marker_strip]);
 
             this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
@@ -303,9 +320,12 @@ class Monk extends Goose {
                 .times(Mat4.translation([4,6.75,0]))
                 .times(body_down_transform)
                 .times(this.transforms[right_wing]);  
-        } else if (this.frameNumber > t_frames * 2 / 18) {
-            
-        } else {
+        } 
+        
+        else if (this.state.frameNumber > t_frames * 2/18) {
+            ;
+        } 
+        else {
             this.transforms[left_eyebrow] = Mat4.translation([ 0.5, 0.75,-0.4])
                 .times(Mat4.rotation( Math.PI/6, Vec.of(0,1,0)))
                 .times(Mat4.rotation( Math.PI/4, Vec.of(0,0,1)))

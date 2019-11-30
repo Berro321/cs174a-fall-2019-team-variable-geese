@@ -95,7 +95,7 @@ class Game_Scene extends Scene_Component {
     graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
-    this.geese['g1'].state.animating = true;
+    this.geese['g1'].state.animating = false;
     for (let g in this.geese) {
       if(this.geese[g].state.animating) {
         this.geese[g].attack();

@@ -11,7 +11,7 @@ class Honk extends Goose {
 
     attack = () => {
         let t_frames = 140;
-        //let factor = t_frames / 100;
+
         if (this.state.frameNumber == 0) {
             this.state.frameNumber = t_frames;
             this.head_pos = [0, 0];

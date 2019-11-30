@@ -960,11 +960,11 @@ class Cape extends Shape
   { constructor( rows, columns )  
       { super( "positions", "normals", "texture_coords" );
         Torus            .insert_transformed_copy_into( this, [ rows, columns, 0.25, -0.9 ], Mat4.rotation(Math.PI/15, Vec.of(0,0,1)).times(Mat4.rotation(-Math.PI/2, Vec.of(1,0,0))).times(Mat4.scale([1, 1, 0.1])) );
-        Cube             .insert_transformed_copy_into( this, [], Mat4.rotation(Math.PI/15, Vec.of(0,0,1)).times(Mat4.translation([-6.5,0,0])).times(Mat4.scale([6, 0.05, 1.2])));
-        Cube             .insert_transformed_copy_into( this, [], Mat4.translation([0,-0.4,2]).times(Mat4.rotation(Math.PI/13, Vec.of(0,0,1))).times(Mat4.translation([-6.5,0,0])).times(Mat4.rotation(Math.PI/6, Vec.of(1,0,0))).times(Mat4.scale([5.9, 0.05, 1.2])) );
-        Cube             .insert_transformed_copy_into( this, [], Mat4.translation([0,-0.4,-2]).times(Mat4.rotation(Math.PI/13, Vec.of(0,0,1))).times(Mat4.translation([-6.5,0,0])).times(Mat4.rotation(-Math.PI/6, Vec.of(1,0,0))).times(Mat4.scale([5.9, 0.05, 1.2])) );
-        Triangular_Prism .insert_transformed_copy_into( this, [], Mat4.translation([0,-1.9,3.6]).times(Mat4.rotation(Math.PI/12, Vec.of(0,0,1))).times(Mat4.translation([-6.5,0,0])).times(Mat4.rotation(Math.PI/3, Vec.of(1,0,0))).times(Mat4.scale([5.5, 0.05, 1.2])).times(Mat4.rotation(Math.PI, Vec.of(0,1,0))) );
-        Triangular_Prism .insert_transformed_copy_into( this, [], Mat4.translation([0,-1.9,-3.6]).times(Mat4.rotation(Math.PI/12, Vec.of(0,0,1))).times(Mat4.translation([-6.5,0,0])).times(Mat4.rotation(-Math.PI/3, Vec.of(1,0,0))).times(Mat4.scale([5.5, 0.05, -1.2])).times(Mat4.rotation(Math.PI, Vec.of(0,1,0))) );
+        Cube             .insert_transformed_copy_into( this, [], Mat4.rotation(Math.PI/15, Vec.of(0,0,1)).times(Mat4.translation([-4.5,0,0])).times(Mat4.scale([4, 0.05, 1.2])));
+        Cube             .insert_transformed_copy_into( this, [], Mat4.translation([0,-0.4,2]).times(Mat4.rotation(Math.PI/13, Vec.of(0,0,1))).times(Mat4.translation([-4.5,0,0])).times(Mat4.rotation(Math.PI/6, Vec.of(1,0,0))).times(Mat4.scale([3.9, 0.05, 1.2])) );
+        Cube             .insert_transformed_copy_into( this, [], Mat4.translation([0,-0.4,-2]).times(Mat4.rotation(Math.PI/13, Vec.of(0,0,1))).times(Mat4.translation([-4.5,0,0])).times(Mat4.rotation(-Math.PI/6, Vec.of(1,0,0))).times(Mat4.scale([3.9, 0.05, 1.2])) );
+        Triangular_Prism .insert_transformed_copy_into( this, [], Mat4.translation([0,-1.9,3.6]).times(Mat4.rotation(Math.PI/12, Vec.of(0,0,1))).times(Mat4.translation([-4.5,0,0])).times(Mat4.rotation(Math.PI/3, Vec.of(1,0,0))).times(Mat4.scale([3.5, 0.05, 1.2])).times(Mat4.rotation(Math.PI, Vec.of(0,1,0))) );
+        Triangular_Prism .insert_transformed_copy_into( this, [], Mat4.translation([0,-1.9,-3.6]).times(Mat4.rotation(Math.PI/12, Vec.of(0,0,1))).times(Mat4.translation([-4.5,0,0])).times(Mat4.rotation(-Math.PI/3, Vec.of(1,0,0))).times(Mat4.scale([3.5, 0.05, -1.2])).times(Mat4.rotation(Math.PI, Vec.of(0,1,0))) );
 
         //Cone_Tip       .insert_transformed_copy_into( this, [ rows, columns, [0,1]], Mat4.translation([0,0,0.1]).times(Mat4.scale([1,1,0.1])));        
       } }
