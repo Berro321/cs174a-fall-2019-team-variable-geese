@@ -30,11 +30,11 @@ class Monk extends Goose {
         this.shapes['cape' + '_' + this.constructor.name + goose_id] = new Cape(20, 20);
         this.transforms['cape' + '_' + this.constructor.name + goose_id] = Mat4.translation([-0.4,-3,0]);
         this.colors['cape' + '_' + this.constructor.name + goose_id] = 'red';
-        // this.setup();
-
+        
         this.animate_shader = false;
         this.temp_frame = 0;
         this.state_flap = 1;  // 0 = down, 1 = up
+        this.setup();
     }
 
     attack = () => {

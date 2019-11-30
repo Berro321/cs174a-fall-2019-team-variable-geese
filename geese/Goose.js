@@ -10,7 +10,7 @@ class Goose {
             health: 20,
             attack: 5,
             defense: 1,
-            movement_range: 5,  // These are based on manhattan distance for tiles
+            movement_range: 6,
             attack_range: 1,
             goose_id: goose_id,
         };
@@ -136,25 +136,16 @@ class Goose {
 
         // calculate tile location
         let tile_coords = calculate_world_pos_from_tile(this.tile_position.x, this.tile_position.z, 10, 10);
-        console.log(tile_coords)
+
         this.translation.x += tile_coords[0];
         this.translation.z += tile_coords[2];
-
-        // translate to correct tile
-        for (let transform in this.transforms)
-            this.transforms[transform] = Mat4.translation([this.translation.x, this.translation.y, this.translation.z]).times(this.transforms[transform]);
-    
     }
 
     rotate_goose(old_orientation, new_orientation) {
         if (old_orientation == new_orientation)
             return;
-        for (let transform in this.transforms) {
-            this.transforms[transform] = Mat4.translation([this.translation.x, this.translation.y, this.translation.z])
-            .times(Mat4.rotation(2 * Math.PI / 4 * (new_orientation - old_orientation), Vec.of(0,1,0)))
-            .times(Mat4.translation([-this.translation.x, -this.translation.y, -this.translation.z]))
-            .times(this.transforms[transform]);
-        }
+        for (let transform in this.transforms)
+            this.transforms[transform] = Mat4.rotation(2 * Math.PI / 4 * (new_orientation - old_orientation), Vec.of(0,1,0)).times(this.transforms[transform]);
     }
 
     // generate path, responsible for rotating goose before calling moveOneCell()
@@ -186,36 +177,16 @@ class Goose {
         if (this.state.frameNumber == 0)
             this.state.frameNumber = t_frames;
 
-        let left_wing = 'left_wing' + '_' + this.constructor.name + this.stats.goose_id;
-        let right_wing = 'right_wing' + '_' + this.constructor.name + this.stats.goose_id;
         if (this.state.frameNumber > t_frames/2) {
-            let adjustment = 1 * (t_frames - this.state.frameNumber);
-            // this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
-            //     .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
-            //     .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
-            //     .times(this.transforms[left_wing]);
-            // this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
-            //     .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
-            //     .times(Mat4.translation([ 7,4.5 - adjustment,1]))
-            //     .times(this.transforms[right_wing]);
             for (let shape in this.transforms) {
-                this.transforms[shape] = Mat4.translation([increment * x,1,-increment * z]).times(this.transforms[shape]);
+                this.transforms[shape] = Mat4.translation([0,1,0]).times(this.transforms[shape]);
             }
             this.translation.x += increment * x;
             this.translation.z += -increment * z;
         }
         else {
-            let adjustment = 1 * this.state.frameNumber;
-            // this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
-            //     .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
-            //     .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
-            //     .times(this.transforms[left_wing]);
-            // this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
-            //     .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
-            //     .times(Mat4.translation([ 7,4.5 - adjustment,1]))
-            //     .times(this.transforms[right_wing]);
             for (let shape in this.transforms) {
-                this.transforms[shape] = Mat4.translation([increment * x,-1,-increment * z]).times(this.transforms[shape]);
+                this.transforms[shape] = Mat4.translation([0,-1,0]).times(this.transforms[shape]);
             }
             this.translation.x += increment * x;
             this.translation.z += -increment * z;

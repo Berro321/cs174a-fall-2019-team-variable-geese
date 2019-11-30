@@ -6,7 +6,7 @@ class Arena_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls_Arena( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,90,90 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 100,90,-100 ), Vec.of( 100,0,-190 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     context.canvas.addEventListener( "mousemove", e => { e.preventDefault();
         this.handle_mouse_movement(calculate_click_ray_2(e, context.globals.graphics_state.camera_transform, context.globals.graphics_state.projection_transform, context.canvas)); } );
@@ -42,8 +42,7 @@ class Arena_Scene extends Scene_Component {
       g3: new Sonk(3,7,9,1),
       g4: new Stronk(4,3,3,2),
       g5: new Lonk(5,2,2,3),
-      
-      // g3: new Goose(3),
+      g6: new Monk(6,4,4,2),
     }
 
     // add all shapes used by geese to shapes
@@ -68,6 +67,7 @@ class Arena_Scene extends Scene_Component {
       { white:     context.get_instance( Phong_Shader ).material( Color.of( 1,1,1,1 ), { ambient:.5 } ),
         black:     context.get_instance( Phong_Shader ).material( Color.of( 0,0,0,1 ), { ambient:.5 } ),
         orange:    context.get_instance( Phong_Shader ).material( Color.of( 1,.7,.4,1 ), { ambient:.5 } ),
+        red:       context.get_instance( Phong_Shader ).material( Color.of( 1,0,0,1 ), {ambient: .5} ),
         green:     context.get_instance( Phong_Shader ).material( Color.of(.2,.5,.2,1 ), {ambient: 0.5} ),
         gold:      context.get_instance( Phong_Shader ).material( Color.of(.7,.4,.2,1), {ambient: .5}),
         gray:      context.get_instance( Phong_Shader ).material( Color.of(.5,.5,.5,1), {ambient: .5}),
@@ -119,7 +119,8 @@ class Arena_Scene extends Scene_Component {
     const width = 10, length = 10;
     // TODO: Collisions against the menu items should override any other collisions.
     let tiles = this.calculate_ray_tile_intersection(mouse_ray, width, length);
-    this.clicked_tile = tiles;
+    if (!this.moving)
+      this.clicked_tile = tiles;
     this.click_ray = mouse_ray;
     // TODO: Maybe move collision with geese here?
   }
@@ -152,8 +153,8 @@ class Arena_Scene extends Scene_Component {
     }
 
     for (let g in this.geese) {
-        for (let shape in this.geese[g].shapes) {
-          this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape], this.materials[this.geese[g].colors[shape]]);
+        for (let shape in this.geese[g].shapes) {  
+          this.shapes[shape].draw(graphics_state, Mat4.translation([this.geese[g].translation.x, 0, this.geese[g].translation.z]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
         }
     }
 

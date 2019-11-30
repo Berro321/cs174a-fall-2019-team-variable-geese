@@ -275,10 +275,14 @@ function generate_move_tiles_locations(input_goose, move_positions, curPath, cel
       cellToPath[current_tile_x + " " + current_tile_z] = curPath;
     }
   }
-  generate_move_tiles_locations(input_goose, move_positions, curPath + 'R', cellToPath, range-1, obstacles, geese, current_tile_x+1, current_tile_z, width, length);
-  generate_move_tiles_locations(input_goose, move_positions, curPath + 'L', cellToPath, range-1, obstacles, geese, current_tile_x-1, current_tile_z, width, length);
-  generate_move_tiles_locations(input_goose, move_positions, curPath + 'U', cellToPath, range-1, obstacles, geese, current_tile_x, current_tile_z+1, width, length);
-  generate_move_tiles_locations(input_goose, move_positions, curPath + 'D', cellToPath, range-1, obstacles, geese, current_tile_x, current_tile_z-1, width, length);
+  if (curPath[curPath.length-1] != 'L')
+    generate_move_tiles_locations(input_goose, move_positions, curPath + 'R', cellToPath, range-1, obstacles, geese, current_tile_x+1, current_tile_z, width, length);
+  if (curPath[curPath.length-1] != 'R')
+    generate_move_tiles_locations(input_goose, move_positions, curPath + 'L', cellToPath, range-1, obstacles, geese, current_tile_x-1, current_tile_z, width, length);
+  if (curPath[curPath.length-1] != 'D')
+    generate_move_tiles_locations(input_goose, move_positions, curPath + 'U', cellToPath, range-1, obstacles, geese, current_tile_x, current_tile_z+1, width, length);
+  if (curPath[curPath.length-1] != 'U')
+    generate_move_tiles_locations(input_goose, move_positions, curPath + 'D', cellToPath, range-1, obstacles, geese, current_tile_x, current_tile_z-1, width, length);
 }
 
 // Calculate the world position of an object originally at position (0,0,0)
