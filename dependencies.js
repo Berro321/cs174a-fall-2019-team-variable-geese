@@ -702,11 +702,33 @@ class Radial_Blur_Shader_Multi extends Simple_Shader
 window.Negative_Shader = window.classes.Negative_Shader =
 class Negative_Shader extends Simple_Shader
 {
+  material( color, properties )     // Define an internal class "Material" that stores the standard settings found in Phong lighting.
+  { return new class Material       // Possible properties: ambient, diffusivity, specularity, smoothness, gouraud, texture.
+      { constructor( shader, color = Color.of( 0,0,0,1 ), ambient = 0, diffusivity = 1, specularity = 1, smoothness = 40 )
+          { Object.assign( this, { shader, color, ambient, diffusivity, specularity, smoothness } );  // Assign defaults.
+            Object.assign( this, properties );                                                        // Optionally override defaults.
+          }
+        override( properties )                      // Easily make temporary overridden versions of a base material, such as
+          { const copied = new this.constructor();  // of a different color or diffusivity.  Use "opacity" to override only that.
+            Object.assign( copied, this );
+            Object.assign( copied, properties );
+            copied.color = copied.color.copy();
+            if( properties[ "opacity" ] != undefined ) copied.color[3] = properties[ "opacity" ];
+            return copied;
+          }
+      }( this, color );
+  }
+
+  constructor(gl) {
+    super(gl);
+    this.initial_animation_time = 0.0;
+  }
   update_GPU(g_state, model_transform, material, gpu = this.g_addrs, gl = this.gl)
   {
     super.update_GPU(g_state, model_transform, material, gpu, gl);
     // Add initial animation_time
-    gl.uniform1f(gpu.animation_start_time_loc, material.initial_animation_time);
+    gl.uniform1f(gpu.animation_start_time_loc, this.initial_animation_time);
+    gl.uniform1f(gpu.rate_loc, 100);
   }
 
   fragment_glsl_code()         // ********* FRAGMENT SHADER ********* 
@@ -715,13 +737,14 @@ class Negative_Shader extends Simple_Shader
       return `
         uniform sampler2D texture;
         uniform float animation_start_time;
+        uniform float rate;
 
         void main()
           {
             // Sample the texture image in the correct place:
-            float delta_time = animation_time - (animation_start_time / 1000.0);
+            float delta_time = animation_time - (animation_start_time / 1000.0) ;
             vec4 tex_color = texture2D( texture, f_tex_coord );
-            float dist_thresh = delta_time * 0.7;
+            float dist_thresh = delta_time;
             vec2 dir = 0.5 - f_tex_coord;
             float dist = sqrt(dir.x * dir.x + dir.y*dir.y);
             if (dist < dist_thresh)

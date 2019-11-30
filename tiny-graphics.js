@@ -590,6 +590,7 @@ class Simple_Shader extends Shader {
   shared_glsl_code() {
     return `precision mediump float;
       varying vec2 f_tex_coord;
+      uniform float animation_time;
     `;
   }
   vertex_glsl_code()

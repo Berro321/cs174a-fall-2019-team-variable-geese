@@ -6,7 +6,7 @@ class Honk extends Goose {
         super ( goose_id, x, z, orientation );
         this.head_pos = [0, 0];
         this.body_angle = 0;
-        this.setup();
+        // this.setup();
     }
 
     attack = () => {

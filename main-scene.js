@@ -6,7 +6,7 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 10,20,10 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 10,10,20 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     // Add a canvas listener for picking
     this.click_ray = undefined;
@@ -22,7 +22,7 @@ class Game_Scene extends Scene_Component {
                    }
     // instantiate geese
     this.geese = {
-      g1: new Stronk(1),
+      g1: new Monk(1),
       // g2: new Goose(2),
       // g3: new Goose(3),
     }
@@ -59,6 +59,8 @@ class Game_Scene extends Scene_Component {
         menu_image: context.get_instance( Phong_Shader ).material( Color.of(1,1,0,1), {ambient: 1, diffusivity: 0, specularity: 0}),  // Material for menu objects
         radial_blur_material: context.get_instance(Radial_Blur_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
         // negative_material: context.get_instance(Negative_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
+        negative_material: {shader: context.get_instance(Negative_Shader)},
+        radial_simple: {shader: context.get_instance(Radial_Blur_Shader_Multi)},
       }
 
       // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
@@ -78,7 +80,9 @@ class Game_Scene extends Scene_Component {
       let menu_obj2 = {menu_transform: menu_transform_2, menu_material: this.materials.menu_image, tag: "menu 2", text: "honk", text_transform: text_transform_2,  clickable: true};
       this.menu_manager = new Menu_Manager([/*menu_obj, menu_obj2*/], this.shapes.menu_quad, this.shapes.text_line, this.materials.text_image);
       this.screen_quad_transform = Mat4.translation([0,0,-0.1]).times(Mat4.scale([0.075,.042,1]));  // Transform for quad that appears in front of camera for multi-pass
-  }
+      this.enable_multi = false;
+      this.init_shader_trigger = false;
+    }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
     this.key_triggered_button("Flap em", ["q"], () => this.geese['g1'].state.animating = !this.geese['g1'].state.animating);
@@ -138,23 +142,37 @@ class Game_Scene extends Scene_Component {
     this.menu_manager.draw_menus(graphics_state, this.context);
 
     
-    if (this.camera_animation_manager.animation_type != 0) {
-      // Multi-pass rendering for radial blur if camera is zooming in/out
-      // Draw image to hidden canvas
-      this.scratchpad_context.drawImage( this.canvas, 0, 0, 1024, 512 );
-      this.result_img = this.scratchpad.toDataURL("image/png");
-                                  // Don't call copy to GPU until the event loop has had a chance
-                                  // to act on our SRC setting once:
-      if( this.skipped_first_frame )
-                                                      // Update the texture with the current scene:
-          this.fb_texture.image.src = this.result_img;
-      this.skipped_first_frame = true;
-      // Start over on a new drawing, never displaying the prior one:
-      this.context.clear( this.context.COLOR_BUFFER_BIT | this.context.DEPTH_BUFFER_BIT);
-      // Draw the quad in front of camera with new texture
-      let final_transform = Mat4.inverse(graphics_state.camera_transform).times(this.screen_quad_transform);
-      this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
+    // if (this.camera_animation_manager.animation_type != 0) {
+    //   // Multi-pass rendering for radial blur if camera is zooming in/out
+    //   // Draw image to hidden canvas
+    //   this.scratchpad_context.drawImage( this.canvas, 0, 0, 1024, 512 );
+    //   this.result_img = this.scratchpad.toDataURL("image/png");
+    //                               // Don't call copy to GPU until the event loop has had a chance
+    //                               // to act on our SRC setting once:
+    //   if( this.skipped_first_frame )
+    //                                                   // Update the texture with the current scene:
+    //       this.fb_texture.image.src = this.result_img;
+    //   this.skipped_first_frame = true;
+    //   // Start over on a new drawing, never displaying the prior one:
+    //   this.context.clear( this.context.COLOR_BUFFER_BIT | this.context.DEPTH_BUFFER_BIT);
+    //   // Draw the quad in front of camera with new texture
+    //   let final_transform = Mat4.inverse(graphics_state.camera_transform).times(this.screen_quad_transform);
+    //   this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
+    // }
+
+    if (this.geese['g1'].animate_shader && !this.init_shader_trigger) {
+      this.enable_multi = true;
+      this.init_shader_trigger = true;
+      this.materials.negative_material.shader.initial_animation_time = graphics_state.animation_time;
     }
+    else if (!this.geese['g1'].animate_shader && this.init_shader_trigger) {
+      this.enable_multi = false;
+      this.init_shader_trigger = false;
+    }
+
+    graphics_state.multipass.enabled = this.enable_multi;
+    graphics_state.multipass.shape = this.shapes.menu_quad;
+    graphics_state.multipass.material = this.materials.negative_material; 
     
   }
 }
