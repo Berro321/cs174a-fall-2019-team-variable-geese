@@ -22,7 +22,7 @@ class Game_Scene extends Scene_Component {
                    }
     // instantiate geese
     this.geese = {
-      g1: new Lonk(1),
+      g1: new Monk(1),
       // g2: new Goose(2),
       // g3: new Goose(3),
     }
@@ -50,7 +50,8 @@ class Game_Scene extends Scene_Component {
       { white:     context.get_instance( Phong_Shader ).material( Color.of( 1,1,1,1 ), { ambient:.5 } ),
         black:     context.get_instance( Phong_Shader ).material( Color.of( 0,0,0,1 ), { ambient:.5 } ),
         orange:    context.get_instance( Phong_Shader ).material( Color.of( 1,.7,.4,1 ), { ambient:.5 } ),
-        green:     context.get_instance( Phong_Shader ).material( Color.of(.2,.5,.2,1 ), {ambient: 0.5} ),
+        red:       context.get_instance( Phong_Shader ).material( Color.of( 1,0,0,1 ), {ambient: .5} ),
+        green:     context.get_instance( Phong_Shader ).material( Color.of(.2,.5,.2,1 ), {ambient: .5} ),
         gold:      context.get_instance( Phong_Shader ).material( Color.of(.7,.4,.2,1), {ambient: .5}),
         gray:      context.get_instance( Phong_Shader ).material( Color.of(.5,.5,.5,1), {ambient: .5}),
         text_image: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,1),
@@ -90,7 +91,7 @@ class Game_Scene extends Scene_Component {
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
     // console.log("t: " + t + " dt: " + dt);
-    this.geese['g1'].state.animating = true;
+    this.geese['g1'].state.animating = false;
     for (let g in this.geese) {
       if(this.geese[g].state.animating) {
         this.geese[g].attack();

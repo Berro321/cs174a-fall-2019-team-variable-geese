@@ -92,6 +92,29 @@ class Cube extends Shape    // A cube inserts six square strips into its arrays.
     }
 }
 
+window.Triangular_Prism = window.classes.Triangular_Prism =
+class Triangular_Prism extends Shape     // Right triangular prism.
+  { constructor()
+      { super( "positions", "normals" );
+
+        this.positions.push( ...Vec.cast( [ 1, 1, 1], [-1, 1, 1], [ 1, 1,-1],
+                                          [ 1,-1, 1], [ 1,-1,-1], [-1,-1, 1],
+                                          [ 1, 1, 1], [-1, 1, 1], [-1,-1, 1], [ 1,-1, 1],
+                                          [ 1, 1, 1], [ 1,-1, 1], [ 1,-1,-1], [ 1, 1,-1],
+                                          [ 1, 1,-1], [ 1,-1,-1], [-1,-1, 1], [-1, 1, 1] ) );
+        
+        this.normals.push(   ...Vec.cast( [ 0, 1, 0], [ 0, 1, 0], [ 0, 1, 0],
+                                          [ 0,-1, 0], [ 0,-1, 0], [ 0,-1, 0],
+                                          [ 0, 0, 1], [ 0, 0, 1], [ 0, 0, 1], [ 0, 0, 1],
+                                          [ 1, 0, 0], [ 1, 0, 0], [ 1, 0, 0], [ 1, 0, 0],
+                                          [-1, 0,-1], [-1, 0,-1], [-1, 0,-1], [-1, 0,-1] ) );
+
+        this.indices.push( 0, 1, 2, 3, 4, 5, 6, 7, 8, 6, 8, 9,
+                           10, 11, 12, 10, 12, 13,
+                           14, 15, 16, 14, 16, 17 );
+      }
+  }
+
 window.Body = window.classes.Body =
 class Body extends Shape    // A cube inserts six square strips into its arrays.
 { constructor()  
@@ -891,10 +914,10 @@ class Cone_Tip extends Surface_Of_Revolution        // Note:  Touches the Z axis
 
 window.Torus = window.classes.Torus =
 class Torus extends Shape                                         // Build a donut shape.  An example of a surface of revolution.
-  { constructor( rows, columns )  
+  { constructor( rows, columns, param1, param2 )  
       { super( "positions", "normals", "texture_coords" );
-        const circle_points = Array( rows ).fill( Vec.of( .75,0,0 ) )
-                                           .map( (p,i,a) => Mat4.translation([ -1.5,0,0 ])
+        const circle_points = Array( rows ).fill( Vec.of( param1,0,0 ) )
+                                           .map( (p,i,a) => Mat4.translation([ param2,0,0 ])
                                                     .times( Mat4.rotation( i/(a.length-1) * 2*Math.PI, Vec.of( 0,-1,0 ) ) )
                                                     .times( p.to4(1) ).to3() );
 
@@ -905,6 +928,20 @@ window.Cymbal = window.classes.Cymbal =
 class Cymbal extends Shape
   { constructor( rows, columns )  
       { super( "positions", "normals", "texture_coords" );
-        Torus          .insert_transformed_copy_into( this, [ rows, columns ], Mat4.scale([1, 1, 0.1]));
+        Torus          .insert_transformed_copy_into( this, [ rows, columns, 0.75, -1.5 ], Mat4.scale([1, 1, 0.1]));
         Cone_Tip       .insert_transformed_copy_into( this, [ rows, columns, [0,1]], Mat4.translation([0,0,0.1]).times(Mat4.scale([1,1,0.1])));        
+      } }
+
+window.Cape = window.classes.Cape =
+class Cape extends Shape
+  { constructor( rows, columns )  
+      { super( "positions", "normals", "texture_coords" );
+        Torus            .insert_transformed_copy_into( this, [ rows, columns, 0.25, -0.9 ], Mat4.rotation(Math.PI/15, Vec.of(0,0,1)).times(Mat4.rotation(-Math.PI/2, Vec.of(1,0,0))).times(Mat4.scale([1, 1, 0.1])) );
+        Cube             .insert_transformed_copy_into( this, [], Mat4.rotation(Math.PI/15, Vec.of(0,0,1)).times(Mat4.translation([-6.5,0,0])).times(Mat4.scale([6, 0.05, 1.2])));
+        Cube             .insert_transformed_copy_into( this, [], Mat4.translation([0,-0.4,2]).times(Mat4.rotation(Math.PI/13, Vec.of(0,0,1))).times(Mat4.translation([-6.5,0,0])).times(Mat4.rotation(Math.PI/6, Vec.of(1,0,0))).times(Mat4.scale([5.9, 0.05, 1.2])) );
+        Cube             .insert_transformed_copy_into( this, [], Mat4.translation([0,-0.4,-2]).times(Mat4.rotation(Math.PI/13, Vec.of(0,0,1))).times(Mat4.translation([-6.5,0,0])).times(Mat4.rotation(-Math.PI/6, Vec.of(1,0,0))).times(Mat4.scale([5.9, 0.05, 1.2])) );
+        Triangular_Prism .insert_transformed_copy_into( this, [], Mat4.translation([0,-1.9,3.6]).times(Mat4.rotation(Math.PI/12, Vec.of(0,0,1))).times(Mat4.translation([-6.5,0,0])).times(Mat4.rotation(Math.PI/3, Vec.of(1,0,0))).times(Mat4.scale([5.5, 0.05, 1.2])).times(Mat4.rotation(Math.PI, Vec.of(0,1,0))) );
+        Triangular_Prism .insert_transformed_copy_into( this, [], Mat4.translation([0,-1.9,-3.6]).times(Mat4.rotation(Math.PI/12, Vec.of(0,0,1))).times(Mat4.translation([-6.5,0,0])).times(Mat4.rotation(-Math.PI/3, Vec.of(1,0,0))).times(Mat4.scale([5.5, 0.05, -1.2])).times(Mat4.rotation(Math.PI, Vec.of(0,1,0))) );
+
+        //Cone_Tip       .insert_transformed_copy_into( this, [ rows, columns, [0,1]], Mat4.translation([0,0,0.1]).times(Mat4.scale([1,1,0.1])));        
       } }
