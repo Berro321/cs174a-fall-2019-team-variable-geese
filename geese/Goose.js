@@ -131,6 +131,9 @@ class Goose {
         for (let transform in this.transforms)
             this.transforms[transform] = Mat4.translation([4.25, 9.35, 0]).times(this.transforms[transform]);
 
+        for (let transform in this.transforms)
+            this.transforms[transform] = Mat4.scale([0.75,0.75,0.75]).times(this.transforms[transform]);
+
         // set goose's original orientation
         this.rotate_goose(0, this.state.orientation);
 
