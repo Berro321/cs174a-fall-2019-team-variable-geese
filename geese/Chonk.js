@@ -35,6 +35,8 @@ class Chonk extends Goose {
 
     //New ball attack - 3 rotations before attack.
     attack = () => {
+        this.animate_setup();
+
         let t_frames = 200;
         if (this.state.frameNumber == 0) {
             this.state.frameNumber = t_frames;
@@ -162,6 +164,8 @@ class Chonk extends Goose {
             this.state.animating = false;
             this.rot_factor = 0.0;
         }
+
+        this.animate_reset();
     }
     
 

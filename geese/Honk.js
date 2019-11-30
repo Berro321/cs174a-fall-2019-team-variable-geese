@@ -10,6 +10,8 @@ class Honk extends Goose {
     }
 
     attack = () => {
+        this.animate_setup();
+        
         let t_frames = 140;
 
         if (this.state.frameNumber == 0) {
@@ -236,5 +238,7 @@ class Honk extends Goose {
             this.head_pos = [0, 0];
             this.body_angle = 0;
         }
+
+        this.animate_reset();
     }
 }

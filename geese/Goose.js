@@ -151,6 +151,22 @@ class Goose {
             this.transforms[transform] = Mat4.rotation(2 * Math.PI / 4 * (new_orientation - old_orientation), Vec.of(0,1,0)).times(this.transforms[transform]);
     }
 
+    animate_setup = () => {
+        this.rotate_goose(this.state.orientation, 0);
+        for (let transform in this.transforms)
+            this.transforms[transform] = Mat4.scale([4/3,4/3,4/3]).times(this.transforms[transform]);
+        for (let transform in this.transforms)
+            this.transforms[transform] = Mat4.translation([-4.25, -9.35, 0]).times(this.transforms[transform]);
+    }
+
+    animate_reset = () => {
+        for (let transform in this.transforms)
+        this.transforms[transform] = Mat4.translation([4.25, 9.35, 0]).times(this.transforms[transform]);
+        for (let transform in this.transforms)
+            this.transforms[transform] = Mat4.scale([0.75,0.75,0.75]).times(this.transforms[transform]);
+        this.rotate_goose(0, this.state.orientation);
+    }
+
     // generate path, responsible for rotating goose before calling moveOneCell()
     move = (path) => {
         let movement_char = path[this.state.path_itr];

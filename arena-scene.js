@@ -37,12 +37,12 @@ class Arena_Scene extends Scene_Component {
                 
     // instantiate geese
     this.geese = {
-      g1: new Chonk(1,5,3,3),
-      g2: new Honk(2,6,4,1),
-      g3: new Sonk(3,7,9,1),
-      g4: new Stronk(4,3,3,2),
-      g5: new Lonk(5,2,2,3),
-      g6: new Monk(6,4,4,2),
+      g1: new Chonk(1,0,0,3),
+      g2: new Honk(2,1,0,3),
+      g3: new Sonk(3,2,0,3),
+      g4: new Stronk(4,3,0,3),
+      g5: new Lonk(5,4,0,3),
+      g6: new Monk(6,5,0,3),
     }
 
     // add all shapes used by geese to shapes
@@ -153,8 +153,10 @@ class Arena_Scene extends Scene_Component {
     }
 
     for (let g in this.geese) {
+      this.geese[g].attack();
         for (let shape in this.geese[g].shapes) {  
           this.shapes[shape].draw(graphics_state, Mat4.translation([this.geese[g].translation.x, 0, this.geese[g].translation.z]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
+        
         }
     }
 

@@ -69,6 +69,8 @@ class Stronk extends Goose {
     }
 
     attack = () => {
+        this.animate_setup();
+
         let t_frames = 140;
         //let factor = t_frames / 100;
         if (this.state.frameNumber == 0) {
@@ -318,5 +320,7 @@ class Stronk extends Goose {
             this.head_pos = [0, 0];
             this.body_angle = 3.5;
         }
+
+        this.animate_reset();
     }
 }

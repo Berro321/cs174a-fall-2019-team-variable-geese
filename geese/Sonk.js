@@ -43,6 +43,8 @@ class Sonk extends Goose {
 
     // Cymbal action.
     attack = () => {
+        this.animate_setup();
+
         let t_frames = 140;
         if (this.state.frameNumber == 0) {
             this.state.frameNumber = t_frames;
@@ -284,5 +286,7 @@ class Sonk extends Goose {
             this.head_pos = [0, 0];
             this.body_angle = 0;
         }
+
+        this.animate_reset();
     }
 }

@@ -28,6 +28,8 @@ class Lonk extends Goose {
     }
 
     attack = () => {
+        this.animate_setup();
+
         let t_frames = 140;
         if (this.state.frameNumber == 0) {
             this.state.frameNumber = t_frames;
@@ -244,5 +246,7 @@ class Lonk extends Goose {
             this.state.animating = false;
             this.body_angle = 0;
         }
+
+        this.animate_reset();
     }
 }
