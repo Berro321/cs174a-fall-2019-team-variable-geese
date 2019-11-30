@@ -38,6 +38,7 @@ class Monk extends Goose {
         this.setup();
 
         this.head_pos = [0, 0];
+        this.cape_pos = [-0.4,-2.0];
         this.body_angle = 0;
     }
 
@@ -49,6 +50,7 @@ class Monk extends Goose {
         if (this.state.frameNumber == 0) {
             this.state.frameNumber = t_frames;
             this.head_pos = [0, 0];
+            this.cape_pos = [-0.4,-2.4];
             this.body_angle = 0;
         }
         let tag = '_' + this.constructor.name + this.stats.goose_id;
@@ -101,7 +103,9 @@ class Monk extends Goose {
                 .times(Mat4.translation([ -0.5, -0.75,-0.4]))
                 .times(this.transforms[right_eyebrow]);
 
-        } 
+            this.transforms[cape] = Mat4.translation([0, 0.03, 0])
+                .times(this.transforms[cape]);
+        }
         
         else if (this.state.frameNumber > t_frames * 13/18) {
             this.transforms[head] = body_up_transform
@@ -130,9 +134,6 @@ class Monk extends Goose {
             this.transforms[hat_base] = face_transform
                 .times(this.transforms[hat_base]);
 
-            this.transforms[cape] = body_up_transform
-                .times(this.transforms[cape]);
-
             this.transforms[top_beak] = Mat4.translation([this.head_pos[0] + 1, this.head_pos[1], 0])
                 .times(Mat4.rotation(Math.PI / 100 / 3, Vec.of(0,0,1)))
                 .times(Mat4.translation([-(this.head_pos[0] + 1), -this.head_pos[1], 0]))
@@ -148,8 +149,15 @@ class Monk extends Goose {
             this.transforms[neck] = body_up_transform
                 .times(neck_up_transform)
                 .times(this.transforms[neck]);
+            
+            let new_cape_pos = body_up_transform.times(neck_up_transform).times(Vec.of(this.cape_pos[0],this.cape_pos[1],0,1));
+            let cape_transform = Mat4.translation([new_cape_pos[0] - this.cape_pos[0], new_cape_pos[1] - this.cape_pos[1], 0]);
+            this.cape_pos = [new_cape_pos[0], new_cape_pos[1]];
 
-            this.body_angle += Math.PI / 100 / 2.25;
+            this.transforms[cape] = cape_transform
+                .times(this.transforms[cape]);
+
+            this.body_angle -= Math.PI / 100 / 2.25;
 
             this.transforms[left_wing] = Mat4.translation([-4,-6.75, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
@@ -193,28 +201,26 @@ class Monk extends Goose {
             if (this.state_flap == 0) {
                 // flap down
                 this.transforms[left_wing] = Mat4.translation([-4,-6.75, 0])
-                .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
-                .times(Mat4.translation([4,6.75,0]))
-                .times(Mat4.translation([ -7,-4.5,-1]))
-                .times(Mat4.rotation(-Math.PI / 50 / 0.6, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5,1]))
-                .times(Mat4.translation([-4,-6.75, 0]))
-                .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
-                .times(Mat4.translation([4,6.75,0]))
-                .times(body_down_transform)
-                .times(this.transforms[left_wing]); 
+                    .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
+                    .times(Mat4.translation([4,6.75,0]))
+                    .times(Mat4.translation([ -7,-4.5,-1]))
+                    .times(Mat4.rotation(-Math.PI / 50 / 0.6, Vec.of(1,0,0)))
+                    .times(Mat4.translation([ 7,4.5,1]))
+                    .times(Mat4.translation([-4,-6.75, 0]))
+                    .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
+                    .times(Mat4.translation([4,6.75,0]))
+                    .times(this.transforms[left_wing]); 
 
                 this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
-                .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
-                .times(Mat4.translation([4,6.75,0]))
-                .times(Mat4.translation([ -7,-4.5,1]))
-                .times(Mat4.rotation(Math.PI / 50 / 0.6, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5,-1]))
-                .times(Mat4.translation([-4,-6.75, 0]))
-                .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
-                .times(Mat4.translation([4,6.75,0]))
-                .times(body_down_transform)
-                .times(this.transforms[right_wing]); 
+                    .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
+                    .times(Mat4.translation([4,6.75,0]))
+                    .times(Mat4.translation([ -7,-4.5,1]))
+                    .times(Mat4.rotation(Math.PI / 50 / 0.6, Vec.of(1,0,0)))
+                    .times(Mat4.translation([ 7,4.5,-1]))
+                    .times(Mat4.translation([-4,-6.75, 0]))
+                    .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
+                    .times(Mat4.translation([4,6.75,0]))
+                    .times(this.transforms[right_wing]); 
             } 
             else if (this.state_flap == 1) {
                 // Flap up
@@ -227,7 +233,6 @@ class Monk extends Goose {
                 .times(Mat4.translation([-4,-6.75, 0]))
                 .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
                 .times(Mat4.translation([4,6.75,0]))
-                .times(body_up_transform)
                 .times(this.transforms[left_wing]);  
 
                 this.transforms[right_wing] = Mat4.translation([-4,-6.75, 0])
@@ -239,7 +244,6 @@ class Monk extends Goose {
                 .times(Mat4.translation([-4,-6.75, 0]))
                 .times(Mat4.rotation(this.body_angle, Vec.of(0,0,1)))
                 .times(Mat4.translation([4,6.75,0]))
-                .times(body_up_transform)
                 .times(this.transforms[right_wing]);
             }
             this.temp_frame--;
@@ -271,9 +275,6 @@ class Monk extends Goose {
     
             this.transforms[hat_base] = face_transform
                 .times(this.transforms[hat_base]);
-
-            this.transforms[cape] = body_down_transform
-                .times(this.transforms[cape]);
             
             this.transforms[top_beak] = Mat4.translation([this.head_pos[0] + 1, this.head_pos[1], 0])
                 .times(Mat4.rotation(-Math.PI / 100 / 3, Vec.of(0,0,1)))
@@ -290,8 +291,15 @@ class Monk extends Goose {
             this.transforms[neck] = neck_down_transform
                 .times(body_down_transform)
                 .times(this.transforms[neck]);
+
+            let new_cape_pos = neck_down_transform.times(body_down_transform).times(Vec.of(this.cape_pos[0],this.cape_pos[1],0,1));
+            let cape_transform = Mat4.translation([new_cape_pos[0] - this.cape_pos[0], new_cape_pos[1] - this.cape_pos[1], 0]);
+            this.cape_pos = [new_cape_pos[0], new_cape_pos[1]];
+
+            this.transforms[cape] = cape_transform
+                .times(this.transforms[cape]);
             
-            this.body_angle -= Math.PI / 100 / 2.25;
+            this.body_angle += Math.PI / 100 / 2.25;
             
             this.transforms[left_wing] = Mat4.translation([-4,-6.75, 0])
                 .times(Mat4.rotation(-this.body_angle, Vec.of(0,0,1)))
@@ -345,6 +353,9 @@ class Monk extends Goose {
                 .times(Mat4.rotation( Math.PI/6, Vec.of(0,1,0)))
                 .times(Mat4.translation([ -0.5, -0.75,-0.4]))
                 .times(this.transforms[right_eyebrow]);
+
+            this.transforms[cape] = Mat4.translation([0,-0.03, 0])
+                .times(this.transforms[cape]);
         }
 
         this.state.frameNumber--;
@@ -352,6 +363,7 @@ class Monk extends Goose {
             this.state.animating = false;
             this.state.inflict_damage_other = false;
             this.head_pos = [0, 0];
+            this.cape_pos = [-0.4,-2.0];
             this.body_angle = 0;
         }
 

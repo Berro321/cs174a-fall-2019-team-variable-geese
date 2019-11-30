@@ -22,10 +22,8 @@ class Game_Scene extends Scene_Component {
                    }
     // instantiate geese
     this.geese = {
-      g1: new Monk(1),
-      g1: new Stronk(1,0,0,0),
+      g1: new Monk(1,0,0,0),
       // g2: new Goose(2),
-      // g3: new Goose(3),
     }
 
     // add all shapes used by geese to shapes
@@ -95,7 +93,7 @@ class Game_Scene extends Scene_Component {
     graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
-    this.geese['g1'].state.animating = false;
+    this.geese['g1'].state.animating = true;
     for (let g in this.geese) {
       if(this.geese[g].state.animating) {
         this.geese[g].attack();
@@ -132,8 +130,8 @@ class Game_Scene extends Scene_Component {
 
     // Check collisions
     if (this.click_ray) {
-      console.log(this.click_ray);
-      console.log(this.menu_manager.check_collisions(this.click_ray));
+      //console.log(this.click_ray);
+      //console.log(this.menu_manager.check_collisions(this.click_ray));
       this.click_ray = undefined;
     }
 

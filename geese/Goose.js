@@ -88,7 +88,7 @@ class Goose {
             Mat4.identity().times(Mat4.translation([ -4, -5.75, .75])).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), // 'right_leg'
             Mat4.identity().times(Mat4.translation([ -4.25, -9.25,-.75])), // 'left_foot'
             Mat4.identity().times(Mat4.translation([ -4.25, -9.25, .75])), // 'right_foot'
-            Mat4.identity().times(Mat4.translation([-1,-3.75,0])).times(Mat4.rotation(Math.PI/18, Vec.of(0,0,1))).times(Mat4.translation([-3.1,0,0])).times(Mat4.scale([4, 0.01, 0.5])), //'marker_strip'            
+            Mat4.identity().times(Mat4.translation([-1,-3.75,0])).times(Mat4.rotation(Math.PI/18, Vec.of(0,0,1))).times(Mat4.translation([-3.4,0,0])).times(Mat4.scale([3.7, 0.01, 0.5])), //'marker_strip'            
         ];
 
         let shape_colors = [
