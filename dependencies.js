@@ -851,9 +851,10 @@ class Movement_Controls_Arena extends Scene_Component    // Movement_Controls is
   display( graphics_state, dt = graphics_state.animation_delta_time / 1000 )    // Camera code starts here.
     { const m = this.speed_multiplier * this. meters_per_frame,
             r = this.speed_multiplier * this.radians_per_frame;
-      this.first_person_flyaround( dt * r, dt * m );     // Do first-person.  Scale the normal camera aiming speed by dt for smoothness.
-      if( this.mouse.anchor )                            // Also apply third-person "arcball" camera mode if a mouse drag is occurring.  
-        this.third_person_arcball( dt * r);           
+      if (!graphics_state.disable_camera_movement)
+        this.first_person_flyaround( dt * r, dt * m );     // Do first-person.  Scale the normal camera aiming speed by dt for smoothness.
+      // if( this.mouse.anchor )                            // Also apply third-person "arcball" camera mode if a mouse drag is occurring.  
+      //   this.third_person_arcball( dt * r);           
       
       const inv = Mat4.inverse( this.target() );
       this.pos = inv.times( Vec.of( 0,0,0,1 ) ); this.z_axis = inv.times( Vec.of( 0,0,1,0 ) );      // Log some values.

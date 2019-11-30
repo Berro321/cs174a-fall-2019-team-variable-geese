@@ -32,7 +32,7 @@ class Arena_Scene extends Scene_Component {
                          eyebrow_sample: new Cube(),
                          arena: new Arena(this.tile_generator.map, 10, 10),
                          menu_quad: new Square(),
-                         text_line: new Text_Line(2),
+                         text_line: new Text_Line(7),
                    }
                 
     // instantiate geese
@@ -71,6 +71,7 @@ class Arena_Scene extends Scene_Component {
         green:     context.get_instance( Phong_Shader ).material( Color.of(.2,.5,.2,1 ), {ambient: 0.5} ),
         gold:      context.get_instance( Phong_Shader ).material( Color.of(.7,.4,.2,1), {ambient: .5}),
         gray:      context.get_instance( Phong_Shader ).material( Color.of(.5,.5,.5,1), {ambient: .5}),
+        red:       context.get_instance( Phong_Shader ).material( Color.of( 1,0,0,1 ), {ambient: .5} ),
         text_image: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,1),
           {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/text.png", true)}),
         menu_image: context.get_instance( Phong_Shader ).material( Color.of(1,1,0,1), {ambient: 1, diffusivity: 0, specularity: 0}),  // Material for menu objects
@@ -122,7 +123,6 @@ class Arena_Scene extends Scene_Component {
     if (!this.moving)
       this.clicked_tile = tiles;
     this.click_ray = mouse_ray;
-    // TODO: Maybe move collision with geese here?
   }
 
   calculate_ray_tile_intersection(mouse_ray, width, length) {
@@ -162,14 +162,27 @@ class Arena_Scene extends Scene_Component {
 
     // Check for selected units
     if (this.click_ray && !this.moving) {
-      // Check for geese at that position
-      for (let g in this.geese) {
-          if (this.geese[g].tile_position.x == this.clicked_tile.x &&
-              this.geese[g].tile_position.z == this.clicked_tile.z) {
-              this.selected_unit = this.geese[g];
-              break;
-          }
+      // Check for collision against the menus first
+      let collisions = (this.menu_manager.menus_length != 0) ? this.menu_manager.check_collisions(this.click_ray) : [];
+      if (collisions.length != 0) {
+        // Do stuff for that menu item
+        console.log(collisions);
+      } else {
+        // Check for geese at that position
+        for (let g in this.geese) {
+            if (this.geese[g].tile_position.x == this.clicked_tile.x &&
+                this.geese[g].tile_position.z == this.clicked_tile.z) {
+                this.selected_unit = this.geese[g];
+                break;
+            }
+        }
+
+        // If no geese were selected, then clear menu
+        if (!this.selected_unit) {
+          this.menu_manager.clear_menus(true);
+        }
       }
+      this.click_ray = undefined;
     }
     // Check for a movement tile at that position
     if (this.move_positions) {
@@ -213,6 +226,8 @@ class Arena_Scene extends Scene_Component {
 
     // See if moving
     if (this.moving) {
+      // Disable camera movement
+      graphics_state.disable_camera_movement = true;
       if (!this.selected_unit.move(this.cellToPath[this.clicked_tile.x + " " + this.clicked_tile.z])) {
         this.selected_unit.tile_position.x = this.clicked_tile.x;
         this.selected_unit.tile_position.z = this.clicked_tile.z;
@@ -222,6 +237,22 @@ class Arena_Scene extends Scene_Component {
         this.move_positions = undefined;
         this.cellToPath = undefined;
         this.moving = undefined;
+
+        // // Activate the menu items
+        let menu_transform_1 =Mat4.translation([0.02,0.02,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+        let text_transform_1 = Mat4.translation([-0.57,0,0.001]).times(Mat4.scale([0.15,0.5,1]));
+        // Only display attack if there is a enemy in range : assume 1 for now
+        let menu_obj = {menu_transform: menu_transform_1, menu_material: this.materials.menu_image, tag: "attack", text: "Attack", text_transform: text_transform_1,  clickable: true};
+        let menu_transform_2 =Mat4.translation([0.02,0.01,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+        let text_transform_2 = Mat4.translation([-0.49,-0.1,0.001]).times(Mat4.scale([0.15,0.5,1]));
+        let menu_obj_2 = {menu_transform: menu_transform_2, menu_material: this.materials.menu_image, tag: "wait", text: "Wait", text_transform: text_transform_2,  clickable: true};
+        let menu_transform_3 = Mat4.translation([0.02,-0.00,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+        let text_transform_3 = Mat4.translation([-0.65,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
+        let menu_obj_3 = {menu_transform: menu_transform_3, menu_material: this.materials.menu_image, tag: "back", text: "Go Back", text_transform: text_transform_3,  clickable: true};
+        this.menu_manager.add_menu(menu_obj);
+        this.menu_manager.add_menu(menu_obj_2);
+        this.menu_manager.add_menu(menu_obj_3);
+        graphics_state.disable_camera_movement = false;
       }
     }
 
@@ -230,6 +261,11 @@ class Arena_Scene extends Scene_Component {
     this.tile_generator.render_tiles(this.shapes.arena, graphics_state);
     this.shapes.menu_quad.draw(graphics_state, this.marker_tile_world_transform, this.materials.marker_tile);
 
+    // Render the menus
+    if (this.menu_manager.menus_length != 0) {
+      this.menu_manager.update_transforms(graphics_state.camera_transform);
+      this.menu_manager.draw_menus(graphics_state, this.context);
+    }
     // Multipass rendering options
     if (this.camera_animations_manager.animating)
       this.enable_multi = true;

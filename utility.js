@@ -408,6 +408,7 @@ class Menu_Manager
     this.text_shape = text_shape;
     this.text_material = text_material;
     this.menus = {};
+    this.menus_length = 0;
     this.clickable_items = [];
     for(let item in menus) {
       this.add_menu(menus[item]);
@@ -422,6 +423,7 @@ class Menu_Manager
     {
       this.menu_items = [];
     }
+    this.menus_length = 0;
   }
 
   // add a menu to be handled
@@ -433,6 +435,7 @@ class Menu_Manager
     {
       this.clickable_items.push(menu.tag);
     }
+    this.menus_length+=1;
     return true;
   }
 
