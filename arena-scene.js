@@ -6,7 +6,7 @@ class Arena_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls_Arena( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 100,90,-100 ), Vec.of( 100,0,-190 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 100,90, 50), Vec.of( 100,0,-40 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     context.canvas.addEventListener( "mousemove", e => { e.preventDefault();
         this.handle_mouse_movement(calculate_click_ray_2(e, context.globals.graphics_state.camera_transform, context.globals.graphics_state.projection_transform, context.canvas)); } );
@@ -143,17 +143,13 @@ class Arena_Scene extends Scene_Component {
     graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
     // Animate battle scene
-    if (this.setup_trigger == 1) {
-      this.battle_scene_manager.initiate_battle_sequence(this.geese['g1'], this.geese['g2'], this.menu_manager, this.camera_animations_manager);
-      this.setup_trigger = 0;
-    }
-
-    if (this.battle_scene_manager.battle_ongoing) {
-      graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state, this.context);
-    }
+    // if (this.setup_trigger == 1) {
+    //   this.battle_scene_manager.initiate_battle_sequence(this.geese['g1'], this.geese['g2'], this.menu_manager, this.camera_animations_manager);
+    //   this.setup_trigger = 0;
+    // }
 
     for (let g in this.geese) {
-      this.geese[g].attack();
+      // this.geese[g].attack();
         for (let shape in this.geese[g].shapes) {  
           this.shapes[shape].draw(graphics_state, Mat4.translation([this.geese[g].translation.x, 0, this.geese[g].translation.z]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
         
@@ -167,6 +163,10 @@ class Arena_Scene extends Scene_Component {
       if (collisions.length != 0) {
         // Do stuff for that menu item
         console.log(collisions);
+        if (collisions[0] == "attack") {
+          this.attack_positions = generate_attack_tile_locations(this.last_selected_unit.stats, this.last_selected_unit.tile_position.x, this.last_selected_unit.tile_position.z, 10, 10 );
+          this.menu_manager.clear_menus(true);
+        }
       } else {
         // Check for geese at that position
         for (let g in this.geese) {
@@ -197,8 +197,8 @@ class Arena_Scene extends Scene_Component {
       this.move_positions = undefined;
     }
 
-    // Draw movement tiles if unit is selected
-    if (this.selected_unit && !this.moving) {
+    // Draw movement tiles if unit is selected and it is not in attacking
+    if (this.selected_unit && !this.moving && !this.attack_positions) {
       if (!this.move_positions) {
         this.move_positions = [];
         this.cellToPath = {};
@@ -224,6 +224,31 @@ class Arena_Scene extends Scene_Component {
       // }
     }
 
+    // Draw attack tiles if they are defined
+    if (this.attack_positions) {
+      if (this.selected_unit) {
+        // If we selected ourself do nothing otherwise initialize the battle animation
+        // if they are within range
+        if (this.selected_unit != this.last_selected_unit) {
+          for (let tile_index in this.attack_positions.tiles) {
+            let tile = this.attack_positions.tiles[tile_index];
+
+            if (tile[0] == this.selected_unit.tile_position.x && tile[1] == this.selected_unit.tile_position.z) {
+              this.battle_scene_manager.initiate_battle_sequence(this.last_selected_unit, this.selected_unit, this.menu_manager, this.camera_animations_manager);
+            }
+          }
+        }
+      }
+      for (let tile_index in this.attack_positions.positions) {
+        let tile = this.attack_positions.positions[tile_index];
+
+        this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.attack_tile);
+      }
+    }
+    if (this.battle_scene_manager.battle_ongoing) {
+      graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state, this.context);
+    }
+
     // See if moving
     if (this.moving) {
       // Disable camera movement
@@ -233,6 +258,7 @@ class Arena_Scene extends Scene_Component {
         this.selected_unit.tile_position.z = this.clicked_tile.z;
         this.clicked_tile.x = undefined;
         this.clicked_tile.z = undefined;
+        this.last_selected_unit = this.selected_unit;
         this.selected_unit = undefined;
         this.move_positions = undefined;
         this.cellToPath = undefined;

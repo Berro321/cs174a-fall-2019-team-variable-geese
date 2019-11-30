@@ -224,27 +224,28 @@ function calculate_scale_factor(model_transform) {
 }
 
 // Generates the positions for the tiles for movement and attack
-// function generate_action_tiles_locations(goose_stat, current_tile_x, current_tile_z, width, length)
-// {
-//   let move_range = 1; // goose_stat.movement_range;
-//   let attack_range = goose_stat.attack_range;
-//   let move_positions = [];
-//   let attack_positions = [];
-//   let total_square = move_range + attack_range;
-//   for (let i = -1 * total_square; i <= total_square; i++){
-//     for (let j = -1 * total_square; j <= total_square; j++) {
-//         if (i == 0 && j == 0) continue;
-//         let manhattan_distance = Math.abs(i) + Math.abs(j);
-//         if (manhattan_distance <= move_range) {
-//           move_positions.push(calculate_world_pos_from_tile(current_tile_x + i, current_tile_z + j, width, length));
-//         } else if (manhattan_distance <= total_square) {
-//           attack_positions.push(calculate_world_pos_from_tile(current_tile_x + i, current_tile_z + j, width, length));
-//         }
-//     }
-//   }
-//   // Generate the maximum attack range tiles
-//   return {mv_pos: move_positions, at_pos: attack_positions};
-// }
+function generate_attack_tile_locations(goose_stat, current_tile_x, current_tile_z, width, length)
+{
+  let attack_range = goose_stat.attack_range;
+  let attack_positions = [];
+  let attack_tiles = [];
+  for (let i = -1 * attack_range; i <= attack_range; i++){
+    for (let j = -1 * attack_range; j <= attack_range; j++) {
+        if (i == 0 && j == 0 ) continue;
+        let manhattan_distance = Math.abs(i) + Math.abs(j);
+        let next_tile_x = current_tile_x + i;
+        let next_tile_z = current_tile_z + j;
+        if (next_tile_x < 0 || next_tile_x > 19 ||
+            next_tile_z < 0 || next_tile_z > 19) continue; // Don't draw outside the map
+        if (manhattan_distance <= attack_range) {
+          attack_positions.push(calculate_world_pos_from_tile(next_tile_x, next_tile_z, width, length));
+          attack_tiles.push([next_tile_x, next_tile_z]);
+        }
+    }
+  }
+  // Generate the maximum attack range tiles
+  return {tiles: attack_tiles, positions: attack_positions};
+}
 
 function generate_move_tiles_locations(input_goose, move_positions, curPath, cellToPath, range, obstacles, geese, current_tile_x, current_tile_z, width, length) {
   if (range == 0)
