@@ -283,6 +283,7 @@ class Sonk extends Goose {
         this.state.frameNumber--;
         if (this.state.frameNumber == 0) {
             this.state.animating = false;
+            this.state.inflict_damage_other = false;
             this.head_pos = [0, 0];
             this.body_angle = 0;
         }

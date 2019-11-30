@@ -154,7 +154,7 @@ class Lonk extends Goose {
                 .times(this.transforms[right_wing]);  
         }
         else if (this.state.frameNumber > t_frames * 6/14) {
-            ;
+            this.state.inflict_damage_other = true;
         }
         else if (this.state.frameNumber > t_frames * 2/14) {
             this.transforms[head] = neck_up_transform
@@ -244,6 +244,7 @@ class Lonk extends Goose {
         this.state.frameNumber--;
         if (this.state.frameNumber == 0) {
             this.state.animating = false;
+            this.state.inflict_damage_other = false;
             this.body_angle = 0;
         }
 
