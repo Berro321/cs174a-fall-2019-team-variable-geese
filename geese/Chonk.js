@@ -2,8 +2,8 @@
 // This is a derived class for a Chonk,
 // a chonky, high defense, low movement character.
 class Chonk extends Goose {
-    constructor(goose_id) { 
-        super ( goose_id );
+    constructor(goose_id, x, z, orientation) { 
+        super ( goose_id, x, z, orientation );
 
         let tag = '_' + this.constructor.name + this.stats.goose_id;
         let neck = 'neck' + tag;
@@ -28,6 +28,7 @@ class Chonk extends Goose {
 
         this.rot_factor = 0.0;
         this.ball_pos = 0.0;
+        this.setup();
     }
 
     //New ball attack - 3 rotations before attack.

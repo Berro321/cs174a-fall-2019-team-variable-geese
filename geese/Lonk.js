@@ -2,8 +2,8 @@
 // This is a derived class for a Lonk,
 // a longer range character.
 class Lonk extends Goose {
-    constructor(goose_id) { 
-        super ( goose_id );
+    constructor(goose_id, x, z, orientation) { 
+        super ( goose_id, x, z, orientation );
 
         let tag = '_' + this.constructor.name + this.stats.goose_id;
         let neck = 'neck' + tag;
@@ -24,7 +24,7 @@ class Lonk extends Goose {
         this.transforms[right_eye]      = Mat4.translation([ 0, 4, 0]).times(this.transforms[right_eye]);
         this.transforms[top_beak]       = Mat4.translation([ 0, 4, 0]).times(this.transforms[top_beak]);
         this.transforms[bottom_beak]    = Mat4.translation([ 0, 4, 0]).times(this.transforms[bottom_beak]);
-
+        this.setup();
     }
 
     attack = () => {

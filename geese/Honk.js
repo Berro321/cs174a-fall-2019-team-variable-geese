@@ -2,10 +2,11 @@
 // This is a derived class for your standard Honk,
 // a basic, well-rounded character
 class Honk extends Goose {
-    constructor(goose_id) { 
-        super ( goose_id );
+    constructor(goose_id, x, z, orientation) { 
+        super ( goose_id, x, z, orientation );
         this.head_pos = [0, 0];
         this.body_angle = 0;
+        this.setup();
     }
 
     attack = () => {

@@ -2,8 +2,8 @@
 // This is a derived class for a Stronk,
 // a high attack, low movement character.
 class Stronk extends Goose {
-    constructor(goose_id) { 
-        super ( goose_id );
+    constructor(goose_id, x, z, orientation) { 
+        super ( goose_id, x, z, orientation );
 
         let tag = '_' + this.constructor.name + this.stats.goose_id;
         let head = 'head' + tag;
@@ -62,6 +62,8 @@ class Stronk extends Goose {
 
         this.head_pos = [0, 3.5];
         this.body_angle = 0;
+
+        this.setup();
     }
 
     attack = () => {

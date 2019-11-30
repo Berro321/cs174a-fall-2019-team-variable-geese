@@ -2,8 +2,8 @@
 // This is a derived class for a Monk,
 // a character that provides magical attacks, has low defense and moves normally.
 class Monk extends Goose {
-    constructor(goose_id) { 
-        super ( goose_id );
+    constructor(goose_id, x, z, orientation) { 
+        super ( goose_id, x, z, orientation );
 
         let tag = '_' + this.constructor.name + this.stats.goose_id;
         let head = 'head' + tag;
@@ -30,5 +30,6 @@ class Monk extends Goose {
         this.shapes['cape' + '_' + this.constructor.name + goose_id] = new Cape(20, 20);
         this.transforms['cape' + '_' + this.constructor.name + goose_id] = Mat4.translation([-0.4,-3,0]);
         this.colors['cape' + '_' + this.constructor.name + goose_id] = 'red';
+        this.setup();
     }
 }

@@ -4,13 +4,13 @@
 // shapes and transforms that pertain the body parts
 // of this goose.
 class Goose {
-    constructor(goose_id) {
+    constructor(goose_id, x, z, orientation) {
 
         this.stats = {
             health: 20,
             attack: 5,
             defense: 1,
-            movement_range: 2,  // These are based on manhattan distance for tiles
+            movement_range: 5,  // These are based on manhattan distance for tiles
             attack_range: 1,
             goose_id: goose_id,
         };
@@ -19,12 +19,20 @@ class Goose {
             animating: false,
             frameNumber: 0,
             inflict_damage_other: false,
+            orientation: orientation, // 0 is right, 1 is up, 2 is left, 3 is down
+            path_itr: 0,
         };
 
         this.tile_position = {
-            x: 0,
-            z: 0,
+            x: x,
+            z: z,
         };
+
+        this.translation = {
+            x: 0,
+            y: 0,
+            z: 0,
+        }
 
         let shape_names = [
             'head',
@@ -111,48 +119,107 @@ class Goose {
             this.transforms[shape_names[i] + '_' + this.constructor.name + goose_id] = shape_transforms[i];
             this.colors[shape_names[i] + '_' + this.constructor.name + goose_id] = shape_colors[i];
         }
-        
     }
 
-    flap = () => {
-        let t_frames = 100;
+    setup = () => {
+        // move feet to origin
+        console.log(this.transforms)
+        for (let transform in this.transforms)
+            this.transforms[transform] = Mat4.translation([4.25, 9.35, 0]).times(this.transforms[transform]);
+
+        // set goose's original orientation
+        this.rotate_goose(0, this.state.orientation);
+
+        // calculate tile location
+        let tile_coords = calculate_world_pos_from_tile(this.tile_position.x, this.tile_position.z, 10, 10);
+        console.log(tile_coords)
+        this.translation.x += tile_coords[0];
+        this.translation.z += tile_coords[2];
+
+        // translate to correct tile
+        for (let transform in this.transforms)
+            this.transforms[transform] = Mat4.translation([this.translation.x, this.translation.y, this.translation.z]).times(this.transforms[transform]);
+    
+    }
+
+    rotate_goose(old_orientation, new_orientation) {
+        if (old_orientation == new_orientation)
+            return;
+        for (let transform in this.transforms) {
+            this.transforms[transform] = Mat4.translation([this.translation.x, this.translation.y, this.translation.z])
+            .times(Mat4.rotation(2 * Math.PI / 4 * (new_orientation - old_orientation), Vec.of(0,1,0)))
+            .times(Mat4.translation([-this.translation.x, -this.translation.y, -this.translation.z]))
+            .times(this.transforms[transform]);
+        }
+    }
+
+    // generate path, responsible for rotating goose before calling moveOneCell()
+    move = (path) => {
+        let movement_char = path[this.state.path_itr];
+        let new_orientation;
+        switch(movement_char) {
+            case 'R': new_orientation = 0; this.moveOneCell(1,0); break;
+            case 'U': new_orientation = 1; this.moveOneCell(0,1); break;
+            case 'L': new_orientation = 2; this.moveOneCell(-1,0); break;
+            case 'D': new_orientation = 3; this.moveOneCell(0,-1); break;
+        }
+
+        this.rotate_goose(this.state.orientation, new_orientation);
+        this.state.orientation = new_orientation;
+
+        if (this.state.path_itr == path.length) {
+            this.state.path_itr = 0;
+            return false;
+        }
+        else
+            return true;
+    }
+
+    // TODO: fix flapping?
+    moveOneCell = (x, z) => {
+        let t_frames = 10;
+        let increment = 1;
         if (this.state.frameNumber == 0)
             this.state.frameNumber = t_frames;
 
         let left_wing = 'left_wing' + '_' + this.constructor.name + this.stats.goose_id;
         let right_wing = 'right_wing' + '_' + this.constructor.name + this.stats.goose_id;
         if (this.state.frameNumber > t_frames/2) {
-            let adjustment = 0.1 * (100 - this.state.frameNumber);
-            this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
-                .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5 - adjustment,1]))
-                .times(this.transforms[left_wing]);
-            this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
-                .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
-                .times(this.transforms[right_wing]);
+            let adjustment = 1 * (t_frames - this.state.frameNumber);
+            // this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
+            //     .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
+            //     .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
+            //     .times(this.transforms[left_wing]);
+            // this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
+            //     .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
+            //     .times(Mat4.translation([ 7,4.5 - adjustment,1]))
+            //     .times(this.transforms[right_wing]);
             for (let shape in this.transforms) {
-                this.transforms[shape] = Mat4.translation([0.1,0.1,0]).times(this.transforms[shape]);
+                this.transforms[shape] = Mat4.translation([increment * x,1,-increment * z]).times(this.transforms[shape]);
             }
+            this.translation.x += increment * x;
+            this.translation.z += -increment * z;
         }
         else {
-            let adjustment = 0.1 * this.state.frameNumber;
-            this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
-                .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5 - adjustment,1]))
-                .times(this.transforms[left_wing]);
-            this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
-                .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
-                .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
-                .times(this.transforms[right_wing]);
+            let adjustment = 1 * this.state.frameNumber;
+            // this.transforms[left_wing] = Mat4.translation([ -7,-4.5 + adjustment,1])
+            //     .times(Mat4.rotation(Math.PI / t_frames, Vec.of(1,0,0)))
+            //     .times(Mat4.translation([ 7,4.5 - adjustment,-1]))
+            //     .times(this.transforms[left_wing]);
+            // this.transforms[right_wing] = Mat4.translation([ -7,-4.5 + adjustment,-1])
+            //     .times(Mat4.rotation(-Math.PI / t_frames, Vec.of(1,0,0)))
+            //     .times(Mat4.translation([ 7,4.5 - adjustment,1]))
+            //     .times(this.transforms[right_wing]);
             for (let shape in this.transforms) {
-                this.transforms[shape] = Mat4.translation([0.1,-0.1,0]).times(this.transforms[shape]);
+                this.transforms[shape] = Mat4.translation([increment * x,-1,-increment * z]).times(this.transforms[shape]);
             }
+            this.translation.x += increment * x;
+            this.translation.z += -increment * z;
         }
 
         this.state.frameNumber--;
         if (this.state.frameNumber == 0)
-            this.state.animating = false;
+            this.state.path_itr++;
     }
 }
 

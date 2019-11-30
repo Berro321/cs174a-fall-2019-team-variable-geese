@@ -37,12 +37,14 @@ class Arena_Scene extends Scene_Component {
                 
     // instantiate geese
     this.geese = {
-      g1: new Honk(1),
-      g2: new Honk(2),
+      g1: new Chonk(1,5,3,3),
+      g2: new Honk(2,6,4,1),
+      g3: new Sonk(3,7,9,1),
+      g4: new Stronk(4,3,3,2),
+      g5: new Lonk(5,2,2,3),
+      
       // g3: new Goose(3),
     }
-    this.geese['g1'].tile_position.x = 1; this.geese['g1'].tile_position.z = 0;
-    this.geese['g2'].tile_position.x = 2; this.geese['g2'].tile_position.z = 0;
 
     // add all shapes used by geese to shapes
     for (let g in this.geese) {
@@ -150,43 +152,77 @@ class Arena_Scene extends Scene_Component {
     }
 
     for (let g in this.geese) {
-        // if(this.geese[g].state.animating) {
-        //   this.geese[g].attack();
-        // }
         for (let shape in this.geese[g].shapes) {
-          // this.shapes[shape].draw(graphics_state, Mat4.rotation(-Math.PI / 2, Vec.of(0,1,0)).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
-          let world_offset = calculate_world_pos_from_tile(this.geese[g].tile_position.x,this.geese[g].tile_position.z,10,10); 
-          this.shapes[shape].draw(graphics_state, Mat4.translation([4.25 + world_offset[0],9.35,world_offset[2]]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
+          this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape], this.materials[this.geese[g].colors[shape]]);
         }
     }
 
     // Check for selected units
-    if (this.click_ray) {
-        // Check for geese at that position
-        for (let g in this.geese) {
-            if (this.geese[g].tile_position.x == this.clicked_tile.x &&
-                this.geese[g].tile_position.z == this.clicked_tile.z) {
-                this.selected_unit = this.geese[g];
-                break;
-            }
-            this.selected_unit = undefined;
-        }
-        this.click_ray = undefined;
+    if (this.click_ray && !this.moving) {
+      // Check for geese at that position
+      for (let g in this.geese) {
+          if (this.geese[g].tile_position.x == this.clicked_tile.x &&
+              this.geese[g].tile_position.z == this.clicked_tile.z) {
+              this.selected_unit = this.geese[g];
+              break;
+          }
+      }
     }
+    // Check for a movement tile at that position
+    if (this.move_positions) {
+      for (let tile_index in this.move_positions) {
+        let tile = this.move_positions[tile_index];
+        if (tile[0] < 0 || tile[0] > 195 || tile[2] < -195 || tile[2] > 0)
+          continue;
+        if (tile[0] == this.clicked_tile.x * 10 + 5 && -tile[2] == this.clicked_tile.z * 10 + 5) {      
+          this.moving = true;
+        }
+      }
+      this.move_positions = undefined;
+    }
+
+    // Draw movement tiles if unit is selected
+    if (this.selected_unit && !this.moving) {
+      if (!this.move_positions) {
+        this.move_positions = [];
+        this.cellToPath = {};
+        generate_move_tiles_locations(this.selected_unit, this.move_positions, "", this.cellToPath, this.selected_unit.stats.movement_range + 1, this.tile_generator.map, this.geese, this.selected_unit.tile_position.x, this.selected_unit.tile_position.z, 10, 10);
+      }
+      for (let tile_index in this.move_positions) {
+        let tile = this.move_positions[tile_index];
+
+        this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.move_tile);
+      }
+
+      // TODO: draw attack tiles
+
+      // for (let tile_index in attack_positions) {
+      //   let tile = attack_positions[tile_index];
+      //   if (tile[0] < 0 || tile[0] > 195 || tile[2] < -195 || tile[2] > 0)
+      //     continue;
+
+      //   if (tile[0] + " " + -tile[2] in this.obstacles)
+      //     continue;
+
+      //   this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.attack_tile);
+      // }
+    }
+
+    // See if moving
+    if (this.moving) {
+      if (!this.selected_unit.move(this.cellToPath[this.clicked_tile.x + " " + this.clicked_tile.z])) {
+        this.selected_unit.tile_position.x = this.clicked_tile.x;
+        this.selected_unit.tile_position.z = this.clicked_tile.z;
+        this.clicked_tile.x = undefined;
+        this.clicked_tile.z = undefined;
+        this.selected_unit = undefined;
+        this.move_positions = undefined;
+        this.cellToPath = undefined;
+        this.moving = undefined;
+      }
+    }
+
     // Generate the movement and attack tiles and display them if a unit has been selected
-    if (this.selected_unit) {
-        let positions_obj = generate_action_tiles_locations(this.selected_unit.stats, this.selected_unit.tile_position.x, this.selected_unit.tile_position.z, 10, 10);
-        let move_positions = positions_obj.mv_pos;
-        let attack_positions = positions_obj.at_pos;
-        for (let tile_index in move_positions) {
-            let tile = move_positions[tile_index];
-            this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.move_tile);
-        }
-        for (let tile_index in attack_positions) {
-            let tile = attack_positions[tile_index];
-            this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.attack_tile);
-        }
-    }
     // Draw arena
     this.tile_generator.render_tiles(this.shapes.arena, graphics_state);
     this.shapes.menu_quad.draw(graphics_state, this.marker_tile_world_transform, this.materials.marker_tile);

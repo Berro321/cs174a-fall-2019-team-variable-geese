@@ -224,26 +224,61 @@ function calculate_scale_factor(model_transform) {
 }
 
 // Generates the positions for the tiles for movement and attack
-function generate_action_tiles_locations(goose_stat, current_tile_x, current_tile_z, width, length)
-{
-  let move_range = goose_stat.movement_range;
-  let attack_range = goose_stat.attack_range;
-  let move_positions = [];
-  let attack_positions = [];
-  let total_square = move_range + attack_range;
-  for (let i = -1 * total_square; i <= total_square; i++){
-    for (let j = -1 * total_square; j <= total_square; j++) {
-        if (i == 0 && j == 0) continue;
-        let manhattan_distance = Math.abs(i) + Math.abs(j);
-        if (manhattan_distance <= move_range) {
-          move_positions.push(calculate_world_pos_from_tile(current_tile_x + i, current_tile_z + j, width, length));
-        } else if (manhattan_distance <= total_square) {
-          attack_positions.push(calculate_world_pos_from_tile(current_tile_x + i, current_tile_z + j, width, length));
-        }
+// function generate_action_tiles_locations(goose_stat, current_tile_x, current_tile_z, width, length)
+// {
+//   let move_range = 1; // goose_stat.movement_range;
+//   let attack_range = goose_stat.attack_range;
+//   let move_positions = [];
+//   let attack_positions = [];
+//   let total_square = move_range + attack_range;
+//   for (let i = -1 * total_square; i <= total_square; i++){
+//     for (let j = -1 * total_square; j <= total_square; j++) {
+//         if (i == 0 && j == 0) continue;
+//         let manhattan_distance = Math.abs(i) + Math.abs(j);
+//         if (manhattan_distance <= move_range) {
+//           move_positions.push(calculate_world_pos_from_tile(current_tile_x + i, current_tile_z + j, width, length));
+//         } else if (manhattan_distance <= total_square) {
+//           attack_positions.push(calculate_world_pos_from_tile(current_tile_x + i, current_tile_z + j, width, length));
+//         }
+//     }
+//   }
+//   // Generate the maximum attack range tiles
+//   return {mv_pos: move_positions, at_pos: attack_positions};
+// }
+
+function generate_move_tiles_locations(input_goose, move_positions, curPath, cellToPath, range, obstacles, geese, current_tile_x, current_tile_z, width, length) {
+  if (range == 0)
+    return;
+
+  if (current_tile_x < 0 || current_tile_x >= 20 || current_tile_z < 0 || current_tile_z >= 20)
+    return;
+
+  if (obstacles[obstacles.length - current_tile_z - 1][current_tile_x] == 1)
+    return;
+
+  for (let g_index in geese) {
+    let goose = geese[g_index];
+    if (goose.stats.goose_id == input_goose.stats.goose_id)
+      continue;
+    if (current_tile_x == goose.tile_position.x && current_tile_z == goose.tile_position.z)
+      return;
+  }
+  
+  if (input_goose.tile_position.x != current_tile_x || input_goose.tile_position.z != current_tile_z) {
+    move_positions.push(calculate_world_pos_from_tile(current_tile_x, current_tile_z, width, length));
+    if (current_tile_x + " " + current_tile_z in cellToPath) {
+      if (curPath.length < cellToPath[current_tile_x + " " + current_tile_z].length) {
+        cellToPath[current_tile_x + " " + current_tile_z] = curPath;
+      }
+    }
+    else {
+      cellToPath[current_tile_x + " " + current_tile_z] = curPath;
     }
   }
-  // Generate the maximum attack range tiles
-  return {mv_pos: move_positions, at_pos: attack_positions};
+  generate_move_tiles_locations(input_goose, move_positions, curPath + 'R', cellToPath, range-1, obstacles, geese, current_tile_x+1, current_tile_z, width, length);
+  generate_move_tiles_locations(input_goose, move_positions, curPath + 'L', cellToPath, range-1, obstacles, geese, current_tile_x-1, current_tile_z, width, length);
+  generate_move_tiles_locations(input_goose, move_positions, curPath + 'U', cellToPath, range-1, obstacles, geese, current_tile_x, current_tile_z+1, width, length);
+  generate_move_tiles_locations(input_goose, move_positions, curPath + 'D', cellToPath, range-1, obstacles, geese, current_tile_x, current_tile_z-1, width, length);
 }
 
 // Calculate the world position of an object originally at position (0,0,0)

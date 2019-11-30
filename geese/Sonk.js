@@ -2,8 +2,8 @@
 // This is a derived class for a Sonk,
 // a character that inspires adjacent characters to perform an action twice.
 class Sonk extends Goose {
-    constructor(goose_id) { 
-        super ( goose_id );
+    constructor(goose_id, x, z, orientation) { 
+        super ( goose_id, x, z, orientation );
 
         let tag = '_' + this.constructor.name + this.stats.goose_id;
         let head = 'head' + tag;
@@ -37,6 +37,8 @@ class Sonk extends Goose {
 
         this.head_pos = [0, 0];
         this.body_angle = 0;
+
+        this.setup();
     }
 
     // Cymbal action.
