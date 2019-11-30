@@ -7,8 +7,8 @@ class Goose {
     constructor(goose_id) {
 
         this.stats = {
-            health: 50,
-            attack: 1,
+            health: 20,
+            attack: 5,
             defense: 1,
             movement_range: 2,  // These are based on manhattan distance for tiles
             attack_range: 1,
@@ -18,6 +18,7 @@ class Goose {
         this.state = {
             animating: false,
             frameNumber: 0,
+            inflict_damage_other: false,
         };
 
         this.tile_position = {

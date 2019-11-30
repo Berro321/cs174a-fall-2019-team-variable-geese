@@ -700,7 +700,7 @@ class Radial_Blur_Shader_Multi extends Simple_Shader
 }
 
 window.Negative_Shader = window.classes.Negative_Shader =
-class Negative_Shader extends Phong_Shader
+class Negative_Shader extends Simple_Shader
 {
   update_GPU(g_state, model_transform, material, gpu = this.g_addrs, gl = this.gl)
   {

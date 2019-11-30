@@ -32,7 +32,7 @@ class Arena_Scene extends Scene_Component {
                          eyebrow_sample: new Cube(),
                          arena: new Arena(this.tile_generator.map, 10, 10),
                          menu_quad: new Square(),
-                         text_line: new Text_Line(50),
+                         text_line: new Text_Line(2),
                    }
                 
     // instantiate geese
@@ -88,6 +88,7 @@ class Arena_Scene extends Scene_Component {
     this.screen_quad_transform = Mat4.translation([0,0,-0.1]).times(Mat4.scale([0.075,.042,1]));
 
     this.camera_animations_manager = new Camera_Animations_Manager();
+    this.menu_manager = new Menu_Manager([], this.shapes.menu_quad, this.shapes.text_line, this.materials.text_image);
     this.battle_scene_manager = new Battle_Scene_Manager();
     this.enable_multi = false;
     this.setup_trigger = 0;
@@ -140,12 +141,12 @@ class Arena_Scene extends Scene_Component {
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
     // Animate battle scene
     if (this.setup_trigger == 1) {
-      this.battle_scene_manager.initiate_battle_sequence(this.geese['g1'], this.geese['g2'], undefined, this.camera_animations_manager);
+      this.battle_scene_manager.initiate_battle_sequence(this.geese['g1'], this.geese['g2'], this.menu_manager, this.camera_animations_manager);
       this.setup_trigger = 0;
     }
 
     if (this.battle_scene_manager.battle_ongoing) {
-      graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state.camera_transform);
+      graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state, this.context);
     }
 
     for (let g in this.geese) {

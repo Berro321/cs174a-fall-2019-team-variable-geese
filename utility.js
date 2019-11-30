@@ -263,8 +263,8 @@ class Camera_Animations_Manager {
     this.original_camera_transform = undefined;
     this.battle_camera_transform = undefined;
     this.frame = 0.0;
-    this.zoom_in_max_frames = 30;
-    this.zoom_out_max_frames = 30;
+    this.zoom_in_max_frames = 60;
+    this.zoom_out_max_frames = 60;
     this.animating = false;
     this.animation_type = 0;
   }
@@ -438,7 +438,8 @@ class Menu_Manager
     for(let item_id in this.menus)
     {
       let item = this.menus[item_id];
-      this.menu_shape.draw(graphics_state, item.world_transform, item.material);
+      if (item.material)
+        this.menu_shape.draw(graphics_state, item.world_transform, item.material);
       if (item.text)
       {
         this.text_shape.set_string(item.text, context);

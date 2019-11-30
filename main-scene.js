@@ -18,7 +18,7 @@ class Game_Scene extends Scene_Component {
     const shapes = {
                          arena: new Square(),
                          menu_quad: new Square(),
-                         text_line: new Text_Line(50),
+                         text_line: new Text_Line(2),
                    }
     // instantiate geese
     this.geese = {
@@ -58,7 +58,7 @@ class Game_Scene extends Scene_Component {
           {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/text.png", true)}),
         menu_image: context.get_instance( Phong_Shader ).material( Color.of(1,1,0,1), {ambient: 1, diffusivity: 0, specularity: 0}),  // Material for menu objects
         radial_blur_material: context.get_instance(Radial_Blur_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
-        negative_material: context.get_instance(Negative_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
+        // negative_material: context.get_instance(Negative_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
       }
 
       // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
@@ -107,7 +107,7 @@ class Game_Scene extends Scene_Component {
     }
 
     if (this.battle_scene_manager.battle_ongoing) {
-      graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state.camera_transform);
+      graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state, this.context);
     }
 
     // this.geese['g1'].state.animating = true;
@@ -135,7 +135,7 @@ class Game_Scene extends Scene_Component {
     // Draw arena
     this.shapes.arena.draw(graphics_state, Mat4.translation([ 0, -9.35, 0]).times(this.arena_transform), this.materials.green);
     // Then draw other stuff (Menu stuff, debugging)
-    //this.menu_manager.draw_menus(graphics_state, this.context);
+    this.menu_manager.draw_menus(graphics_state, this.context);
 
     
     if (this.camera_animation_manager.animation_type != 0) {
