@@ -167,11 +167,37 @@ class Arena_Scene extends Scene_Component {
           this.attack_positions = generate_attack_tile_locations(this.last_selected_unit.stats, this.last_selected_unit.tile_position.x, this.last_selected_unit.tile_position.z, 10, 10 );
           this.menu_manager.clear_menus(true);
         }
+        else if (collisions[0] == "wait") {
+          this.last_selected_unit.prev.x = this.last_selected_unit.tile_position.x;
+          this.last_selected_unit.prev.z = this.last_selected_unit.tile_position.z;
+          this.last_selected_unit.prev.orientation = this.last_selected_unit.state.orientation;
+          this.menu_manager.clear_menus(true);
+        }
+        else if (collisions[0] == "back") {
+          let displacement = calculate_world_pos_from_tile(this.last_selected_unit.prev.x - this.last_selected_unit.tile_position.x-1,
+                                                           this.last_selected_unit.prev.z - this.last_selected_unit.tile_position.z-1,
+                                                           10, 10);
+          displacement[0] += 5;
+          displacement[2] -= 5;         
+          console.log(this.last_selected_unit);
+          this.last_selected_unit.translation.x += displacement[0]; 
+          this.last_selected_unit.translation.z += displacement[2];    
+          this.last_selected_unit.tile_position.x = this.last_selected_unit.prev.x;
+          this.last_selected_unit.tile_position.z = this.last_selected_unit.prev.z;
+          this.last_selected_unit.rotate_goose(this.last_selected_unit.state.orientation, this.last_selected_unit.prev.orientation);
+          this.last_selected_unit.state.orientation = this.last_selected_unit.prev.orientation;
+          this.last_selected_unit.state.hasMoved = false;
+          console.log(this.last_selected_unit)
+          this.menu_manager.clear_menus(true);
+        }
+
+
       } else {
         // Check for geese at that position
         for (let g in this.geese) {
             if (this.geese[g].tile_position.x == this.clicked_tile.x &&
-                this.geese[g].tile_position.z == this.clicked_tile.z) {
+                this.geese[g].tile_position.z == this.clicked_tile.z &&
+                this.geese[g].state.hasMoved == false) {
                 this.selected_unit = this.geese[g];
                 break;
             }
@@ -254,6 +280,7 @@ class Arena_Scene extends Scene_Component {
       // Disable camera movement
       graphics_state.disable_camera_movement = true;
       if (!this.selected_unit.move(this.cellToPath[this.clicked_tile.x + " " + this.clicked_tile.z])) {
+        this.selected_unit.state.hasMoved = true;
         this.selected_unit.tile_position.x = this.clicked_tile.x;
         this.selected_unit.tile_position.z = this.clicked_tile.z;
         this.clicked_tile.x = undefined;

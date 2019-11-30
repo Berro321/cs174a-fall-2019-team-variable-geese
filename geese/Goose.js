@@ -21,7 +21,15 @@ class Goose {
             inflict_damage_other: false,
             orientation: orientation, // 0 is right, 1 is up, 2 is left, 3 is down
             path_itr: 0,
+            hasMoved: false,
+            hasAttacked: true,
         };
+
+        this.prev = {
+            orientation: orientation,
+            x: x,
+            z: z,
+        }
 
         this.tile_position = {
             x: x,
@@ -127,7 +135,6 @@ class Goose {
 
     setup = () => {
         // move feet to origin
-        console.log(this.transforms)
         for (let transform in this.transforms)
             this.transforms[transform] = Mat4.translation([4.25, 9.35, 0]).times(this.transforms[transform]);
 
@@ -180,7 +187,7 @@ class Goose {
 
         this.rotate_goose(this.state.orientation, new_orientation);
         this.state.orientation = new_orientation;
-
+        console.log(this);
         if (this.state.path_itr == path.length) {
             this.state.path_itr = 0;
             return false;
