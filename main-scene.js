@@ -6,7 +6,7 @@ class Game_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 0,50,50 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 10,20,10 ), Vec.of( 0,0,0 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     // Add a canvas listener for picking
     this.click_ray = undefined;
@@ -22,12 +22,10 @@ class Game_Scene extends Scene_Component {
                    }
     // instantiate geese
     this.geese = {
-      g1: new Honk(1),
-      g2: new Lonk(2),
+      g1: new Stronk(1),
+      // g2: new Goose(2),
       // g3: new Goose(3),
     }
-    this.geese['g1'].tile_position.x = 1;
-    this.geese['g2'].tile_position.z = 0;
 
     // add all shapes used by geese to shapes
     for (let g in this.geese) {
@@ -92,18 +90,16 @@ class Game_Scene extends Scene_Component {
     graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
-    // console.log("t: " + t + " dt: " + dt);
-    // this.geese['g1'].state.animating = true;
-    // for (let g in this.geese) {
-    //   if(this.geese[g].state.animating) {
-    //     this.geese[g].attack();
-    //   }
-    //   for (let shape in this.geese[g].shapes) {
-    //     // this.shapes[shape].draw(graphics_state, Mat4.rotation(-Math.PI / 2, Vec.of(0,1,0)).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
-    //     this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape], this.materials[this.geese[g].colors[shape]]);
-
-    //   }
-    // }
+    this.geese['g1'].state.animating = true;
+    for (let g in this.geese) {
+      if(this.geese[g].state.animating) {
+        this.geese[g].attack();
+      }
+      for (let shape in this.geese[g].shapes) {
+        // this.shapes[shape].draw(graphics_state, Mat4.rotation(-Math.PI / 2, Vec.of(0,1,0)).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
+        this.shapes[shape].draw(graphics_state, this.geese[g].transforms[shape], this.materials[this.geese[g].colors[shape]]);
+       }
+     }
 
     if (this.setup_trigger == 1) {
       this.battle_scene_manager.initiate_battle_sequence(this.geese['g1'], this.geese['g2'], undefined, this.camera_animation_manager);
@@ -115,6 +111,7 @@ class Game_Scene extends Scene_Component {
     }
 
     // this.geese['g1'].state.animating = true;
+    /*
     for (let g in this.geese) {
       // if(this.geese[g].state.animating) {
       //   this.geese[g].attack();
@@ -124,7 +121,7 @@ class Game_Scene extends Scene_Component {
         let world_offset = calculate_world_pos_from_tile(this.geese[g].tile_position.x,this.geese[g].tile_position.z,10,10); 
         this.shapes[shape].draw(graphics_state, Mat4.translation([4.25 + world_offset[0],9.35,world_offset[2]]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
       }
-    }
+    }*/
 
     this.menu_manager.update_transforms(graphics_state.camera_transform);
 
@@ -136,7 +133,7 @@ class Game_Scene extends Scene_Component {
     }
 
     // Draw arena
-    this.shapes.arena.draw(graphics_state, Mat4.translation([ 0, -9.25, 0]).times(this.arena_transform), this.materials.green);
+    this.shapes.arena.draw(graphics_state, Mat4.translation([ 0, -9.35, 0]).times(this.arena_transform), this.materials.green);
     // Then draw other stuff (Menu stuff, debugging)
     //this.menu_manager.draw_menus(graphics_state, this.context);
 

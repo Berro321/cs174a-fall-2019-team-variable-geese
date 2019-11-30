@@ -73,10 +73,10 @@ class Goose {
             Mat4.identity().times(Mat4.translation([ -7, -7.5,-1])).times(Mat4.scale([ 1.2, 1.2,-1.2])), // 'left_wing'
             Mat4.identity().times(Mat4.translation([ -6, -7.5, 1])), // 'body'
             Mat4.identity().times(Mat4.translation([ -7, -7.5, 1])).times(Mat4.scale([ 1.2, 1.2, 1.2])), // 'right_wing'
-            Mat4.identity().times(Mat4.translation([ -4, -5.75, .75])).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), // 'left_leg'
-            Mat4.identity().times(Mat4.translation([ -4, -5.75, -.75])).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), // 'right_leg'
-            Mat4.identity().times(Mat4.translation([ -4.25, -9.25, .75])), // 'left_foot'
-            Mat4.identity().times(Mat4.translation([ -4.25, -9.25, -.75])), // 'right_foot'
+            Mat4.identity().times(Mat4.translation([ -4, -5.75,-.75])).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), // 'left_leg'
+            Mat4.identity().times(Mat4.translation([ -4, -5.75, .75])).times(Mat4.rotation( Math.PI/2, Vec.of( 1, 0, 0))), // 'right_leg'
+            Mat4.identity().times(Mat4.translation([ -4.25, -9.25,-.75])), // 'left_foot'
+            Mat4.identity().times(Mat4.translation([ -4.25, -9.25, .75])), // 'right_foot'
         ];
 
         let shape_colors = [
