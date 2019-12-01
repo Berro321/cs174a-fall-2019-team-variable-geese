@@ -324,6 +324,8 @@ class Arena_Scene extends Scene_Component {
         this.cellToPath = {};
 
         generate_move_tiles_locations(this.selected_unit, this.move_positions, "", this.cellToPath, this.selected_unit.stats.movement_range + 1, this.tile_generator.map, this.geese, this.selected_unit.tile_position.x, this.selected_unit.tile_position.z, 10, 10);
+        
+        // add to move in place
         this.move_positions.push(calculate_world_pos_from_tile(this.selected_unit.tile_position.x, this.selected_unit.tile_position.z, 10, 10));
         this.cellToPath[this.selected_unit.tile_position.x + " " + this.selected_unit.tile_position.z] = "";
         this.clicked_tile.x = undefined;
@@ -331,7 +333,6 @@ class Arena_Scene extends Scene_Component {
       }
       for (let tile_index in this.move_positions) {
         let tile = this.move_positions[tile_index];
-
         this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.move_tile);
       }
     }
@@ -374,7 +375,8 @@ class Arena_Scene extends Scene_Component {
         this.selected_unit = undefined;
         this.last_selected_unit = undefined;
       }
-    } else {
+    } 
+    else {
       this.disable_marker_tile = false;
     }
 

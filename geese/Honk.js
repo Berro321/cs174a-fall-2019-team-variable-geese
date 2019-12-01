@@ -4,6 +4,11 @@
 class Honk extends Goose {
     constructor(goose_id, x, z, orientation) { 
         super ( goose_id, x, z, orientation );
+        this.stats.attack = 75;
+        this.stats.defense = 25;
+        this.stats.movement_range = 6;
+        this.stats.attack_range = 1;
+        
         this.head_pos = [0, 0];
         this.body_angle = 0;
         this.setup();

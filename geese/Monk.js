@@ -4,6 +4,10 @@
 class Monk extends Goose {
     constructor(goose_id, x, z, orientation) { 
         super ( goose_id, x, z, orientation );
+        this.stats.attack = 100;
+        this.stats.defense = 0;
+        this.stats.movement_range = 3;
+        this.stats.attack_range = 3;
 
         let tag = '_' + this.constructor.name + this.stats.goose_id;
         let head = 'head' + tag;

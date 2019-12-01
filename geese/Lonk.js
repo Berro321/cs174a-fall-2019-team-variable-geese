@@ -4,6 +4,10 @@
 class Lonk extends Goose {
     constructor(goose_id, x, z, orientation) { 
         super ( goose_id, x, z, orientation );
+        this.stats.attack = 75;
+        this.stats.defense = 25;
+        this.stats.movement_range = 4;
+        this.stats.attack_range = 2;
 
         let tag = '_' + this.constructor.name + this.stats.goose_id;
         let neck = 'neck' + tag;

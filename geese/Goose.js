@@ -7,9 +7,9 @@ class Goose {
     constructor(goose_id, x, z, orientation) {
 
         this.stats = {
-            health: 20,
-            attack: 5,
-            defense: 1,
+            health: 100,
+            attack: 50,
+            defense: 25,
             movement_range: 6,
             attack_range: 1,
             goose_id: goose_id,
