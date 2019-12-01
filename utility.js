@@ -421,7 +421,8 @@ class Menu_Manager
   {
     if (all)
     {
-      this.menu_items = [];
+      this.menus = {};
+      this.clickable_items = [];
     }
     this.menus_length = 0;
   }

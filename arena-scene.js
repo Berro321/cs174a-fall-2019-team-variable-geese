@@ -223,15 +223,20 @@ class Arena_Scene extends Scene_Component {
     if (this.click_ray && !this.moving) {
       // Check for collision against the menus first
       let collisions = (this.menu_manager.menus_length != 0) ? this.menu_manager.check_collisions(this.click_ray) : [];
+
       if (collisions.length != 0) {
         // Do stuff for that menu item
         if (collisions[0] == "attack") {
           this.attack_positions = generate_attack_tile_locations(this.last_selected_unit.stats, this.last_selected_unit.tile_position.x, this.last_selected_unit.tile_position.z, 10, 10 );
-          this.last_selected_unit.prev.x = this.last_selected_unit.tile_position.x;
-          this.last_selected_unit.prev.z = this.last_selected_unit.tile_position.z;
-          this.last_selected_unit.prev.orientation = this.last_selected_unit.state.orientation;
+
+
+          
           this.menu_manager.clear_menus(true);
-          this.movesLeft--;
+
+          let menu_transform = Mat4.translation([0.02,-0.00,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let text_transform = Mat4.translation([-0.65,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
+          let menu_obj = {menu_transform: menu_transform, menu_material: this.materials.menu_image, tag: "return", text: "Return", text_transform: text_transform,  clickable: true};
+          this.menu_manager.add_menu(menu_obj);
         }
         else if (collisions[0] == "wait") {
           this.last_selected_unit.prev.x = this.last_selected_unit.tile_position.x;
@@ -255,11 +260,30 @@ class Arena_Scene extends Scene_Component {
           this.last_selected_unit.state.hasMoved = false;
           this.menu_manager.clear_menus(true);
         }
+        else if (collisions[0] == "return") {
+          this.menu_manager.clear_menus(true);
+          this.attack_positions = undefined;
 
+          // Activate the menu items
+          let menu_transform_1 =Mat4.translation([0.02,0.02,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let text_transform_1 = Mat4.translation([-0.57,0,0.001]).times(Mat4.scale([0.15,0.5,1]));
+          // Only display attack if there is a enemy in range : assume 1 for now
+          let menu_obj = {menu_transform: menu_transform_1, menu_material: this.materials.menu_image, tag: "attack", text: "Attack", text_transform: text_transform_1,  clickable: true};
+          let menu_transform_2 =Mat4.translation([0.02,0.01,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let text_transform_2 = Mat4.translation([-0.49,-0.1,0.001]).times(Mat4.scale([0.15,0.5,1]));
+          let menu_obj_2 = {menu_transform: menu_transform_2, menu_material: this.materials.menu_image, tag: "wait", text: "Wait", text_transform: text_transform_2,  clickable: true};
+          let menu_transform_3 = Mat4.translation([0.02,-0.00,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let text_transform_3 = Mat4.translation([-0.65,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
+          let menu_obj_3 = {menu_transform: menu_transform_3, menu_material: this.materials.menu_image, tag: "back", text: "Go Back", text_transform: text_transform_3,  clickable: true};
+          this.menu_manager.add_menu(menu_obj);
+          this.menu_manager.add_menu(menu_obj_2);
+          this.menu_manager.add_menu(menu_obj_3);
+        }
 
       } 
-      else {
+      else if (this.menu_manager.menus_length <= 1) {
         // Check for geese at that position
+
         for (let g in this.geese) {          
           if (this.geese[g].tile_position.x == this.clicked_tile.x &&
               this.geese[g].tile_position.z == this.clicked_tile.z) {
@@ -320,8 +344,14 @@ class Arena_Scene extends Scene_Component {
         if (this.selected_unit != this.last_selected_unit && this.selected_unit && this.last_selected_unit && this.selected_unit.getTeam() != this.last_selected_unit.getTeam()) {
           for (let tile_index in this.attack_positions.tiles) {
             let tile = this.attack_positions.tiles[tile_index];
+            this.menu_manager.clear_menus(true);
 
             if (tile[0] == this.selected_unit.tile_position.x && tile[1] == this.selected_unit.tile_position.z) {
+              this.last_selected_unit.prev.x = this.last_selected_unit.tile_position.x;
+              this.last_selected_unit.prev.z = this.last_selected_unit.tile_position.z;
+              this.last_selected_unit.prev.orientation = this.last_selected_unit.state.orientation;
+              this.movesLeft--;
+
               this.battle_scene_manager.initiate_battle_sequence(this.last_selected_unit, this.selected_unit, this.menu_manager, this.camera_animations_manager);
               this.attack_positions = undefined;
               this.disable_marker_tile = true;
@@ -400,4 +430,3 @@ class Arena_Scene extends Scene_Component {
     // this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
   }
 }
-
