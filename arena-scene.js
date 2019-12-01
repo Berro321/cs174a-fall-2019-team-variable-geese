@@ -383,7 +383,7 @@ class Arena_Scene extends Scene_Component {
               this.last_selected_unit.prev.orientation = this.last_selected_unit.state.orientation;
               this.movesLeft--;
 
-              this.battle_scene_manager.initiate_battle_sequence(this.last_selected_unit, this.selected_unit, this.menu_manager, this.camera_animations_manager);
+              this.battle_scene_manager.initiate_battle_sequence(this.last_selected_unit, this.selected_unit, this.menu_manager, this.camera_animations_manager, this.turn);
               this.attack_positions = undefined;
               this.disable_marker_tile = true;
               break;

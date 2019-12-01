@@ -7,7 +7,7 @@ class Battle_Scene_Manager {
 
     // Sets the states for calling a menu transform
     // Assumes the menu manager and camera manager have been setup.
-    initiate_battle_sequence(attacking_goose, defending_goose, menu_manager, camera_manager) {
+    initiate_battle_sequence(attacking_goose, defending_goose, menu_manager, camera_manager, turn) {
         this.menu_manager = menu_manager;
         this.camera_manager = camera_manager;
         this.atk_goose = attacking_goose;
@@ -18,6 +18,7 @@ class Battle_Scene_Manager {
         this.menu_tags = [];
         this.final_scaling_factor = 0.3;
         this.generate_battle_results();  // Queue up the results of the battle
+        this.turn = turn;
         // State variables
         this.queued_action = {goose: attacking_goose, action: "camera zoom in", distance_offset: this.atk_goose.distance_offset};
         this.animation_state = {
@@ -81,6 +82,7 @@ class Battle_Scene_Manager {
             if (!this.camera_manager.animating) {
                 let distance_offset = this.queued_action.distance_offset;
                 const height_offset = 2;
+                this.camera_manager.turn = this.turn;
                 this.camera_manager.change_animation(1);
                 this.camera_manager.set_original_camera_transform(camera_transform);
 

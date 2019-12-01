@@ -307,6 +307,7 @@ class Camera_Animations_Manager {
     this.zoom_out_max_frames = 60;
     this.animating = false;
     this.animation_type = 0;
+    this.turn = '';
   }
 
   // 1 = zoom in
@@ -330,8 +331,8 @@ class Camera_Animations_Manager {
     let rotation_matrix = Quaternion.fromBetweenVectors([0,0,1], camera_look_vector).toMatrix4(true);
     let result = Mat4.translation([target_location[0], target_location[1], target_location[2]] ).times(Mat.of(rotation_matrix[0], rotation_matrix[1], rotation_matrix[2], rotation_matrix[3]));
     this.battle_camera_transform = Mat4.inverse(result);
-    this.battle_camera_position = target_location.plus(camera_look_vector.times(distance));
-    this.battle_camera_rotation = Quaternion.fromBetweenVectors([0,0,-1], camera_look_vector);
+    this.battle_camera_position = target_location; //.plus(camera_look_vector.times(distance));
+    this.battle_camera_rotation = Quaternion.fromBetweenVectors([0,0,1], camera_look_vector);
   }
 
   set_original_camera_transform(camera_transform) {
@@ -339,7 +340,11 @@ class Camera_Animations_Manager {
     let inv = Mat4.inverse(camera_transform);
     this.original_camera_position = inv.times(Vec.of(0,0,0,1)).to3();
     let view_vector = inv.times(Vec.of(0,0,-1,0)).to3();
-    this.original_camera_rotation = Quaternion.fromBetweenVectors([0,0,-1], view_vector );
+    if (this.turn == 'red')
+      this.original_camera_rotation = Quaternion.fromBetweenVectors([0,0,-1], view_vector );
+    else 
+      this.original_camera_rotation = Quaternion.fromBetweenVectors(view_vector, [0,0,1] );
+    // this.original_camera_rotation = this.original_camera_rotation.add(Quaternion.fromBetweenVectors([1,0,-1], [1,0,1]));
   }
 
   // Plays the camera zoom in animation until it is done. returns the current matrix
@@ -359,15 +364,20 @@ class Camera_Animations_Manager {
         this.animation_type = 0;
         return result;
       }
-      return this.battle_camera_transform.map( (x, i) => Vec.from(this.original_camera_transform[i] ).mix(x, this.frame / this.zoom_in_max_frames));
-      // let new_position = this.original_camera_position.mix(this.battle_camera_position, this.frame / this.zoom_in_max_frames);
-      // let slerp_func = this.original_camera_rotation.slerp(this.battle_camera_rotation);
+      // return this.battle_camera_transform.map( (x, i) => Vec.from(this.original_camera_transform[i] ).mix(x, this.frame / this.zoom_in_max_frames));
+      let new_position = this.original_camera_position.mix(this.battle_camera_position, this.frame / this.zoom_in_max_frames);
+      let slerp_func = this.original_camera_rotation.slerp(this.battle_camera_rotation);
 
-      // let new_rotation = slerp_func(this.frame / this.zoom_in_max_frames);
-      // let rot_matrix4 = new_rotation.toMatrix4(true);
-      // let rotation_matrix = Mat.of(rot_matrix4[0], rot_matrix4[1], rot_matrix4[2], rot_matrix4[3]);
-      // let new_transform = Mat4.translation([new_position[0], new_position[1], new_position[2]]).times(rotation_matrix); 
-      // return Mat4.inverse(new_transform);
+      const camera_anim_pct = this.frame / this.zoom_out_max_frames;
+      let new_rotation = slerp_func(this.frame / this.zoom_in_max_frames);
+      let rot_matrix4 = new_rotation.toMatrix4(true);
+      let rotation_matrix = Mat.of(rot_matrix4[0], rot_matrix4[1], rot_matrix4[2], rot_matrix4[3]);
+      if (this.turn == 'blue') {
+        let rot_add_on = Mat4.rotation((1.0 - camera_anim_pct) * Math.PI, Vec.of(0,1,0));
+        rotation_matrix = rot_add_on.times(rotation_matrix);
+      }
+      let new_transform = Mat4.translation([new_position[0], new_position[1], new_position[2]]).times(rotation_matrix); 
+      return Mat4.inverse(new_transform);
     }
   }
 
@@ -386,7 +396,20 @@ class Camera_Animations_Manager {
         this.animation_type = 0;
         return result;
       }
-      return this.original_camera_transform.map( (x, i) => Vec.from(this.battle_camera_transform[i] ).mix(x, this.frame / this.zoom_out_max_frames));
+      // return this.original_camera_transform.map( (x, i) => Vec.from(this.battle_camera_transform[i] ).mix(x, this.frame / this.zoom_out_max_frames));
+      let new_position = this.battle_camera_position.mix(this.original_camera_position, this.frame / this.zoom_out_max_frames);
+      const camera_anim_pct = this.frame / this.zoom_out_max_frames;
+      let slerp_func = this.battle_camera_rotation.slerp(this.original_camera_rotation);
+
+      let new_rotation = slerp_func(this.frame / this.zoom_in_max_frames);
+      let rot_matrix4 = new_rotation.toMatrix4(true);
+      let rotation_matrix = Mat.of(rot_matrix4[0], rot_matrix4[1], rot_matrix4[2], rot_matrix4[3]);
+      if (this.turn == 'blue') {
+        let rot_add_on = Mat4.rotation(camera_anim_pct * Math.PI, Vec.of(0,1,0));
+        rotation_matrix = rot_add_on.times(rotation_matrix);
+      }
+      let new_transform = Mat4.translation([new_position[0], new_position[1], new_position[2]]).times(rotation_matrix); 
+      return Mat4.inverse(new_transform);
     }
   }
 }
