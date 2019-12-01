@@ -187,8 +187,13 @@ class Arena_Scene extends Scene_Component {
     // next player's turn
     if (this.movesLeft == 0) {
       // TODO: flip camera
-      
       this.turn = this.turn == 'blue' ? 'red' : 'blue';
+      // Rotate to the respective side
+      if (this.turn == 'blue') {
+        graphics_state.camera_transform = Mat4.look_at( Vec.of( 100, 90, -210), Vec.of( 100,0,-120 ), Vec.of( 0,1,0 ) );
+      } else {
+        graphics_state.camera_transform = Mat4.look_at( Vec.of( 100,90, 50), Vec.of( 100,0,-40 ), Vec.of( 0,1,0 ) );
+      }
       if (this.turn == 'blue')
         console.log("BLUE TURN");
       else
