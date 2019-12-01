@@ -81,7 +81,7 @@ class Arena_Scene extends Scene_Component {
 
     // setup game
     this.turn = 'red';
-    this.movesLeft = 1;// Object.keys(this.geese).length/2;
+    this.movesLeft = Object.keys(this.geese).length/2;
 
 
 
