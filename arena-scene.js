@@ -50,7 +50,7 @@ class Arena_Scene extends Scene_Component {
       r8: new Chonk(14,12,2,1),
       r9: new Stronk(16,8,2,1),
       r10: new Stronk(18,11,2,1),
-      r11: new Monk(20,9,2,1),
+      r11: new Monk(20,9,14,1),
       r12: new Sonk(22,10,2,1),
 
       // blue team geese
@@ -106,7 +106,8 @@ class Arena_Scene extends Scene_Component {
         attack_tile: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,0.5), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/attack_tile.png", true)}),
         radial_blur_material: context.get_instance(Radial_Blur_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
         simple: { shader: context.get_instance(Simple_Shader) },
-        radial_simple: {shader: context.get_instance(Radial_Blur_Shader_Multi)}
+        radial_simple: {shader: context.get_instance(Radial_Blur_Shader_Multi)},
+        negative_material: {shader: context.get_instance(Negative_Shader)},
       }
 
     {
@@ -123,6 +124,7 @@ class Arena_Scene extends Scene_Component {
     this.setup_trigger = 0;
     this.disable_marker_tile = false;
     this.marker_tile_select = undefined;
+    this.current_animating_monk_shader = false;
     }
   }
 
@@ -456,14 +458,34 @@ class Arena_Scene extends Scene_Component {
       this.forecast.render(graphics_state, this.context);
     }
     // Multipass rendering options
-    if (this.camera_animations_manager.animating)
+    if (this.camera_animations_manager.animating) {
       this.enable_multi = true;
+      graphics_state.multipass.material = this.materials.radial_simple;
+    } 
     else 
       this.enable_multi = false;
+    
+    // Check to see if a monk is currently animating
+    let found_animating_monk = false;
+    for (let g in this.geese) {
+      if (this.geese[g].constructor.name == "Monk" && this.geese[g].animate_shader) {
+        this.enable_multi = true;
+        if (!this.current_animating_monk_shader)
+          this.materials.negative_material.shader.initial_animation_time = graphics_state.animation_time;
+        graphics_state.multipass.material = this.materials.negative_material;
+        this.current_animating_monk_shader = true;
+        found_animating_monk = true;
+        break; 
+      } else {
+        this.enable_multi = false;
+      }
+    }
+    if (!found_animating_monk) {
+      this.current_animating_monk_shader = false;
+    }
 
     graphics_state.multipass.enabled = this.enable_multi;
     graphics_state.multipass.shape = this.shapes.menu_quad;
-    graphics_state.multipass.material = this.materials.radial_simple; 
     // this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
   }
 }
