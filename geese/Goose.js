@@ -98,6 +98,14 @@ class Goose {
             Mat4.identity().times(Mat4.translation([-1,-3.75,0])).times(Mat4.rotation(Math.PI/18, Vec.of(0,0,1))).times(Mat4.translation([-3.4,0,0])).times(Mat4.scale([3.7, 0.01, 0.5])), //'marker_strip'            
         ];
 
+        // These transforms are here temporarily to help with battle scene movements
+        // and are decoupled from the transforms for the geese
+        this.temp_scale_transform = Mat4.scale([1,1,1]);
+        this.temp_translation_transform = Mat4.translation([0,0,0]);
+        this.stop_distance = 0.5; // Defines how much distance the goose will travel relative to the other goose when attacking 
+        this.move_animation_duration = 40; // Defines the duration for how long the move towards enemy goose animation lasts
+        this.distance_offset = 5; // Defines how far the camera should go out
+
         let shape_colors = [
             'white', // 'head'
             'black', // 'left_eyebrow'

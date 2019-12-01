@@ -213,7 +213,9 @@ class Arena_Scene extends Scene_Component {
 
     for (let g in this.geese) {
         for (let shape in this.geese[g].shapes) {  
-          this.shapes[shape].draw(graphics_state, Mat4.translation([this.geese[g].translation.x, 0, this.geese[g].translation.z]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);     
+          this.shapes[shape].draw(graphics_state,
+            this.geese[g].temp_translation_transform.times(
+            Mat4.translation([this.geese[g].translation.x, 0, this.geese[g].translation.z]).times(this.geese[g].temp_scale_transform.times(this.geese[g].transforms[shape]))), this.materials[this.geese[g].colors[shape]]);
         }
     }
 
