@@ -50,7 +50,7 @@ class Arena_Scene extends Scene_Component {
       r8: new Chonk(14,12,2,1),
       r9: new Stronk(16,8,2,1),
       r10: new Stronk(18,11,2,1),
-      r11: new Monk(20,9,14,1),
+      r11: new Monk(20,9,2,1),
       r12: new Sonk(22,10,2,1),
 
       // blue team geese
