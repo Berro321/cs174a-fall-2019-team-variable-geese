@@ -39,9 +39,7 @@ class Battle_Scene_Manager {
         if (this.queued_action.action == "attack") {
             this.queued_action.goose.state.animating = true;
 
-            console.log("ID: " + this.queued_action.goose.stats.goose_id);
             for (let shape in this.queued_action.goose.shapes) {
-                console.log(shape + ": " + this.queued_action.goose.colors[shape]);
                 if (this.queued_action.goose.colors[shape] == 'pink') {
                     this.queued_action.goose.colors[shape] = 'white';
                 }
@@ -61,10 +59,10 @@ class Battle_Scene_Manager {
                 }
                 this.animation_state.damage_icon.translation = Mat4.translation([position[0], position[1], position[2]]).times(Mat4.scale([1, 1, 1]));
                 this.animation_state.damage_icon.init = true;
+
+                this.queued_action.other_goose.stats.health -= (this.queued_action.goose.stats.attack - this.queued_action.other_goose.stats.defense);
                
-                console.log("ID: " + this.queued_action.goose.stats.goose_id);
                 for (let shape in this.queued_action.other_goose.shapes) {
-                    console.log(shape + ": " + this.queued_action.goose.colors[shape]);
                     if (this.queued_action.other_goose.colors[shape] == 'white') {
                         this.queued_action.other_goose.colors[shape] = 'pink';
                     }
@@ -172,11 +170,14 @@ class Battle_Scene_Manager {
                 this.def_goose.state.orientation = this.def_goose_new_orientation;
             }
         } else if (this.queued_action.action == "camera zoom out") {
-            console.log("ID: " + this.queued_action.goose.stats.goose_id);
             for (let shape in this.queued_action.goose.shapes) {
-                console.log(shape + ": " + this.queued_action.goose.colors[shape]);
                 if (this.queued_action.goose.colors[shape] == 'pink') {
                     this.queued_action.goose.colors[shape] = 'white';
+                }
+            }
+            for (let shape in this.queued_action.other_goose.shapes) {
+                if (this.queued_action.other_goose.colors[shape] == 'pink') {
+                    this.queued_action.other_goose.colors[shape] = 'white';
                 }
             }
             // Initial setup
@@ -275,7 +276,7 @@ class Battle_Scene_Manager {
             let rotation_matrix = this.animation_state.damage_icon.rotation.toMatrix4(true);
             let camera_offset_transform = Mat4.translation([camera_offset[0], camera_offset[1], camera_offset[2]]);
             let render_transform = camera_offset_transform.times(this.animation_state.damage_icon.translation.times(Mat4.of(rotation_matrix[0], rotation_matrix[1], rotation_matrix[2], rotation_matrix[3])));
-            render_shape.set_string(this.atk_goose.stats.attack.toString(), context);
+            render_shape.set_string((this.atk_goose.stats.attack - this.def_goose.stats.defense).toString(), context);
             render_shape.draw(graphics_state, render_transform, render_material);
         }
         // If nothing is left in queue, then it is done
@@ -295,28 +296,25 @@ class Battle_Scene_Manager {
         if (this.atk_goose.stop_distance != 0.0)
             this.actions.push({goose: this.atk_goose, action: "move", other_goose: this.def_goose, duration: 80});
         this.actions.push({goose: this.atk_goose, action: "attack", other_goose: this.def_goose});
-        let def_goose_rem_health = def_goose_stats.health - atk_goose_stats.attack + def_goose_stats.defense;
-        if (def_goose_rem_health < 0) {
+
+        if (def_goose_stats.health - atk_goose_stats.attack + def_goose_stats.defense < 0) {
             this.actions.push({goose: this.def_goose, action: "dead"});
-            this.actions.push({goose: this.atk_goose, action: "camera zoom out"});
+            this.actions.push({goose: this.atk_goose, other_goose: this.def_goose, action: "camera zoom out"});
             return;
         }
-        def_goose_stats.health = def_goose_rem_health;
 
         // Defending goose now retaliates if they are in range
         let manhattan_distance = Math.abs(this.atk_goose.tile_position.x - this.def_goose.tile_position.x)
             + Math.abs(this.atk_goose.tile_position.z - this.def_goose.tile_position.z);
         if (manhattan_distance <= def_goose_stats.attack_range) {
             this.actions.push({goose: this.def_goose, action: "attack", other_goose: this.atk_goose});
-            let atk_goose_rem_health = atk_goose_stats.health - def_goose_stats.attack;
-            if (atk_goose_rem_health < 0) {
+            if (atk_goose_stats.health - def_goose_stats.attack + atk_goose_stats.defense < 0) {
                 this.actions.push({goose: this.def_goose, action: "dead"});
-                this.actions.push({goose: this.atk_goose, action: "camera zoom out"});
+                this.actions.push({goose: this.atk_goose, other_goose: this.def_goose, action: "camera zoom out"});
                 return;
             }
-            atk_goose_stats.health = atk_goose_rem_health;
         }
 
-        this.actions.push({goose: this.atk_goose, action: "camera zoom out"});
+        this.actions.push({goose: this.atk_goose, other_goose: this.def_goose, action: "camera zoom out"});
     }
 }

@@ -6,7 +6,7 @@ class Arena_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls_Arena( context, control_box.parentElement.insertCell())); 
 
-    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 100,90, 50), Vec.of( 100,0,-40 ), Vec.of( 0,1,0 ) );
+    context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 100, 90, 20), Vec.of( 100,0,-70 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     context.canvas.addEventListener( "mousemove", e => { e.preventDefault();
         this.handle_mouse_movement(calculate_click_ray_2(e, context.globals.graphics_state.camera_transform, context.globals.graphics_state.projection_transform, context.canvas)); } );
@@ -179,10 +179,13 @@ class Arena_Scene extends Scene_Component {
     // }
 
     // remove dead geese
+    
     for (let g in this.geese) {
-      if (this.geese[g].stats.health < 0)
+      if (this.geese[g].stats.health < 0) {
         delete(this.geese[g]);
+      }
     }
+    
 
     // next player's turn
     if (this.movesLeft == 0) {
@@ -190,14 +193,10 @@ class Arena_Scene extends Scene_Component {
       this.turn = this.turn == 'blue' ? 'red' : 'blue';
       // Rotate to the respective side
       if (this.turn == 'blue') {
-        graphics_state.camera_transform = Mat4.look_at( Vec.of( 100, 90, -210), Vec.of( 100,0,-120 ), Vec.of( 0,1,0 ) );
+        graphics_state.camera_transform = Mat4.look_at( Vec.of( 100, 90, -220), Vec.of( 100,0,-130 ), Vec.of( 0,1,0 ) );
       } else {
-        graphics_state.camera_transform = Mat4.look_at( Vec.of( 100,90, 50), Vec.of( 100,0,-40 ), Vec.of( 0,1,0 ) );
+        graphics_state.camera_transform = Mat4.look_at( Vec.of( 100, 90, 20), Vec.of( 100,0,-70 ), Vec.of( 0,1,0 ) );
       }
-      if (this.turn == 'blue')
-        console.log("BLUE TURN");
-      else
-        console.log("RED TURN");
 
       if (this.turn == 'red') {
         for (let g in this.geese)
@@ -233,8 +232,6 @@ class Arena_Scene extends Scene_Component {
         // Do stuff for that menu item
         if (collisions[0] == "attack") {
           this.attack_positions = generate_attack_tile_locations(this.last_selected_unit.stats, this.last_selected_unit.tile_position.x, this.last_selected_unit.tile_position.z, 10, 10 );
-
-
           
           this.menu_manager.clear_menus(true);
 

@@ -197,7 +197,6 @@ class Monk extends Goose {
         else if (this.state.frameNumber > t_frames * 7/18) {
             // Flap wings wildly
             this.animate_shader = true;
-            this.state.inflict_damage_other = true;
 
             let num_times = 6; // 5.0 / (4.0 * 14);
             if (this.temp_frame == 0) {
@@ -253,6 +252,8 @@ class Monk extends Goose {
                 .times(this.transforms[right_wing]);
             }
             this.temp_frame--;
+
+            this.state.inflict_damage_other = (this.state.frameNumber == t_frames / 2);
         } 
         else if (this.state.frameNumber > t_frames * 4/18) {
             this.animate_shader = false;
@@ -367,7 +368,6 @@ class Monk extends Goose {
         this.state.frameNumber--;
         if (this.state.frameNumber == 0) {
             this.state.animating = false;
-            this.state.inflict_damage_other = false;
             this.head_pos = [0, 0];
             this.cape_pos = [-0.4,-2.0];
             this.body_angle = 0;

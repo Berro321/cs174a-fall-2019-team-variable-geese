@@ -122,7 +122,7 @@ class Chonk extends Goose {
             }
             this.ball_pos = new_ball_pos;
 
-            this.state.inflict_damage_other = true;
+            this.state.inflict_damage_other = (this.state.frameNumber == t_frames / 2);
         }
         else if (this.state.frameNumber > t_frames * 2/20) {
             this.rot_factor -= (0.2/59);
@@ -168,7 +168,6 @@ class Chonk extends Goose {
         this.state.frameNumber--;
         if (this.state.frameNumber == 0) {
             this.state.animating = false;
-            this.state.inflict_damage_other = false;
             this.rot_factor = 0.0;
         }
 

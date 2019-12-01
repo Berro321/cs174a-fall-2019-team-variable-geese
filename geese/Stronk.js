@@ -235,9 +235,8 @@ class Stronk extends Goose {
                     .times(Mat4.translation([0, 0, 0]))
                     .times(this.transforms[t]);
             }
-            if (this.state.frameNumber == t_frames / 2) {
-                this.state.inflict_damage_other = true;
-            }
+
+            this.state.inflict_damage_other = (this.state.frameNumber == t_frames / 2);
         }
         else if (this.state.frameNumber > t_frames * 2/14) {
             this.transforms[head] = body_up_transform
@@ -324,7 +323,6 @@ class Stronk extends Goose {
         this.state.frameNumber--;
         if (this.state.frameNumber == 0) {
             this.state.animating = false;
-            this.state.inflict_damage_other = false;
             this.head_pos = [0, 0];
             this.body_angle = 3.5;
         }
