@@ -37,12 +37,14 @@ class Bar {
 // }
 
 class Battle_Forecast {
-    constructor(shape, text_shape, materials, camera_transform, position, height, width, goose1, goose2) {
+    constructor(shape, text_shape, materials, camera_transform, position, height, width, goose1, goose2, turn) {
         // Calculate vector from position to camera
         let camera_pos = Mat4.inverse(camera_transform).times(Vec.of(0,0,0,1)).to3();
         let from_this_to_camera = camera_pos.minus(position);
         this.position = position;
-        this.rotation = Quaternion.fromBetweenVectors([0,0,1], from_this_to_camera);
+        this.turn = turn;
+        let scale_factor = (turn == 'red') ? 1 : -1;
+        this.rotation = Quaternion.fromBetweenVectors([0,0,scale_factor], from_this_to_camera);
         this.height = height;
         this.width = width;
         this.base_transforms = [
@@ -66,7 +68,7 @@ class Battle_Forecast {
             "Damage: " + damage_done_by_goose2,
             goose2.constructor.name,
         ]
-        this.goose1_bar = new Bar(shape, materials.bar_back, materials.bar_front, 100, 100, 2, 13, Mat4.translation([0,0,0]));
+        this.goose1_bar = new Bar(shape, materials.bar_back.override({ambient: 1}), materials.bar_front.override({ambient: 1}), 100, 100, 2, 13, Mat4.translation([0,0,0]));
         // World transforms
         this.transforms = [
             Mat4.identity(),
@@ -81,14 +83,17 @@ class Battle_Forecast {
         this.text_shape = text_shape;
         this.menu_material = materials.menu;
         this.text_material = materials.text;
-        this.generate_opponent_forecast();
+        this.generate_opponent_forecast(turn);
     }
 
-    generate_opponent_forecast() {
+    generate_opponent_forecast(turn) {
         let size = this.base_transforms.length;
+        let scale_factor = (this.turn == 'red') ? 0 : 1;
+        let rot_matrix = Mat4.rotation(Math.PI * scale_factor, Vec.of(0,1,0));
         for (let i = 0; i < size; i++) {
-            this.base_transforms.push(Mat4.translation([this.width / 2.0 + 3.0, 0, 0]).times(this.base_transforms[i]));
-            this.base_transforms[i] = Mat4.translation([-(this.width / 2.0 + 3.0), 0, 0]).times(this.base_transforms[i]);
+            // let scale_matrix = Mat4.scale([1, 1, 1]);
+            this.base_transforms.push(Mat4.translation([this.width / 2.0 + 3.0, 0, 0]).times(rot_matrix.times(this.base_transforms[i])));
+            this.base_transforms[i] = Mat4.translation([-(this.width / 2.0 + 3.0), 0, 0]).times(rot_matrix.times(this.base_transforms[i]));
             this.transforms.push(Mat4.identity());
         }
     }
@@ -96,7 +101,8 @@ class Battle_Forecast {
     update_transform(camera_transform) {
         let camera_pos = Mat4.inverse(camera_transform).times(Vec.of(0,0,0,1)).to3();
         let from_this_to_camera = camera_pos.minus(this.position);
-        this.rotation = Quaternion.fromBetweenVectors([0,0,1], from_this_to_camera);
+        let scale_factor = (this.turn == 'red') ? 1 : -1;
+        this.rotation = Quaternion.fromBetweenVectors([0,0,scale_factor], from_this_to_camera);
         let rotation_matrix = this.rotation.toMatrix4(true);
         let rot = Mat4.of(rotation_matrix[0], rotation_matrix[1], rotation_matrix[2], rotation_matrix[3]);
         for (let i in this.transforms) {

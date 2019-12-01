@@ -40,18 +40,18 @@ class Arena_Scene extends Scene_Component {
     this.geese = {
 
       // red team geese
-      r1: new Honk(0,6,3,1),
-      r2: new Honk(2,9,3,1),
-      r3: new Honk(4,10,3,1),
-      r4: new Honk(6,13,3,1),
-      r5: new Lonk(8,6,2,1),
-      r6: new Lonk(10,13,2,1),
-      r7: new Chonk(12,7,2,1),
-      r8: new Chonk(14,12,2,1),
-      r9: new Stronk(16,8,2,1),
-      r10: new Stronk(18,11,2,1),
-      r11: new Monk(20,9,2,1),
-      r12: new Sonk(22,10,2,1),
+      r1: new Honk(0,6,14,1),
+      // r2: new Honk(2,9,3,1),
+      // r3: new Honk(4,10,3,1),
+      // r4: new Honk(6,13,3,1),
+      // r5: new Lonk(8,6,2,1),
+      // r6: new Lonk(10,13,2,1),
+      // r7: new Chonk(12,7,2,1),
+      // r8: new Chonk(14,12,2,1),
+      // r9: new Stronk(16,8,2,1),
+      // r10: new Stronk(18,11,2,1),
+      // r11: new Monk(20,9,2,1),
+      // r12: new Sonk(22,10,2,1),
 
       // blue team geese
       b1: new Honk(1,6,16,3),
@@ -81,7 +81,7 @@ class Arena_Scene extends Scene_Component {
 
     // setup game
     this.turn = 'red';
-    this.movesLeft = Object.keys(this.geese).length/2;
+    this.movesLeft = 1;// Object.keys(this.geese).length/2;
 
 
 
@@ -355,14 +355,15 @@ class Arena_Scene extends Scene_Component {
             let manhattan_distance = Math.abs(this.geese[g].tile_position.x - this.last_selected_unit.tile_position.x)
             + Math.abs(this.geese[g].tile_position.z - this.last_selected_unit.tile_position.z);
             if (this.geese[g] != this.last_selected_unit && tile_pos.x == this.marker_tile_select.x &&
-               tile_pos.z == this.marker_tile_select.z && manhattan_distance <= this.last_selected_unit.stats.attack_range) {
+               tile_pos.z == this.marker_tile_select.z && manhattan_distance <= this.last_selected_unit.stats.attack_range &&
+               this.geese[g].stats.goose_id % 2 != this.last_selected_unit.stats.goose_id) {
               // Display battle forecast
               let position = calculate_world_pos_from_tile(tile_pos.x, tile_pos.z, 10, 10).plus(Vec.of(0,25,0));
               this.forecast = new Battle_Forecast(this.shapes.menu_quad, this.shapes.text_menu_line,
                 {menu: this.materials.orange,
                  text: this.materials.text_image,
                  bar_front: this.materials.red,
-                 bar_back: this.materials.gray}, graphics_state.camera_transform, position, 18, 23, this.last_selected_unit, this.geese[g]);
+                 bar_back: this.materials.gray}, graphics_state.camera_transform, position, 18, 23, this.last_selected_unit, this.geese[g], this.turn);
                  break;
             } else {
               this.forecast = undefined;
