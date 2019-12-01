@@ -33,6 +33,7 @@ class Arena_Scene extends Scene_Component {
                          arena: new Arena(this.tile_generator.map, 10, 10),
                          menu_quad: new Square(),
                          text_line: new Text_Line(7),
+                         text_menu_line: new Text_Line(15),
                    }
                 
     // instantiate geese
@@ -121,6 +122,7 @@ class Arena_Scene extends Scene_Component {
     this.enable_multi = false;
     this.setup_trigger = 0;
     this.disable_marker_tile = false;
+    this.marker_tile_select = undefined;
     }
   }
 
@@ -134,12 +136,17 @@ class Arena_Scene extends Scene_Component {
 
   // Handles intersection with arena and calculates area to place cursor
   handle_mouse_movement(mouse_ray) {
-    if (this.disable_marker_tile) return;
+    if (this.disable_marker_tile) {
+      this.marker_tile_select = undefined;
+      this.forecast = undefined;
+      return;
+    }
     const width = 10, length = 10;
     // Assume the arena is always at 0,0,0
     // And tiles are arranges such that the center of tile 1 is at [5,5,0]
     let tiles = this.calculate_ray_tile_intersection(mouse_ray, width, length);
     let tile_positions = calculate_world_pos_from_tile(tiles.x, tiles.z, width, length);
+    this.marker_tile_select = tiles;
     let translation = Mat4.translation([tile_positions[0] , 0.1, tile_positions[2]]);
     this.marker_tile_world_transform = translation.times(this.marker_tile_def_transform);
   }
@@ -342,6 +349,26 @@ class Arena_Scene extends Scene_Component {
   
           this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.attack_tile);
         }
+        if (!this.selected_unit && this.marker_tile_select) {
+          for (let g in this.geese) {
+            let tile_pos = this.geese[g].tile_position;
+            let manhattan_distance = Math.abs(this.geese[g].tile_position.x - this.last_selected_unit.tile_position.x)
+            + Math.abs(this.geese[g].tile_position.z - this.last_selected_unit.tile_position.z);
+            if (this.geese[g] != this.last_selected_unit && tile_pos.x == this.marker_tile_select.x &&
+               tile_pos.z == this.marker_tile_select.z && manhattan_distance <= this.last_selected_unit.stats.attack_range) {
+              // Display battle forecast
+              let position = calculate_world_pos_from_tile(tile_pos.x, tile_pos.z, 10, 10).plus(Vec.of(0,25,0));
+              this.forecast = new Battle_Forecast(this.shapes.menu_quad, this.shapes.text_menu_line,
+                {menu: this.materials.orange,
+                 text: this.materials.text_image,
+                 bar_front: this.materials.red,
+                 bar_back: this.materials.gray}, graphics_state.camera_transform, position, 18, 23, this.last_selected_unit, this.geese[g]);
+                 break;
+            } else {
+              this.forecast = undefined;
+            }
+          }
+        }
         // If we selected ourself do nothing otherwise initialize the battle animation
         // if they are within range
         if (this.selected_unit != this.last_selected_unit && this.selected_unit && this.last_selected_unit && this.selected_unit.getTeam() != this.last_selected_unit.getTeam()) {
@@ -421,6 +448,11 @@ class Arena_Scene extends Scene_Component {
     if (this.menu_manager.menus_length != 0) {
       this.menu_manager.update_transforms(graphics_state.camera_transform);
       this.menu_manager.draw_menus(graphics_state, this.context);
+    }
+
+    if (this.forecast) {
+      this.forecast.update_transform(graphics_state.camera_transform);
+      this.forecast.render(graphics_state, this.context);
     }
     // Multipass rendering options
     if (this.camera_animations_manager.animating)
