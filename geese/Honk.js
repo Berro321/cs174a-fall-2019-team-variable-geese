@@ -19,6 +19,7 @@ class Honk extends Goose {
             this.head_pos = [0, 0];
             this.body_angle = 0;
         }
+        
             
         let tag = '_' + this.constructor.name + this.stats.goose_id;
         let head = 'head' + tag;
@@ -229,6 +230,10 @@ class Honk extends Goose {
                 .times(Mat4.translation([ -0.5, -0.75,-0.4]))
                 .times(this.transforms[right_eyebrow]);
 
+        }
+
+        for (let t in this.transforms) {
+            this.transforms[t] = Mat4.scale([0.5, 0.5, 0.5]).times(this.transforms[t]);
         }
 
         this.state.frameNumber--;

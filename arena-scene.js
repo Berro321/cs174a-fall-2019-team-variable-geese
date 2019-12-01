@@ -37,12 +37,34 @@ class Arena_Scene extends Scene_Component {
                 
     // instantiate geese
     this.geese = {
-      g1: new Chonk(1,0,0,3),
-      g2: new Honk(2,1,3,3),
-      g3: new Sonk(3,2,0,3),
-      g4: new Stronk(4,3,0,3),
-      g5: new Lonk(5,4,0,3),
-      g6: new Monk(6,5,0,3),
+
+      // red team geese
+      r1: new Honk(0,6,3,1),
+      r2: new Honk(2,9,3,1),
+      r3: new Honk(4,10,3,1),
+      r4: new Honk(6,13,3,1),
+      r5: new Lonk(8,6,2,1),
+      r6: new Lonk(10,13,2,1),
+      r7: new Chonk(12,7,2,1),
+      r8: new Chonk(14,12,2,1),
+      r9: new Stronk(16,8,2,1),
+      r10: new Stronk(18,11,2,1),
+      r11: new Monk(20,9,2,1),
+      r12: new Sonk(22,10,2,1),
+
+      // blue team geese
+      b1: new Honk(1,6,16,3),
+      b2: new Honk(3,9,16,3),
+      b3: new Honk(5,10,16,3),
+      b4: new Honk(7,13,16,3),
+      b5: new Lonk(9,6,17,3),
+      b6: new Lonk(11,13,17,3),
+      b7: new Chonk(13,7,17,3),
+      b8: new Chonk(15,12,17,3),
+      b9: new Stronk(17,8,17,3),
+      b10: new Stronk(19,11,17,3),
+      b11: new Monk(21,10,17,3),
+      b12: new Sonk(23,9,17,3),
     }
 
     // add all shapes used by geese to shapes
@@ -55,12 +77,13 @@ class Arena_Scene extends Scene_Component {
     this.submit_shapes( context, shapes);
     this.context = context.gl;
     this.canvas = context.canvas;
-        // Initialize for multi-pass rendering gotten from the Encyclopedia of Code
-    this.scratchpad = document.createElement('canvas');
-    // A hidden canvas for re-sizing the real canvas:
-    this.scratchpad_context = this.scratchpad.getContext('2d');
-    this.scratchpad.width   = 1024;
-    this.scratchpad.height  = 512;
+
+    // setup game
+    this.turn = 'red';
+    this.movesLeft = Object.keys(this.geese).length/2;
+
+
+
     this.fb_texture = new Texture(context.gl, "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", true ); 
 
     this.materials =
@@ -69,7 +92,8 @@ class Arena_Scene extends Scene_Component {
         orange:    context.get_instance( Phong_Shader ).material( Color.of( 1,.7,.4,1 ), { ambient:.5 } ),
         red:       context.get_instance( Phong_Shader ).material( Color.of( 1,0,0,1 ), {ambient: .5} ),
         pink:      context.get_instance( Phong_Shader ).material( Color.of( 1,.4,.4,1 ), {ambient: .5} ),
-        green:     context.get_instance( Phong_Shader ).material( Color.of(.2,.5,.2,1 ), {ambient: .5} ),
+        blue:       context.get_instance( Phong_Shader ).material( Color.of( 0,0,1,1 ), {ambient: .5} ),
+        green:     context.get_instance( Phong_Shader ).material( Color.of(.2,.5,.2,1 ), {ambient: 0.5} ),
         gold:      context.get_instance( Phong_Shader ).material( Color.of(.7,.4,.2,1), {ambient: .5}),
         gray:      context.get_instance( Phong_Shader ).material( Color.of(.5,.5,.5,1), {ambient: .5}),
         red:       context.get_instance( Phong_Shader ).material( Color.of( 1,0,0,1 ), {ambient: .5} ),
@@ -84,7 +108,7 @@ class Arena_Scene extends Scene_Component {
         radial_simple: {shader: context.get_instance(Radial_Blur_Shader_Multi)}
       }
 
-    // this.lights = [ new Light( Vec.of( 10,-15,10,1 ), Color.of( 1, 1, 1, 1 ), 100000 ) ];
+    {
     this.lights = [ new Light( Vec.of( 50,100,-50,1 ), Color.of( 1, 1, 1, 1 ), 10**4 ) ];
     this.arena_transform = Mat4.scale([100,1,100]).times(Mat4.rotation(Math.PI / 2, Vec.of(1,0,0)));
     this.marker_tile_def_transform = Mat4.translation([0,0.1,0]).times(Mat4.scale([5,0,5]).times(Mat4.rotation(Math.PI/2, Vec.of(-1,0,0))));
@@ -97,6 +121,7 @@ class Arena_Scene extends Scene_Component {
     this.enable_multi = false;
     this.setup_trigger = 0;
     this.disable_marker_tile = false;
+    }
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
@@ -152,11 +177,39 @@ class Arena_Scene extends Scene_Component {
     //   this.setup_trigger = 0;
     // }
 
+    // remove dead geese
     for (let g in this.geese) {
-      // this.geese[g].attack();
+      if (this.geese[g].stats.health < 0)
+        delete(this.geese[g]);
+    }
+
+    // next player's turn
+    if (this.movesLeft == 0) {
+      // TODO: flip camera
+      let ct = 
+      
+      this.turn = this.turn == 'blue' ? 'red' : 'blue';
+      if (this.turn == 'blue')
+        console.log("BLUE TURN");
+      else
+        console.log("RED TURN");
+
+      if (this.turn == 'red') {
+        for (let g in this.geese)
+          if (g[0] == "r")
+            this.movesLeft++;
+      }
+
+      if (this.turn == 'blue') {
+        for (let g in this.geese)
+          if (g[0] == "b")
+            this.movesLeft++;
+      }
+    }
+
+    for (let g in this.geese) {
         for (let shape in this.geese[g].shapes) {  
-          this.shapes[shape].draw(graphics_state, Mat4.translation([this.geese[g].translation.x, 0, this.geese[g].translation.z]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);
-        
+          this.shapes[shape].draw(graphics_state, Mat4.translation([this.geese[g].translation.x, 0, this.geese[g].translation.z]).times(this.geese[g].transforms[shape]), this.materials[this.geese[g].colors[shape]]);     
         }
     }
 
@@ -166,16 +219,19 @@ class Arena_Scene extends Scene_Component {
       let collisions = (this.menu_manager.menus_length != 0) ? this.menu_manager.check_collisions(this.click_ray) : [];
       if (collisions.length != 0) {
         // Do stuff for that menu item
-        console.log(collisions);
         if (collisions[0] == "attack") {
           this.attack_positions = generate_attack_tile_locations(this.last_selected_unit.stats, this.last_selected_unit.tile_position.x, this.last_selected_unit.tile_position.z, 10, 10 );
           this.menu_manager.clear_menus(true);
+
+          this.movesLeft--;
         }
         else if (collisions[0] == "wait") {
           this.last_selected_unit.prev.x = this.last_selected_unit.tile_position.x;
           this.last_selected_unit.prev.z = this.last_selected_unit.tile_position.z;
           this.last_selected_unit.prev.orientation = this.last_selected_unit.state.orientation;
           this.menu_manager.clear_menus(true);
+
+          this.movesLeft--;
         }
         else if (collisions[0] == "back") {
           let displacement = calculate_world_pos_from_tile(this.last_selected_unit.prev.x - this.last_selected_unit.tile_position.x-1,
@@ -183,7 +239,6 @@ class Arena_Scene extends Scene_Component {
                                                            10, 10);
           displacement[0] += 5;
           displacement[2] -= 5;         
-          console.log(this.last_selected_unit);
           this.last_selected_unit.translation.x += displacement[0]; 
           this.last_selected_unit.translation.z += displacement[2];    
           this.last_selected_unit.tile_position.x = this.last_selected_unit.prev.x;
@@ -191,26 +246,32 @@ class Arena_Scene extends Scene_Component {
           this.last_selected_unit.rotate_goose(this.last_selected_unit.state.orientation, this.last_selected_unit.prev.orientation);
           this.last_selected_unit.state.orientation = this.last_selected_unit.prev.orientation;
           this.last_selected_unit.state.hasMoved = false;
-          console.log(this.last_selected_unit)
           this.menu_manager.clear_menus(true);
         }
 
 
-      } else {
+      } 
+      else {
         // Check for geese at that position
         for (let g in this.geese) {
-            if (this.geese[g].tile_position.x == this.clicked_tile.x &&
-                this.geese[g].tile_position.z == this.clicked_tile.z &&
-                this.geese[g].state.hasMoved == false) {
-                this.selected_unit = this.geese[g];
-                break;
-            }
+          
+          if (this.turn == 'red' && g[0] == 'b')
+            continue;
+          if (this.turn == 'blue' && g[0] == 'r')
+            continue;   
+          
+          if (this.geese[g].tile_position.x == this.clicked_tile.x &&
+              this.geese[g].tile_position.z == this.clicked_tile.z &&
+              this.geese[g].state.hasMoved == false) {
+              this.selected_unit = this.geese[g];
+              break;
+          }
         }
 
         // If no geese were selected, then clear menu
-        if (!this.selected_unit) {
-          this.menu_manager.clear_menus(true);
-        }
+        // if (!this.selected_unit) {
+        //   this.menu_manager.clear_menus(true);
+        // }
       }
       this.click_ray = undefined;
     }

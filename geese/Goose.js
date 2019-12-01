@@ -22,7 +22,6 @@ class Goose {
             orientation: orientation, // 0 is right, 1 is up, 2 is left, 3 is down
             path_itr: 0,
             hasMoved: false,
-            hasAttacked: true,
         };
 
         this.prev = {
@@ -115,7 +114,7 @@ class Goose {
             'orange', // 'right_leg'
             'orange', // 'left_foot'
             'orange', // 'right_foot'
-            'red', // 'marker_strip'
+            this.getTeam(), // 'marker_strip'
         ];
 
         // shape's key is specifically: shape_name + Goose + goose_id
@@ -151,7 +150,11 @@ class Goose {
         this.translation.z += tile_coords[2];
     }
 
-    rotate_goose(old_orientation, new_orientation) {
+    getTeam = () => {
+        return this.stats.goose_id % 2 == 0 ? 'red' : 'blue';
+    }
+
+    rotate_goose = (old_orientation, new_orientation) => {
         if (old_orientation == new_orientation)
             return;
         for (let transform in this.transforms)
@@ -202,7 +205,7 @@ class Goose {
 
         this.rotate_goose(this.state.orientation, new_orientation);
         this.state.orientation = new_orientation;
-        console.log(this);
+        
         if (this.state.path_itr == path.length) {
             this.state.path_itr = 0;
             return false;
