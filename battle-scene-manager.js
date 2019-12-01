@@ -36,6 +36,15 @@ class Battle_Scene_Manager {
 
         if (this.queued_action.action == "attack") {
             this.queued_action.goose.state.animating = true;
+
+            console.log("ID: " + this.queued_action.goose.stats.goose_id);
+            for (let shape in this.queued_action.goose.shapes) {
+                console.log(shape + ": " + this.queued_action.goose.colors[shape]);
+                if (this.queued_action.goose.colors[shape] == 'pink') {
+                    this.queued_action.goose.colors[shape] = 'white';
+                }
+            }
+
             this.queued_action.goose.attack();
             // Check to see if during this animation step, there should be a damage done
             if (this.queued_action.goose.state.inflict_damage_other && !this.animation_state.damage_icon.init){
@@ -44,8 +53,17 @@ class Battle_Scene_Manager {
                 // let position = calculate_world_pos_from_tile(this.queued_action.goose.tile_position.x, this.queued_action.goose.tile_position.z, 10, 10).plus(Vec.of(0,10,0));
                 // let position = this.queued_action.other_goose.transforms['body_' + this.queued_action.other_goose.constructor.name + this.queued_action.other_goose.stats.goose_id].times(Vec.of(0,0,0,1)).plus(Vec.of(0,10,0,1)).to3();
                 let position = Vec.of(0,0,0).plus(calculate_world_pos_from_tile(this.queued_action.other_goose.tile_position.x, this.queued_action.other_goose.tile_position.z, 10, 10)).plus(Vec.of(0, 8, 0));
+
                 this.animation_state.damage_icon.translation = Mat4.translation([position[0], position[1], position[2]]).times(Mat4.scale([1, 1, 1]));
                 this.animation_state.damage_icon.init = true;
+               
+                console.log("ID: " + this.queued_action.goose.stats.goose_id);
+                for (let shape in this.queued_action.other_goose.shapes) {
+                    console.log(shape + ": " + this.queued_action.goose.colors[shape]);
+                    if (this.queued_action.other_goose.colors[shape] == 'white') {
+                        this.queued_action.other_goose.colors[shape] = 'pink';
+                    }
+                }    
             } 
             if (this.queued_action.goose.state.animating == false) {
                 this.queued_action = undefined;
@@ -142,6 +160,13 @@ class Battle_Scene_Manager {
                 this.def_goose.state.orientation = this.def_goose_new_orientation;
             }
         } else if (this.queued_action.action == "camera zoom out") {
+            console.log("ID: " + this.queued_action.goose.stats.goose_id);
+            for (let shape in this.queued_action.goose.shapes) {
+                console.log(shape + ": " + this.queued_action.goose.colors[shape]);
+                if (this.queued_action.goose.colors[shape] == 'pink') {
+                    this.queued_action.goose.colors[shape] = 'white';
+                }
+            }
             // Initial setup
             if (!this.camera_manager.animating) {
                 this.camera_manager.change_animation(2);
