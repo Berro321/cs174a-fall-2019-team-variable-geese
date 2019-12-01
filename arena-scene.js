@@ -40,18 +40,18 @@ class Arena_Scene extends Scene_Component {
     this.geese = {
 
       // red team geese
-      r1: new Honk(0,6,14,1),
-      // r2: new Honk(2,9,3,1),
-      // r3: new Honk(4,10,3,1),
-      // r4: new Honk(6,13,3,1),
-      // r5: new Lonk(8,6,2,1),
-      // r6: new Lonk(10,13,2,1),
-      // r7: new Chonk(12,7,2,1),
-      // r8: new Chonk(14,12,2,1),
-      // r9: new Stronk(16,8,2,1),
-      // r10: new Stronk(18,11,2,1),
-      // r11: new Monk(20,9,2,1),
-      // r12: new Sonk(22,10,2,1),
+      r1: new Honk(0,6,3,1),
+      r2: new Honk(2,9,3,1),
+      r3: new Honk(4,10,3,1),
+      r4: new Honk(6,13,3,1),
+      r5: new Lonk(8,6,2,1),
+      r6: new Lonk(10,13,2,1),
+      r7: new Chonk(12,7,2,1),
+      r8: new Chonk(14,12,2,1),
+      r9: new Stronk(16,8,2,1),
+      r10: new Stronk(18,11,2,1),
+      r11: new Monk(20,9,2,1),
+      r12: new Sonk(22,10,2,1),
 
       // blue team geese
       b1: new Honk(1,6,16,3),
