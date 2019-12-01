@@ -41,30 +41,30 @@ class Arena_Scene extends Scene_Component {
       // red team geese
       r1: new Honk(0,6,3,1),
       r2: new Honk(2,9,3,1),
-      r3: new Honk(4,10,3,1),
-      r4: new Honk(6,13,3,1),
-      r5: new Lonk(8,6,2,1),
-      r6: new Lonk(10,13,2,1),
-      r7: new Chonk(12,7,2,1),
-      r8: new Chonk(14,12,2,1),
-      r9: new Stronk(16,8,2,1),
-      r10: new Stronk(18,11,2,1),
-      r11: new Monk(20,9,2,1),
-      r12: new Sonk(22,10,2,1),
+      // r3: new Honk(4,10,3,1),
+      // r4: new Honk(6,13,3,1),
+      // r5: new Lonk(8,6,2,1),
+      // r6: new Lonk(10,13,2,1),
+      // r7: new Chonk(12,7,2,1),
+      // r8: new Chonk(14,12,2,1),
+      // r9: new Stronk(16,8,2,1),
+      // r10: new Stronk(18,11,2,1),
+      // r11: new Monk(20,9,2,1),
+      // r12: new Sonk(22,10,2,1),
 
       // blue team geese
       b1: new Honk(1,6,16,3),
       b2: new Honk(3,9,16,3),
-      b3: new Honk(5,10,16,3),
-      b4: new Honk(7,13,16,3),
-      b5: new Lonk(9,6,17,3),
-      b6: new Lonk(11,13,17,3),
-      b7: new Chonk(13,7,17,3),
-      b8: new Chonk(15,12,17,3),
-      b9: new Stronk(17,8,17,3),
-      b10: new Stronk(19,11,17,3),
-      b11: new Monk(21,10,17,3),
-      b12: new Sonk(23,9,17,3),
+      // b3: new Honk(5,10,16,3),
+      // b4: new Honk(7,13,16,3),
+      // b5: new Lonk(9,6,17,3),
+      // b6: new Lonk(11,13,17,3),
+      // b7: new Chonk(13,7,17,3),
+      // b8: new Chonk(15,12,17,3),
+      // b9: new Stronk(17,8,17,3),
+      // b10: new Stronk(19,11,17,3),
+      // b11: new Monk(21,10,17,3),
+      // b12: new Sonk(23,9,17,3),
     }
 
     // add all shapes used by geese to shapes
@@ -186,7 +186,6 @@ class Arena_Scene extends Scene_Component {
     // next player's turn
     if (this.movesLeft == 0) {
       // TODO: flip camera
-      let ct = 
       
       this.turn = this.turn == 'blue' ? 'red' : 'blue';
       if (this.turn == 'blue')
@@ -196,14 +195,18 @@ class Arena_Scene extends Scene_Component {
 
       if (this.turn == 'red') {
         for (let g in this.geese)
-          if (g[0] == "r")
+          if (g[0] == "r") {
+            this.geese[g].state.hasMoved = false;
             this.movesLeft++;
+          }
       }
 
       if (this.turn == 'blue') {
         for (let g in this.geese)
-          if (g[0] == "b")
+          if (g[0] == "b") {
+            this.geese[g].state.hasMoved = false;
             this.movesLeft++;
+          }
       }
     }
 
@@ -253,16 +256,9 @@ class Arena_Scene extends Scene_Component {
       } 
       else {
         // Check for geese at that position
-        for (let g in this.geese) {
-          
-          if (this.turn == 'red' && g[0] == 'b')
-            continue;
-          if (this.turn == 'blue' && g[0] == 'r')
-            continue;   
-          
+        for (let g in this.geese) {          
           if (this.geese[g].tile_position.x == this.clicked_tile.x &&
-              this.geese[g].tile_position.z == this.clicked_tile.z &&
-              this.geese[g].state.hasMoved == false) {
+              this.geese[g].tile_position.z == this.clicked_tile.z) {
               this.selected_unit = this.geese[g];
               break;
           }
@@ -289,7 +285,7 @@ class Arena_Scene extends Scene_Component {
     }
 
     // Draw movement tiles if unit is selected and it is not in attacking
-    if (this.selected_unit && !this.moving && !this.attack_positions && !this.battle_scene_manager.battle_ongoing) {
+    if (this.selected_unit && !this.selected_unit.state.hasMoved && !this.moving && !this.attack_positions && !this.battle_scene_manager.battle_ongoing && this.selected_unit.getTeam() == this.turn) {
       if (!this.move_positions) {
         this.move_positions = [];
         this.cellToPath = {};
@@ -300,19 +296,6 @@ class Arena_Scene extends Scene_Component {
 
         this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.move_tile);
       }
-
-      // TODO: draw attack tiles
-
-      // for (let tile_index in attack_positions) {
-      //   let tile = attack_positions[tile_index];
-      //   if (tile[0] < 0 || tile[0] > 195 || tile[2] < -195 || tile[2] > 0)
-      //     continue;
-
-      //   if (tile[0] + " " + -tile[2] in this.obstacles)
-      //     continue;
-
-      //   this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.attack_tile);
-      // }
     }
 
     // Draw attack tiles if they are defined

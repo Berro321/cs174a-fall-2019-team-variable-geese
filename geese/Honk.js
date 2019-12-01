@@ -232,10 +232,6 @@ class Honk extends Goose {
 
         }
 
-        for (let t in this.transforms) {
-            this.transforms[t] = Mat4.scale([0.5, 0.5, 0.5]).times(this.transforms[t]);
-        }
-
         this.state.frameNumber--;
         if (this.state.frameNumber == 0) {
             this.state.animating = false;
