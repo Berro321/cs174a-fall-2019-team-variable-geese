@@ -194,6 +194,9 @@ class Goose {
 
     // generate path, responsible for rotating goose before calling moveOneCell()
     move = (path) => {
+        if (path == "")
+            return false;
+
         let movement_char = path[this.state.path_itr];
         let new_orientation;
         switch(movement_char) {

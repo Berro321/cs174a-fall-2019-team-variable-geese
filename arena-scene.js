@@ -41,30 +41,30 @@ class Arena_Scene extends Scene_Component {
       // red team geese
       r1: new Honk(0,6,3,1),
       r2: new Honk(2,9,3,1),
-      // r3: new Honk(4,10,3,1),
-      // r4: new Honk(6,13,3,1),
-      // r5: new Lonk(8,6,2,1),
-      // r6: new Lonk(10,13,2,1),
-      // r7: new Chonk(12,7,2,1),
-      // r8: new Chonk(14,12,2,1),
-      // r9: new Stronk(16,8,2,1),
-      // r10: new Stronk(18,11,2,1),
-      // r11: new Monk(20,9,2,1),
-      // r12: new Sonk(22,10,2,1),
+      r3: new Honk(4,10,3,1),
+      r4: new Honk(6,13,3,1),
+      r5: new Lonk(8,6,2,1),
+      r6: new Lonk(10,13,2,1),
+      r7: new Chonk(12,7,2,1),
+      r8: new Chonk(14,12,2,1),
+      r9: new Stronk(16,8,2,1),
+      r10: new Stronk(18,11,2,1),
+      r11: new Monk(20,9,2,1),
+      r12: new Sonk(22,10,2,1),
 
       // blue team geese
       b1: new Honk(1,6,16,3),
       b2: new Honk(3,9,16,3),
-      // b3: new Honk(5,10,16,3),
-      // b4: new Honk(7,13,16,3),
-      // b5: new Lonk(9,6,17,3),
-      // b6: new Lonk(11,13,17,3),
-      // b7: new Chonk(13,7,17,3),
-      // b8: new Chonk(15,12,17,3),
-      // b9: new Stronk(17,8,17,3),
-      // b10: new Stronk(19,11,17,3),
-      // b11: new Monk(21,10,17,3),
-      // b12: new Sonk(23,9,17,3),
+      b3: new Honk(5,10,16,3),
+      b4: new Honk(7,13,16,3),
+      b5: new Lonk(9,6,17,3),
+      b6: new Lonk(11,13,17,3),
+      b7: new Chonk(13,7,17,3),
+      b8: new Chonk(15,12,17,3),
+      b9: new Stronk(17,8,17,3),
+      b10: new Stronk(19,11,17,3),
+      b11: new Monk(21,10,17,3),
+      b12: new Sonk(23,9,17,3),
     }
 
     // add all shapes used by geese to shapes
@@ -127,6 +127,7 @@ class Arena_Scene extends Scene_Component {
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
   this.result_img = this.control_panel.appendChild( Object.assign( document.createElement( "img" ), 
   { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) );  
+  this.key_triggered_button("End turn", ["e"], () => this.movesLeft = 0);
   this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);
   this.key_triggered_button("Disable/Enable camera animation default", ["1"], () => this.setup_trigger = 1)
   }
@@ -290,7 +291,12 @@ class Arena_Scene extends Scene_Component {
       if (!this.move_positions) {
         this.move_positions = [];
         this.cellToPath = {};
+
         generate_move_tiles_locations(this.selected_unit, this.move_positions, "", this.cellToPath, this.selected_unit.stats.movement_range + 1, this.tile_generator.map, this.geese, this.selected_unit.tile_position.x, this.selected_unit.tile_position.z, 10, 10);
+        this.move_positions.push(calculate_world_pos_from_tile(this.selected_unit.tile_position.x, this.selected_unit.tile_position.z, 10, 10));
+        this.cellToPath[this.selected_unit.tile_position.x + " " + this.selected_unit.tile_position.z] = "";
+        this.clicked_tile.x = undefined;
+        this.clicked_tile.z = undefined;
       }
       for (let tile_index in this.move_positions) {
         let tile = this.move_positions[tile_index];
@@ -309,7 +315,7 @@ class Arena_Scene extends Scene_Component {
         }
         // If we selected ourself do nothing otherwise initialize the battle animation
         // if they are within range
-        if (this.selected_unit != this.last_selected_unit && this.selected_unit && this.last_selected_unit) {
+        if (this.selected_unit != this.last_selected_unit && this.selected_unit && this.last_selected_unit && this.selected_unit.getTeam() != this.last_selected_unit.getTeam()) {
           for (let tile_index in this.attack_positions.tiles) {
             let tile = this.attack_positions.tiles[tile_index];
 
