@@ -224,8 +224,10 @@ class Arena_Scene extends Scene_Component {
         // Do stuff for that menu item
         if (collisions[0] == "attack") {
           this.attack_positions = generate_attack_tile_locations(this.last_selected_unit.stats, this.last_selected_unit.tile_position.x, this.last_selected_unit.tile_position.z, 10, 10 );
+          this.last_selected_unit.prev.x = this.last_selected_unit.tile_position.x;
+          this.last_selected_unit.prev.z = this.last_selected_unit.tile_position.z;
+          this.last_selected_unit.prev.orientation = this.last_selected_unit.state.orientation;
           this.menu_manager.clear_menus(true);
-
           this.movesLeft--;
         }
         else if (collisions[0] == "wait") {
@@ -233,7 +235,6 @@ class Arena_Scene extends Scene_Component {
           this.last_selected_unit.prev.z = this.last_selected_unit.tile_position.z;
           this.last_selected_unit.prev.orientation = this.last_selected_unit.state.orientation;
           this.menu_manager.clear_menus(true);
-
           this.movesLeft--;
         }
         else if (collisions[0] == "back") {
@@ -322,6 +323,7 @@ class Arena_Scene extends Scene_Component {
         }
       }
     }
+
     if (this.battle_scene_manager.battle_ongoing) {
       graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state, this.context);
       // If it finishes this frame, reset the selected and last selected
