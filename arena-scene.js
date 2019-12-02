@@ -131,7 +131,7 @@ class Arena_Scene extends Scene_Component {
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
   this.result_img = this.control_panel.appendChild( Object.assign( document.createElement( "img" ), 
   { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) );  
-  this.key_triggered_button("End turn", ["e"], () => this.movesLeft = 0);
+  this.key_triggered_button("End turn", ["e"], () => {if (!this.selected_unit && this.menu_manager.menus_length == 0) {console.log(this.menu_manager.menus_length); this.movesLeft = 0}});
   this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);
   this.key_triggered_button("Disable/Enable camera animation default", ["1"], () => this.setup_trigger = 1)
   }
@@ -190,7 +190,7 @@ class Arena_Scene extends Scene_Component {
     // remove dead geese
     
     for (let g in this.geese) {
-      if (this.geese[g].stats.health < 0) {
+      if (this.geese[g].stats.health <= 0) {
         delete(this.geese[g]);
       }
     }

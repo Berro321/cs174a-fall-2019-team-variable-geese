@@ -299,7 +299,7 @@ class Battle_Scene_Manager {
             this.actions.push({goose: this.atk_goose, action: "move", other_goose: this.def_goose, duration: 80});
         this.actions.push({goose: this.atk_goose, action: "attack", other_goose: this.def_goose});
 
-        if (def_goose_stats.health - atk_goose_stats.attack + def_goose_stats.defense < 0) {
+        if (def_goose_stats.health - atk_goose_stats.attack + def_goose_stats.defense <= 0) {
             this.actions.push({goose: this.def_goose, action: "dead"});
             this.actions.push({goose: this.atk_goose, other_goose: this.def_goose, action: "camera zoom out"});
             return;
