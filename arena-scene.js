@@ -6,6 +6,15 @@ class Arena_Scene extends Scene_Component {
     if(!context.globals.has_controls) 
       context.register_scene_component(new Movement_Controls_Arena( context, control_box.parentElement.insertCell())); 
 
+    this.audio_sources = {
+      "Chonk" : document.getElementById("Chonk"),
+      "Honk" : document.getElementById("Honk"),
+      "Lonk_Retract" : document.getElementById("Lonk_Retract"),
+      "Lonk_Extend" : document.getElementById("Lonk_Extend"),
+      "Monk" : document.getElementById("Monk"),
+      "Sonk" : document.getElementById("Sonk"),
+      "Stronk" : document.getElementById("Stronk"),
+    };
     context.globals.graphics_state.camera_transform = Mat4.look_at( Vec.of( 100, 90, 20), Vec.of( 100,0,-70 ), Vec.of( 0,1,0 ) );
     this.initial_camera_location = Mat4.inverse( context.globals.graphics_state.camera_transform );
     context.canvas.addEventListener( "mousemove", e => { e.preventDefault();
@@ -133,7 +142,8 @@ class Arena_Scene extends Scene_Component {
   { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) );  
   this.key_triggered_button("End turn", ["e"], () => {if (this.menu_manager.menus_length == 0) {if (this.clicked_tile) this.movesLeft = 0}});
   this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);
-  this.key_triggered_button("Disable/Enable camera animation default", ["1"], () => this.setup_trigger = 1)
+  this.key_triggered_button("Disable/Enable camera animation default", ["1"], () => this.setup_trigger = 1);
+  this.key_triggered_button("Play sound", ["3"], () => this.audio_sources.Stronk.play());
   }
 
   // Handles intersection with arena and calculates area to place cursor
