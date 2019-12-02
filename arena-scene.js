@@ -41,8 +41,8 @@ class Arena_Scene extends Scene_Component {
 
       // red team geese
       r1: new Honk(0,6,3,1),
-      r2: new Honk(2,9,3,1),
-      r3: new Honk(4,10,3,1),
+      r2: new Honk(2,9,14,1),
+      r3: new Honk(4,10,14,1),
       r4: new Honk(6,13,3,1),
       r5: new Lonk(8,6,2,1),
       r6: new Lonk(10,13,2,1),
@@ -222,6 +222,10 @@ class Arena_Scene extends Scene_Component {
             this.movesLeft++;
           }
       }
+
+      this.selected_unit = undefined;
+      this.last_selected_unit = undefined;
+      this.forecast = undefined;
     }
 
     for (let g in this.geese) {
@@ -358,11 +362,14 @@ class Arena_Scene extends Scene_Component {
             + Math.abs(this.geese[g].tile_position.z - this.last_selected_unit.tile_position.z);
             if (this.geese[g] != this.last_selected_unit && tile_pos.x == this.marker_tile_select.x &&
                tile_pos.z == this.marker_tile_select.z && manhattan_distance <= this.last_selected_unit.stats.attack_range &&
-               this.geese[g].stats.goose_id % 2 != this.last_selected_unit.stats.goose_id) {
+               this.geese[g].getTeam() != this.last_selected_unit.getTeam()) {
               // Display battle forecast
               let position = calculate_world_pos_from_tile(tile_pos.x, tile_pos.z, 10, 10).plus(Vec.of(0,25,0));
+              let menu_1_material = (this.geese[g].getTeam() == 'blue') ? this.materials.red.override({ambient: 1, diffusivity: 0, specularity: 0}) : this.materials.blue.override({ambient: 1, diffusivity: 0, specularity: 0});
+              let menu_2_material = (this.geese[g].getTeam() ==  'blue') ? this.materials.blue.override({ambient: 1, diffusivity: 0, specularity: 0}) : this.materials.red.override({ambient: 1, diffusivity: 0, specularity: 0}); 
               this.forecast = new Battle_Forecast(this.shapes.menu_quad, this.shapes.text_menu_line,
-                {menu: this.materials.orange,
+                {menu_1: menu_1_material,
+                 menu_2: menu_2_material,
                  text: this.materials.text_image,
                  bar_front: this.materials.red,
                  bar_back: this.materials.gray}, graphics_state.camera_transform, position, 18, 23, this.last_selected_unit, this.geese[g], this.turn);

@@ -81,7 +81,8 @@ class Battle_Forecast {
         this.goose2 = goose2;
         this.menu_shape = shape;
         this.text_shape = text_shape;
-        this.menu_material = materials.menu;
+        this.menu_material1 = materials.menu_1;
+        this.menu_material2 = materials.menu_2;
         this.text_material = materials.text;
         this.generate_opponent_forecast(turn);
     }
@@ -124,8 +125,10 @@ class Battle_Forecast {
                 this.text_shape.set_string(this.texts[string_counter], context);
                 this.text_shape.draw(graphics_state, this.transforms[i], this.text_material );
                 string_counter++;
+            } else if (i == 0) {
+                this.menu_shape.draw(graphics_state, this.transforms[i], this.menu_material1);
             } else
-                this.menu_shape.draw(graphics_state, this.transforms[i], this.menu_material.override({ambient: 1}));
+                this.menu_shape.draw(graphics_state, this.transforms[i], this.menu_material2);
         }
     }
 }
