@@ -112,7 +112,6 @@ class Arena_Scene extends Scene_Component {
         negative_material: {shader: context.get_instance(Negative_Shader)},
       }
 
-    {
     this.lights = [ new Light( Vec.of( 50,100,-50,1 ), Color.of( 1, 1, 1, 1 ), 10**4 ) ];
     this.arena_transform = Mat4.scale([100,1,100]).times(Mat4.rotation(Math.PI / 2, Vec.of(1,0,0)));
     this.marker_tile_def_transform = Mat4.translation([0,0.1,0]).times(Mat4.scale([5,0,5]).times(Mat4.rotation(Math.PI/2, Vec.of(-1,0,0))));
@@ -127,16 +126,13 @@ class Arena_Scene extends Scene_Component {
     this.disable_marker_tile = false;
     this.marker_tile_select = undefined;
     this.current_animating_monk_shader = false;
-    }
+
+    this.gameOver = false;
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
   this.result_img = this.control_panel.appendChild( Object.assign( document.createElement( "img" ), 
-  { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) );  
-  this.key_triggered_button("End turn", ["e"], () => {if (this.menu_manager.menus_length == 0) {if (this.clicked_tile) this.movesLeft = 0}});
-  this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);
-  this.key_triggered_button("Disable/Enable camera animation default", ["1"], () => this.setup_trigger = 1);
-  this.key_triggered_button("Play sound", ["3"], () => this.geese['b12'].attack_sound.play());
+  { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) ); 
   }
 
   // Handles intersection with arena and calculates area to place cursor
@@ -187,16 +183,29 @@ class Arena_Scene extends Scene_Component {
 
     // remove dead geese
     
+    let nr = 0, nb = 0;
     for (let g in this.geese) {
       if (this.geese[g].stats.health <= 0) {
         delete(this.geese[g]);
       }
+      else {
+        nr += this.geese[g].getTeam() == 'red' ? 1 : 0;
+        nb += this.geese[g].getTeam() == 'blue' ? 1 : 0;
+      }
     }
     
+    if (nr == 0) {
+      this.gameOver = true;
+      // insert red team wins!
+    }
+    if (nb == 0) {
+      this.gameOver = true;
+      // insert blue team wins!
+    }
 
     // next player's turn
     if (this.movesLeft == 0) {
-      // TODO: flip camera
+
       this.turn = this.turn == 'blue' ? 'red' : 'blue';
       // Rotate to the respective side
       if (this.turn == 'blue') {
@@ -234,7 +243,7 @@ class Arena_Scene extends Scene_Component {
           this.geese[g].temp_translation_transform.times(
           Mat4.translation([this.geese[g].translation.x, 0, this.geese[g].translation.z]).times(this.geese[g].temp_scale_transform.times(this.geese[g].transforms[shape]))), this.materials[this.geese[g].colors[shape]]);
             
-        }
+      }
 
       if (this.geese[g].state.hasMoved == false && this.geese[g].getTeam() == this.turn) {
         let tile = Vec.of(this.geese[g].translation.x, 0, this.geese[g].translation.z);
@@ -401,7 +410,8 @@ class Arena_Scene extends Scene_Component {
               this.last_selected_unit.prev.x = this.last_selected_unit.tile_position.x;
               this.last_selected_unit.prev.z = this.last_selected_unit.tile_position.z;
               this.last_selected_unit.prev.orientation = this.last_selected_unit.state.orientation;
-              this.movesLeft--;
+              if (this.battle_scene_manager.battle_ongoing)
+                this.movesLeft--;
 
               this.battle_scene_manager.initiate_battle_sequence(this.last_selected_unit, this.selected_unit, this.menu_manager, this.camera_animations_manager, this.turn);
               this.attack_positions = undefined;
@@ -515,5 +525,11 @@ class Arena_Scene extends Scene_Component {
     graphics_state.multipass.enabled = this.enable_multi;
     graphics_state.multipass.shape = this.shapes.menu_quad;
     // this.shapes.menu_quad.draw(graphics_state, final_transform, this.materials.radial_blur_material);
+
+    // ending animation if it's over!!!
+    for (let g in this.geese) {
+      if (this.gameOver && !this.attack)
+        this.geese[g].attack();
+    }
   }
 }
