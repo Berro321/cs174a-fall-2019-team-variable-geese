@@ -192,7 +192,7 @@ class Sonk extends Goose {
                 .times(this.transforms[right_cymbal]);
         }
         else if (this.state.frameNumber > t_frames * 5/20) {
-            this.state.inflict_damage_other = (this.state.frameNumber == t_frames / 2);
+            this.state.inflict_damage_other = (this.state.frameNumber == 90);
         }
         else if (this.state.frameNumber > t_frames * 2/20) {
             this.transforms[head] = neck_up_transform
