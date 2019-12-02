@@ -98,12 +98,12 @@ class Arena_Scene extends Scene_Component {
         gold:      context.get_instance( Phong_Shader ).material( Color.of(.7,.4,.2,1), {ambient: .5}),
         gray:      context.get_instance( Phong_Shader ).material( Color.of(.5,.5,.5,1), {ambient: .5}),
         red:       context.get_instance( Phong_Shader ).material( Color.of( 1,0,0,1 ), {ambient: .5} ),
-        text_image: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,1),
-          {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/text.png", true)}),
+        text_image: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,1), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/text.png", true)}),
         menu_image: context.get_instance( Phong_Shader ).material( Color.of(1,1,0,1), {ambient: 1, diffusivity: 0, specularity: 0}),  // Material for menu objects
         marker_tile: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,0.8), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/marker_tile.png", true)}),
         move_tile: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,0.5), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/move_tile.png", true)}),
         attack_tile: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,0.5), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/attack_tile.png", true)}),
+        can_move_tile: context.get_instance( Phong_Shader ).material( Color.of(0,0,0,0.5), {ambient: 1, diffusivity: 0, specularity: 0, texture: context.get_instance("assets/can_move_tile.png", true)}),
         radial_blur_material: context.get_instance(Radial_Blur_Shader).material(Color.of(0,0,0,1), {ambient: 1, texture: this.fb_texture}),
         simple: { shader: context.get_instance(Simple_Shader) },
         radial_simple: {shader: context.get_instance(Radial_Blur_Shader_Multi)},
@@ -131,7 +131,7 @@ class Arena_Scene extends Scene_Component {
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
   this.result_img = this.control_panel.appendChild( Object.assign( document.createElement( "img" ), 
   { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) );  
-  this.key_triggered_button("End turn", ["e"], () => {if (!this.selected_unit && this.menu_manager.menus_length == 0) {console.log(this.menu_manager.menus_length); this.movesLeft = 0}});
+  this.key_triggered_button("End turn", ["e"], () => {if (this.menu_manager.menus_length == 0) {if (this.clicked_tile) this.movesLeft = 0}});
   this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);
   this.key_triggered_button("Disable/Enable camera animation default", ["1"], () => this.setup_trigger = 1)
   }
@@ -213,6 +213,8 @@ class Arena_Scene extends Scene_Component {
             this.geese[g].state.hasMoved = false;
             this.movesLeft++;
           }
+          else
+            this.geese[g].state.hasMoved = true;
       }
 
       if (this.turn == 'blue') {
@@ -221,19 +223,29 @@ class Arena_Scene extends Scene_Component {
             this.geese[g].state.hasMoved = false;
             this.movesLeft++;
           }
+          else
+            this.geese[g].state.hasMoved = true;
       }
 
       this.selected_unit = undefined;
+      this.clicked_tile.x = undefined;
+      this.clicked_tile.z = undefined;
       this.last_selected_unit = undefined;
       this.forecast = undefined;
     }
 
     for (let g in this.geese) {
-        for (let shape in this.geese[g].shapes) {  
-          this.shapes[shape].draw(graphics_state,
-            this.geese[g].temp_translation_transform.times(
-            Mat4.translation([this.geese[g].translation.x, 0, this.geese[g].translation.z]).times(this.geese[g].temp_scale_transform.times(this.geese[g].transforms[shape]))), this.materials[this.geese[g].colors[shape]]);
+      for (let shape in this.geese[g].shapes) {  
+        this.shapes[shape].draw(graphics_state,
+          this.geese[g].temp_translation_transform.times(
+          Mat4.translation([this.geese[g].translation.x, 0, this.geese[g].translation.z]).times(this.geese[g].temp_scale_transform.times(this.geese[g].transforms[shape]))), this.materials[this.geese[g].colors[shape]]);
+            
         }
+
+      if (this.geese[g].state.hasMoved == false) {
+        let tile = Vec.of(this.geese[g].translation.x, 0, this.geese[g].translation.z);
+        this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.can_move_tile);
+      }
     }
 
     // Check for selected units
@@ -418,8 +430,8 @@ class Arena_Scene extends Scene_Component {
     if (this.moving) {
       // Disable camera movement
       graphics_state.disable_camera_movement = true;
+      this.selected_unit.state.hasMoved = true;
       if (!this.selected_unit.move(this.cellToPath[this.clicked_tile.x + " " + this.clicked_tile.z])) {
-        this.selected_unit.state.hasMoved = true;
         this.selected_unit.tile_position.x = this.clicked_tile.x;
         this.selected_unit.tile_position.z = this.clicked_tile.z;
         this.clicked_tile.x = undefined;
