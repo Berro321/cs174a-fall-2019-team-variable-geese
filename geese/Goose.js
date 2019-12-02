@@ -24,6 +24,8 @@ class Goose {
             hasMoved: false,
         };
 
+        this.attack_sound = undefined; // passed in arena-scene
+
         this.prev = {
             orientation: orientation,
             x: x,

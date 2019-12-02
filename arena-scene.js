@@ -10,7 +10,7 @@ class Arena_Scene extends Scene_Component {
       "Chonk" : document.getElementById("Chonk"),
       "Honk" : document.getElementById("Honk"),
       "Lonk_Retract" : document.getElementById("Lonk_Retract"),
-      "Lonk_Extend" : document.getElementById("Lonk_Extend"),
+      "Lonk" : document.getElementById("Lonk_Extend"),
       "Monk" : document.getElementById("Monk"),
       "Sonk" : document.getElementById("Sonk"),
       "Stronk" : document.getElementById("Stronk"),
@@ -77,11 +77,13 @@ class Arena_Scene extends Scene_Component {
       b12: new Sonk(23,9,17,3),
     }
 
-    // add all shapes used by geese to shapes
+    // add all shapes used by geese to shapes and sounds
     for (let g in this.geese) {
       for (let shape in this.geese[g].shapes) {
         shapes[shape] = this.geese[g].shapes[shape];
       }
+      this.geese[g].attack_sound = 
+        this.audio_sources[this.geese[g].constructor.name];
     }
 
     this.submit_shapes( context, shapes);
@@ -143,7 +145,7 @@ class Arena_Scene extends Scene_Component {
   this.key_triggered_button("End turn", ["e"], () => {if (this.menu_manager.menus_length == 0) {if (this.clicked_tile) this.movesLeft = 0}});
   this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);
   this.key_triggered_button("Disable/Enable camera animation default", ["1"], () => this.setup_trigger = 1);
-  this.key_triggered_button("Play sound", ["3"], () => this.audio_sources.Stronk.play());
+  this.key_triggered_button("Play sound", ["3"], () => this.geese['b12'].attack_sound.play());
   }
 
   // Handles intersection with arena and calculates area to place cursor
