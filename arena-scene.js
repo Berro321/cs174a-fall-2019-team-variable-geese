@@ -495,6 +495,7 @@ class Arena_Scene extends Scene_Component {
       this.forecast.render(graphics_state, this.context);
     }
     // Multipass rendering options
+
     if (this.camera_animations_manager.animating) {
       this.enable_multi = true;
       graphics_state.multipass.material = this.materials.radial_simple;
@@ -504,7 +505,8 @@ class Arena_Scene extends Scene_Component {
     
     // Check to see if a monk is currently animating
     let found_animating_monk = false;
-    for (let g in this.geese) {
+    if (!this.enable_multi)
+{    for (let g in this.geese) {
       if (this.geese[g].constructor.name == "Monk" && this.geese[g].animate_shader) {
         this.enable_multi = true;
         if (!this.current_animating_monk_shader)
@@ -516,7 +518,7 @@ class Arena_Scene extends Scene_Component {
       } else {
         this.enable_multi = false;
       }
-    }
+    }}
     if (!found_animating_monk) {
       this.current_animating_monk_shader = false;
     }
