@@ -103,7 +103,7 @@ class Chonk extends Goose {
             this.rot_factor += (0.2/59);
         }
         else if (this.state.frameNumber > t_frames * 10/20) {
-            let new_ball_pos = this.ball_pos + 0.5;
+            let new_ball_pos = this.ball_pos + 0.75;
             for (let t in this.transforms) {
                 this.transforms[t] = Mat4.translation([-(4 - new_ball_pos), -4.625, 0])
                     .times(Mat4.rotation(-this.rot_factor * Math.PI, Vec.of(0,0,1)))
@@ -113,7 +113,7 @@ class Chonk extends Goose {
             this.ball_pos = new_ball_pos;
         }
         else if (this.state.frameNumber > t_frames * 8/20) {            
-            let new_ball_pos = this.ball_pos - 0.5;
+            let new_ball_pos = this.ball_pos - 0.75;
             for (let t in this.transforms) {
                 this.transforms[t] = Mat4.translation([-(4 - new_ball_pos), -4.625, 0])
                     .times(Mat4.rotation(this.rot_factor * Math.PI, Vec.of(0,0,1)))

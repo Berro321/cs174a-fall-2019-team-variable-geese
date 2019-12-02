@@ -41,7 +41,7 @@ class Arena_Scene extends Scene_Component {
                          eyebrow_sample: new Cube(),
                          arena: new Arena(this.tile_generator.map, 10, 10),
                          menu_quad: new Square(),
-                         text_line: new Text_Line(7),
+                         text_line: new Text_Line(8),
                          text_menu_line: new Text_Line(15),
                    }
                 
@@ -140,7 +140,7 @@ class Arena_Scene extends Scene_Component {
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
   this.result_img = this.control_panel.appendChild( Object.assign( document.createElement( "img" ), 
   { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) );  
-  this.key_triggered_button("End turn", ["e"], () => {if (this.menu_manager.menus_length == 0) {if (this.clicked_tile) this.movesLeft = 0}});
+  this.key_triggered_button("End turn", ["e"], () => { this.movesLeft = 0});
   this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);
   this.key_triggered_button("Disable/Enable camera animation default", ["1"], () => this.setup_trigger = 1);
   this.key_triggered_button("Play sound", ["3"], () => this.audio_sources.Stronk.play());
@@ -238,8 +238,8 @@ class Arena_Scene extends Scene_Component {
       }
 
       this.selected_unit = undefined;
-      this.clicked_tile.x = undefined;
-      this.clicked_tile.z = undefined;
+      //this.clicked_tile.x = undefined;
+      //this.clicked_tile.z = undefined;
       this.last_selected_unit = undefined;
       this.forecast = undefined;
     }
@@ -270,7 +270,7 @@ class Arena_Scene extends Scene_Component {
           
           this.menu_manager.clear_menus(true);
 
-          let menu_transform = Mat4.translation([0.02,-0.00,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let menu_transform = Mat4.translation([0.07,0.04,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
           let text_transform = Mat4.translation([-0.65,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
           let menu_obj = {menu_transform: menu_transform, menu_material: this.materials.menu_image, tag: "return", text: "Return", text_transform: text_transform,  clickable: true};
           this.menu_manager.add_menu(menu_obj);
@@ -302,19 +302,22 @@ class Arena_Scene extends Scene_Component {
           this.attack_positions = undefined;
 
           // Activate the menu items
-          let menu_transform_1 =Mat4.translation([0.02,0.02,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let menu_transform_1 =Mat4.translation([0.07,0.04,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
           let text_transform_1 = Mat4.translation([-0.57,0,0.001]).times(Mat4.scale([0.15,0.5,1]));
           // Only display attack if there is a enemy in range : assume 1 for now
           let menu_obj = {menu_transform: menu_transform_1, menu_material: this.materials.menu_image, tag: "attack", text: "Attack", text_transform: text_transform_1,  clickable: true};
-          let menu_transform_2 =Mat4.translation([0.02,0.01,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let menu_transform_2 =Mat4.translation([0.07,0.03,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
           let text_transform_2 = Mat4.translation([-0.49,-0.1,0.001]).times(Mat4.scale([0.15,0.5,1]));
           let menu_obj_2 = {menu_transform: menu_transform_2, menu_material: this.materials.menu_image, tag: "wait", text: "Wait", text_transform: text_transform_2,  clickable: true};
-          let menu_transform_3 = Mat4.translation([0.02,-0.00,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let menu_transform_3 = Mat4.translation([0.07,0.02,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
           let text_transform_3 = Mat4.translation([-0.65,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
           let menu_obj_3 = {menu_transform: menu_transform_3, menu_material: this.materials.menu_image, tag: "back", text: "Go Back", text_transform: text_transform_3,  clickable: true};
           this.menu_manager.add_menu(menu_obj);
           this.menu_manager.add_menu(menu_obj_2);
           this.menu_manager.add_menu(menu_obj_3);
+        }
+        else if (collisions[0] == "end_turn") {
+          this.movesLeft = 0;
         }
 
       } 
@@ -324,7 +327,14 @@ class Arena_Scene extends Scene_Component {
         for (let g in this.geese) {          
           if (this.geese[g].tile_position.x == this.clicked_tile.x &&
               this.geese[g].tile_position.z == this.clicked_tile.z) {
-              this.selected_unit = this.geese[g];
+
+              if (this.menu_manager.clickable_items[0] == "end_turn" || 
+                  ( this.geese[g] != this.last_selected_unit && this.geese[g].tile_position.x == this.marker_tile_select.x &&
+                  this.geese[g].tile_position.z == this.marker_tile_select.z && Math.abs(this.geese[g].tile_position.x - this.last_selected_unit.tile_position.x) + Math.abs(this.geese[g].tile_position.z - this.last_selected_unit.tile_position.z) <= this.last_selected_unit.stats.attack_range &&
+                  this.geese[g].getTeam() != this.last_selected_unit.getTeam())) {
+
+                  this.selected_unit = this.geese[g];
+              }              
               break;
           }
         }
@@ -438,6 +448,7 @@ class Arena_Scene extends Scene_Component {
 
     // See if moving
     if (this.moving) {
+      this.menu_manager.clear_menus(true);
       // Disable camera movement
       graphics_state.disable_camera_movement = true;
       this.selected_unit.state.hasMoved = true;
@@ -451,16 +462,17 @@ class Arena_Scene extends Scene_Component {
         this.move_positions = undefined;
         this.cellToPath = undefined;
         this.moving = undefined;
+        this.menu_manager.clear_menus(true);
 
         // // Activate the menu items
-        let menu_transform_1 =Mat4.translation([0.02,0.02,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+        let menu_transform_1 =Mat4.translation([0.07,0.04,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
         let text_transform_1 = Mat4.translation([-0.57,0,0.001]).times(Mat4.scale([0.15,0.5,1]));
         // Only display attack if there is a enemy in range : assume 1 for now
         let menu_obj = {menu_transform: menu_transform_1, menu_material: this.materials.menu_image, tag: "attack", text: "Attack", text_transform: text_transform_1,  clickable: true};
-        let menu_transform_2 =Mat4.translation([0.02,0.01,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+        let menu_transform_2 =Mat4.translation([0.07,0.03,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
         let text_transform_2 = Mat4.translation([-0.49,-0.1,0.001]).times(Mat4.scale([0.15,0.5,1]));
         let menu_obj_2 = {menu_transform: menu_transform_2, menu_material: this.materials.menu_image, tag: "wait", text: "Wait", text_transform: text_transform_2,  clickable: true};
-        let menu_transform_3 = Mat4.translation([0.02,-0.00,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+        let menu_transform_3 = Mat4.translation([0.07,0.02,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
         let text_transform_3 = Mat4.translation([-0.65,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
         let menu_obj_3 = {menu_transform: menu_transform_3, menu_material: this.materials.menu_image, tag: "back", text: "Go Back", text_transform: text_transform_3,  clickable: true};
         this.menu_manager.add_menu(menu_obj);
@@ -469,6 +481,14 @@ class Arena_Scene extends Scene_Component {
         graphics_state.disable_camera_movement = false;
       }
     }
+
+    if (this.menu_manager.menus_length == 0 && !this.moving && !this.battle_scene_manager.battle_ongoing) {
+       let menu_transform = Mat4.translation([0.07,0.04,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+       let text_transform = Mat4.translation([-0.85,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
+       let menu_obj = {menu_transform: menu_transform, menu_material: this.materials.menu_image, tag: "end_turn", text: "End Turn", text_transform: text_transform,  clickable: true};
+       this.menu_manager.add_menu(menu_obj);
+    }
+    
 
     // Generate the movement and attack tiles and display them if a unit has been selected
     // Draw arena
