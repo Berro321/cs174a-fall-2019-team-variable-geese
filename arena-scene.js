@@ -237,6 +237,7 @@ class Arena_Scene extends Scene_Component {
     }
 
     for (let g in this.geese) {
+      if (this.battle_scene_manager.battle_ongoing && (this.geese[g] != this.battle_scene_manager.atk_goose && this.geese[g] != this.battle_scene_manager.def_goose)) continue;
       for (let shape in this.geese[g].shapes) {  
         this.shapes[shape].draw(graphics_state,
           this.geese[g].temp_translation_transform.times(
