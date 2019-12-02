@@ -30,18 +30,9 @@ class Arena_Scene extends Scene_Component {
     context.globals.graphics_state.projection_transform = Mat4.perspective( Math.PI/4, r, .1, 1000 );
     this.tile_generator = new Tile_Generator(context);
     const shapes = {
-                         body_sample: new Body(),
-                         leg_sample : new Rounded_Capped_Cylinder(12, 12, .2, 2.5, [0,1]),
-                         beak_sample: new Rounded_Cone(12, 12, 1, 2, Math.PI, [0,1]),
-                         wing_sample: new Wing(),
-                         head_sample: new Subdivision_Sphere( 3 ),
-                         neck_sample: new Rounded_Capped_Cylinder(12, 12, .6, 4, [0,1]),
-                         eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
-                         foot_sample: new Foot(),
-                         eyebrow_sample: new Cube(),
                          arena: new Arena(this.tile_generator.map, 10, 10),
                          menu_quad: new Square(),
-                         text_line: new Text_Line(7),
+                         text_line: new Text_Line(8),
                          text_menu_line: new Text_Line(15),
                    }
                 
@@ -49,32 +40,32 @@ class Arena_Scene extends Scene_Component {
     this.geese = {
 
       // red team geese
-      r1: new Honk(0,6,3,1),
-      r2: new Honk(2,9,3,1),
-      r3: new Honk(4,10,3,1),
-      r4: new Honk(6,13,3,1),
-      r5: new Lonk(8,6,2,1),
-      r6: new Lonk(10,13,2,1),
-      r7: new Chonk(12,7,2,1),
-      r8: new Chonk(14,12,2,1),
-      r9: new Stronk(16,8,2,1),
-      r10: new Stronk(18,11,2,1),
-      r11: new Monk(20,9,2,1),
-      r12: new Sonk(22,10,2,1),
+      r1: new Honk(0,6,4,1),
+      r2: new Honk(2,9,4,1),
+      r3: new Honk(4,10,4,1),
+      r4: new Honk(6,13,4,1),
+      r5: new Lonk(8,6,3,1),
+      r6: new Lonk(10,13,3,1),
+      r7: new Chonk(12,7,3,1),
+      r8: new Chonk(14,12,3,1),
+      r9: new Stronk(16,8,3,1),
+      r10: new Stronk(18,11,3,1),
+      r11: new Monk(20,9,3,1),
+      r12: new Sonk(22,10,3,1),
 
       // blue team geese
-      b1: new Honk(1,6,16,3),
-      b2: new Honk(3,9,16,3),
-      b3: new Honk(5,10,16,3),
-      b4: new Honk(7,13,16,3),
-      b5: new Lonk(9,6,17,3),
-      b6: new Lonk(11,13,17,3),
-      b7: new Chonk(13,7,17,3),
-      b8: new Chonk(15,12,17,3),
-      b9: new Stronk(17,8,17,3),
-      b10: new Stronk(19,11,17,3),
-      b11: new Monk(21,10,17,3),
-      b12: new Sonk(23,9,17,3),
+      b1: new Honk(1,6,15,3),
+      b2: new Honk(3,9,15,3),
+      b3: new Honk(5,10,15,3),
+      b4: new Honk(7,13,15,3),
+      b5: new Lonk(9,6,16,3),
+      b6: new Lonk(11,13,16,3),
+      b7: new Chonk(13,7,16,3),
+      b8: new Chonk(15,12,16,3),
+      b9: new Stronk(17,8,16,3),
+      b10: new Stronk(19,11,16,3),
+      b11: new Monk(21,10,16,3),
+      b12: new Sonk(23,9,16,3),
     }
 
     // add all shapes used by geese to shapes and sounds
@@ -193,11 +184,6 @@ class Arena_Scene extends Scene_Component {
   display( graphics_state ) { 
     graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
-    // Animate battle scene
-    // if (this.setup_trigger == 1) {
-    //   this.battle_scene_manager.initiate_battle_sequence(this.geese['g1'], this.geese['g2'], this.menu_manager, this.camera_animations_manager);
-    //   this.setup_trigger = 0;
-    // }
 
     // remove dead geese
     
@@ -225,8 +211,6 @@ class Arena_Scene extends Scene_Component {
             this.geese[g].state.hasMoved = false;
             this.movesLeft++;
           }
-          else
-            this.geese[g].state.hasMoved = true;
       }
 
       if (this.turn == 'blue') {
@@ -235,8 +219,6 @@ class Arena_Scene extends Scene_Component {
             this.geese[g].state.hasMoved = false;
             this.movesLeft++;
           }
-          else
-            this.geese[g].state.hasMoved = true;
       }
 
       this.selected_unit = undefined;
@@ -254,7 +236,7 @@ class Arena_Scene extends Scene_Component {
             
         }
 
-      if (this.geese[g].state.hasMoved == false) {
+      if (this.geese[g].state.hasMoved == false && this.geese[g].getTeam() == this.turn) {
         let tile = Vec.of(this.geese[g].translation.x, 0, this.geese[g].translation.z);
         this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.can_move_tile);
       }
@@ -272,7 +254,7 @@ class Arena_Scene extends Scene_Component {
           
           this.menu_manager.clear_menus(true);
 
-          let menu_transform = Mat4.translation([0.02,-0.00,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let menu_transform = Mat4.translation([0.07,0.04,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
           let text_transform = Mat4.translation([-0.65,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
           let menu_obj = {menu_transform: menu_transform, menu_material: this.materials.menu_image, tag: "return", text: "Return", text_transform: text_transform,  clickable: true};
           this.menu_manager.add_menu(menu_obj);
@@ -304,19 +286,22 @@ class Arena_Scene extends Scene_Component {
           this.attack_positions = undefined;
 
           // Activate the menu items
-          let menu_transform_1 =Mat4.translation([0.02,0.02,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let menu_transform_1 =Mat4.translation([0.07,0.04,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
           let text_transform_1 = Mat4.translation([-0.57,0,0.001]).times(Mat4.scale([0.15,0.5,1]));
           // Only display attack if there is a enemy in range : assume 1 for now
           let menu_obj = {menu_transform: menu_transform_1, menu_material: this.materials.menu_image, tag: "attack", text: "Attack", text_transform: text_transform_1,  clickable: true};
-          let menu_transform_2 =Mat4.translation([0.02,0.01,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let menu_transform_2 =Mat4.translation([0.07,0.03,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
           let text_transform_2 = Mat4.translation([-0.49,-0.1,0.001]).times(Mat4.scale([0.15,0.5,1]));
           let menu_obj_2 = {menu_transform: menu_transform_2, menu_material: this.materials.menu_image, tag: "wait", text: "Wait", text_transform: text_transform_2,  clickable: true};
-          let menu_transform_3 = Mat4.translation([0.02,-0.00,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+          let menu_transform_3 = Mat4.translation([0.07,0.02,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
           let text_transform_3 = Mat4.translation([-0.65,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
           let menu_obj_3 = {menu_transform: menu_transform_3, menu_material: this.materials.menu_image, tag: "back", text: "Go Back", text_transform: text_transform_3,  clickable: true};
           this.menu_manager.add_menu(menu_obj);
           this.menu_manager.add_menu(menu_obj_2);
           this.menu_manager.add_menu(menu_obj_3);
+        }
+        else if (collisions[0] == "end_turn") {
+          this.movesLeft = 0;
         }
 
       } 
@@ -326,15 +311,17 @@ class Arena_Scene extends Scene_Component {
         for (let g in this.geese) {          
           if (this.geese[g].tile_position.x == this.clicked_tile.x &&
               this.geese[g].tile_position.z == this.clicked_tile.z) {
-              this.selected_unit = this.geese[g];
+
+              if (this.menu_manager.clickable_items[0] == "end_turn" || 
+                  ( this.geese[g] != this.last_selected_unit && this.geese[g].tile_position.x == this.marker_tile_select.x &&
+                  this.geese[g].tile_position.z == this.marker_tile_select.z && Math.abs(this.geese[g].tile_position.x - this.last_selected_unit.tile_position.x) + Math.abs(this.geese[g].tile_position.z - this.last_selected_unit.tile_position.z) <= this.last_selected_unit.stats.attack_range &&
+                  this.geese[g].getTeam() != this.last_selected_unit.getTeam())) {
+
+                  this.selected_unit = this.geese[g];
+              }              
               break;
           }
         }
-
-        // If no geese were selected, then clear menu
-        // if (!this.selected_unit) {
-        //   this.menu_manager.clear_menus(true);
-        // }
       }
       this.click_ray = undefined;
     }
@@ -440,6 +427,7 @@ class Arena_Scene extends Scene_Component {
 
     // See if moving
     if (this.moving) {
+      this.menu_manager.clear_menus(true);
       // Disable camera movement
       graphics_state.disable_camera_movement = true;
       this.selected_unit.state.hasMoved = true;
@@ -453,16 +441,17 @@ class Arena_Scene extends Scene_Component {
         this.move_positions = undefined;
         this.cellToPath = undefined;
         this.moving = undefined;
+        this.menu_manager.clear_menus(true);
 
         // // Activate the menu items
-        let menu_transform_1 =Mat4.translation([0.02,0.02,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+        let menu_transform_1 =Mat4.translation([0.07,0.04,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
         let text_transform_1 = Mat4.translation([-0.57,0,0.001]).times(Mat4.scale([0.15,0.5,1]));
         // Only display attack if there is a enemy in range : assume 1 for now
         let menu_obj = {menu_transform: menu_transform_1, menu_material: this.materials.menu_image, tag: "attack", text: "Attack", text_transform: text_transform_1,  clickable: true};
-        let menu_transform_2 =Mat4.translation([0.02,0.01,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+        let menu_transform_2 =Mat4.translation([0.07,0.03,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
         let text_transform_2 = Mat4.translation([-0.49,-0.1,0.001]).times(Mat4.scale([0.15,0.5,1]));
         let menu_obj_2 = {menu_transform: menu_transform_2, menu_material: this.materials.menu_image, tag: "wait", text: "Wait", text_transform: text_transform_2,  clickable: true};
-        let menu_transform_3 = Mat4.translation([0.02,-0.00,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+        let menu_transform_3 = Mat4.translation([0.07,0.02,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
         let text_transform_3 = Mat4.translation([-0.65,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
         let menu_obj_3 = {menu_transform: menu_transform_3, menu_material: this.materials.menu_image, tag: "back", text: "Go Back", text_transform: text_transform_3,  clickable: true};
         this.menu_manager.add_menu(menu_obj);
@@ -471,6 +460,14 @@ class Arena_Scene extends Scene_Component {
         graphics_state.disable_camera_movement = false;
       }
     }
+
+    if (this.menu_manager.menus_length == 0 && !this.moving && !this.battle_scene_manager.battle_ongoing) {
+       let menu_transform = Mat4.translation([0.07,0.04,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
+       let text_transform = Mat4.translation([-0.85,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
+       let menu_obj = {menu_transform: menu_transform, menu_material: this.materials.menu_image, tag: "end_turn", text: "End Turn", text_transform: text_transform,  clickable: true};
+       this.menu_manager.add_menu(menu_obj);
+    }
+    
 
     // Generate the movement and attack tiles and display them if a unit has been selected
     // Draw arena

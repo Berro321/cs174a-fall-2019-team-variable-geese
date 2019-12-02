@@ -6,27 +6,27 @@ class Tile_Generator {
         ];
         // Generate map such that the first row is the topmost row of tiles in worldspace
         // Since we generate tiles starting from (0,0,0) (which is the first value in the Row 1 array)
-        // Grass : 0, Stone : 1
+        // Grass : 0, Stone : 1, Dirt: 2
         // Can addd more later
         this.map = 
         [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],  // Row 20
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],  // Row 19
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 18
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 17
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 16
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 15
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 14
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 13
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 12
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 11
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 10
-            [1, 1, 0, 0, 0 ,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],  // Row 9
-            [1, 1, 0, 0, 0 ,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],  // Row 8
-            [1, 1, 0, 0, 0 ,1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 7
-            [1, 1, 0, 0, 0 ,1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 6
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 5
-            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 4
+            [1, 1, 0, 0, 0 ,0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 1, 1],  // Row 18
+            [1, 1, 0, 0, 0 ,0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 1, 1],  // Row 17
+            [1, 1, 0, 1, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 1, 1],  // Row 16
+            [1, 1, 0, 1, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 1, 1],  // Row 15
+            [1, 1, 0, 1, 0 ,0, 0, 2, 0, 0, 0, 0, 2, 2, 0, 1, 2, 2, 1, 1],  // Row 14
+            [1, 1, 0, 1, 1 ,1, 0, 2, 0, 0, 0, 0, 2, 2, 0, 1, 2, 2, 1, 1],  // Row 13
+            [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1],  // Row 12
+            [1, 1, 0, 2, 2 ,2, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1],  // Row 11
+            [1, 1, 0, 2, 2 ,2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 10
+            [1, 1, 0, 0, 2 ,1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1],  // Row 9
+            [1, 1, 0, 0, 2 ,1, 1, 1, 0, 0, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1],  // Row 8
+            [1, 1, 0, 0, 2 ,1, 1, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 1],  // Row 7
+            [1, 1, 0, 0, 0 ,1, 1, 1, 2, 2, 2, 1, 0, 0, 2, 2, 2, 2, 1, 1],  // Row 6
+            [1, 1, 0, 0, 0 ,0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 2, 2, 0, 1, 1],  // Row 5
+            [1, 1, 0, 0, 0 ,0, 0, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 4
             [1, 1, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],  // Row 3
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],  // Row 2
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],  // Row 1
@@ -61,8 +61,10 @@ class Arena extends Shape    // A arena inserts square strips into its arrays
                 if (map_index == 0) {
                     Square1.insert_transformed_copy_into( this, [], tile_transform );
                 }
-                else {
+                else if (map_index == 1) {
                     Square2.insert_transformed_copy_into( this, [], tile_transform );
+                } else {
+                    Square3.insert_transformed_copy_into(this, [], tile_transform);
                 }
             }
         }
@@ -92,6 +94,19 @@ class Square2 extends Shape              // A square, demonstrating two triangle
       this.positions     .push( ...Vec.cast( [-1,-1,0], [1,-1,0], [-1,1,0], [1,1,0] ) );   // Specify the 4 square corner locations.
       this.normals       .push( ...Vec.cast( [0,0,1],   [0,0,1],  [0,0,1],  [0,0,1] ) );   // Match those up with normal vectors.
       this.texture_coords.push( ...Vec.cast( [0.51,0.51],     [1,0.51],    [0.51,1],    [1,1]   ) );   // Draw a square in texture coordinates too.
+      this.indices       .push( 0, 1, 2,     1, 3, 2 );                   // Two triangles this time, indexing into four distinct vertices.
+    }
+}
+
+window.Square3 = window.classes.Square3 =
+class Square3 extends Shape              // A square, demonstrating two triangles that share vertices.  On any planar surface, the interior 
+                                        // edges don't make any important seams.  In these cases there's no reason not to re-use data of
+{                                       // the common vertices between triangles.  This makes all the vertex arrays (position, normals, 
+  constructor()                         // etc) smaller and more cache friendly.
+    { super( "positions", "normals", "texture_coords" );                                   // Name the values we'll define per each vertex.
+      this.positions     .push( ...Vec.cast( [-1,-1,0], [1,-1,0], [-1,1,0], [1,1,0] ) );   // Specify the 4 square corner locations.
+      this.normals       .push( ...Vec.cast( [0,0,1],   [0,0,1],  [0,0,1],  [0,0,1] ) );   // Match those up with normal vectors.
+      this.texture_coords.push( ...Vec.cast( [0,0],     [0.49,0],    [0,0.49],    [0.49,0.49]   ) );   // Draw a square in texture coordinates too.
       this.indices       .push( 0, 1, 2,     1, 3, 2 );                   // Two triangles this time, indexing into four distinct vertices.
     }
 }
