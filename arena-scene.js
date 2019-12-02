@@ -9,8 +9,7 @@ class Arena_Scene extends Scene_Component {
     this.audio_sources = {
       "Chonk" : document.getElementById("Chonk"),
       "Honk" : document.getElementById("Honk"),
-      "Lonk_Retract" : document.getElementById("Lonk_Retract"),
-      "Lonk" : document.getElementById("Lonk_Extend"),
+      "Lonk" : document.getElementById("Lonk"),
       "Monk" : document.getElementById("Monk"),
       "Sonk" : document.getElementById("Sonk"),
       "Stronk" : document.getElementById("Stronk"),
@@ -127,7 +126,7 @@ class Arena_Scene extends Scene_Component {
     this.marker_tile_select = undefined;
     this.current_animating_monk_shader = false;
 
-    this.gameOver = false;
+    this.game_over = false;
   }
 
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
@@ -154,7 +153,7 @@ class Arena_Scene extends Scene_Component {
 
   // Handles when the user clicks somewhere on the world
   handle_mouse_click(mouse_ray) {
-    if (this.disable_marker_tile) return;
+    if (this.disable_marker_tile || this.game_over) return;
     const width = 10, length = 10;
     // TODO: Collisions against the menu items should override any other collisions.
     let tiles = this.calculate_ray_tile_intersection(mouse_ray, width, length);
@@ -195,11 +194,11 @@ class Arena_Scene extends Scene_Component {
     }
     
     if (nr == 0) {
-      this.gameOver = true;
+      this.game_over = true;
       // insert red team wins!
     }
     if (nb == 0) {
-      this.gameOver = true;
+      this.game_over = true;
       // insert blue team wins!
     }
 
@@ -410,9 +409,7 @@ class Arena_Scene extends Scene_Component {
               this.last_selected_unit.prev.x = this.last_selected_unit.tile_position.x;
               this.last_selected_unit.prev.z = this.last_selected_unit.tile_position.z;
               this.last_selected_unit.prev.orientation = this.last_selected_unit.state.orientation;
-              if (this.battle_scene_manager.battle_ongoing)
-                this.movesLeft--;
-
+              
               this.battle_scene_manager.initiate_battle_sequence(this.last_selected_unit, this.selected_unit, this.menu_manager, this.camera_animations_manager, this.turn);
               this.attack_positions = undefined;
               this.disable_marker_tile = true;
@@ -429,6 +426,7 @@ class Arena_Scene extends Scene_Component {
       if (!this.battle_scene_manager.battle_ongoing) {
         this.selected_unit = undefined;
         this.last_selected_unit = undefined;
+        this.movesLeft--;
       }
     } 
     else {
@@ -471,7 +469,7 @@ class Arena_Scene extends Scene_Component {
       }
     }
 
-    if (this.menu_manager.menus_length == 0 && !this.moving && !this.battle_scene_manager.battle_ongoing) {
+    if (this.menu_manager.menus_length == 0 && !this.moving && !this.battle_scene_manager.battle_ongoing && !this.game_over) {
        let menu_transform = Mat4.translation([0.07,0.04,-0.11]).times(Mat4.scale([0.008, 0.004, 1]));
        let text_transform = Mat4.translation([-0.85,0,0.001]).times(Mat4.scale([0.145,0.5,1]));
        let menu_obj = {menu_transform: menu_transform, menu_material: this.materials.menu_image, tag: "end_turn", text: "End Turn", text_transform: text_transform,  clickable: true};
@@ -528,8 +526,11 @@ class Arena_Scene extends Scene_Component {
 
     // ending animation if it's over!!!
     for (let g in this.geese) {
-      if (this.gameOver && !this.attack)
+      if (this.game_over && !this.attack) {
+        this.geese[g].state.game_over = true;
+        this.geese[g].state.hasMoved = true;
         this.geese[g].attack();
+      }
     }
   }
 }

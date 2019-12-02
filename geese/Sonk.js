@@ -49,7 +49,7 @@ class Sonk extends Goose {
     attack = () => {
         this.animate_setup();
 
-        let t_frames = 140;
+        let t_frames = 200;
         if (this.state.frameNumber == 0) {
             this.state.frameNumber = t_frames;
             this.head_pos = [0, 0];
@@ -87,11 +87,12 @@ class Sonk extends Goose {
             .times(Mat4.rotation(Math.PI / 100 / 2.25, Vec.of(0,0,1)))
             .times(Mat4.translation([4,6.75,0]));
 
-        if (this.state.frameNumber == t_frames) {
+        console.log(this.state.game_over);
+        if (this.state.frameNumber == t_frames && !this.state.game_over) {
             this.attack_sound.play();
         }
 
-        if (this.state.frameNumber > t_frames * 12/14) {
+        if (this.state.frameNumber > t_frames * 18/20) {
             this.transforms[left_eyebrow] = Mat4.translation([ 0.5, 0.75,-0.4])
                 .times(Mat4.rotation( Math.PI/6, Vec.of(0,1,0)))
                 .times(Mat4.rotation( Math.PI/4, Vec.of(0,0,1)))
@@ -110,7 +111,10 @@ class Sonk extends Goose {
                 .times(Mat4.translation([ -0.5, -0.75,-0.4]))
                 .times(this.transforms[right_eyebrow]);
         }
-        else if (this.state.frameNumber > t_frames * 9/14) {
+        else if (this.state.frameNumber > t_frames * 12/20) {
+            ;
+        }
+        else if (this.state.frameNumber > t_frames * 9/20) {
             this.transforms[head] = body_down_transform
                 .times(neck_down_transform)
                 .times(this.transforms[head]);
@@ -188,10 +192,10 @@ class Sonk extends Goose {
                 .times(right_wing_transform)
                 .times(this.transforms[right_cymbal]);
         }
-        else if (this.state.frameNumber > t_frames * 5/14) {
+        else if (this.state.frameNumber > t_frames * 5/20) {
             this.state.inflict_damage_other = (this.state.frameNumber == t_frames / 2);
         }
-        else if (this.state.frameNumber > t_frames * 2/14) {
+        else if (this.state.frameNumber > t_frames * 2/20) {
             this.transforms[head] = neck_up_transform
                 .times(body_up_transform)
                 .times(this.transforms[head]);

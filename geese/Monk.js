@@ -53,6 +53,7 @@ class Monk extends Goose {
 
         if (this.state.frameNumber == 0) {
             this.state.frameNumber = t_frames;
+            this.animate_shader = false;
             this.head_pos = [0, 0];
             this.cape_pos = [-0.4,-2.4];
             this.body_angle = 0;
@@ -87,8 +88,9 @@ class Monk extends Goose {
         let body_up_transform = Mat4.translation([-4,-6.75, 0]) // move neck with body
             .times(Mat4.rotation(Math.PI / 100 / 2.25, Vec.of(0,0,1)))
             .times(Mat4.translation([4,6.75,0]));
-
-        if (this.state.frameNumber == t_frames) {
+            
+        console.log(this.state.game_over);
+        if (this.state.frameNumber == 130 && !this.state.game_over) {
             this.attack_sound.play();
         }
 
@@ -260,7 +262,6 @@ class Monk extends Goose {
             this.state.inflict_damage_other = (this.state.frameNumber == t_frames / 2);
         } 
         else if (this.state.frameNumber > t_frames * 4/18) {
-            this.animate_shader = false;
             this.transforms[head] = neck_down_transform
                 .times(body_down_transform)
                 .times(this.transforms[head]);
@@ -371,6 +372,7 @@ class Monk extends Goose {
 
         this.state.frameNumber--;
         if (this.state.frameNumber == 0) {
+            this.animate_shader = false;
             this.state.animating = false;
             this.head_pos = [0, 0];
             this.cape_pos = [-0.4,-2.0];

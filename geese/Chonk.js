@@ -64,7 +64,8 @@ class Chonk extends Goose {
         let ball_factor = Math.pow(4.625, 1/60);
         let size_factor = Math.pow(4.625/3.5, 1/60);
 
-        if (this.state.frameNumber == t_frames) {
+        console.log(this.state.game_over);
+        if (this.state.frameNumber == 120 && !this.state.game_over) {
             this.attack_sound.play();
         }
 

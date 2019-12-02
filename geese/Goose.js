@@ -22,6 +22,7 @@ class Goose {
             orientation: orientation, // 0 is right, 1 is up, 2 is left, 3 is down
             path_itr: 0,
             hasMoved: false,
+            game_over: false,
         };
 
         this.attack_sound = undefined; // passed in arena-scene
