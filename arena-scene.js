@@ -30,15 +30,6 @@ class Arena_Scene extends Scene_Component {
     context.globals.graphics_state.projection_transform = Mat4.perspective( Math.PI/4, r, .1, 1000 );
     this.tile_generator = new Tile_Generator(context);
     const shapes = {
-                         body_sample: new Body(),
-                         leg_sample : new Rounded_Capped_Cylinder(12, 12, .2, 2.5, [0,1]),
-                         beak_sample: new Rounded_Cone(12, 12, 1, 2, Math.PI, [0,1]),
-                         wing_sample: new Wing(),
-                         head_sample: new Subdivision_Sphere( 3 ),
-                         neck_sample: new Rounded_Capped_Cylinder(12, 12, .6, 4, [0,1]),
-                         eye_sample : new Rounded_Capped_Cylinder(12, 12, .2, .1, [0,1]),
-                         foot_sample: new Foot(),
-                         eyebrow_sample: new Cube(),
                          arena: new Arena(this.tile_generator.map, 10, 10),
                          menu_quad: new Square(),
                          text_line: new Text_Line(8),
@@ -140,10 +131,7 @@ class Arena_Scene extends Scene_Component {
   make_control_panel() {           // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements. 
   this.result_img = this.control_panel.appendChild( Object.assign( document.createElement( "img" ), 
   { style:"width:200px; height:" + 200 * this.aspect_ratio + "px" } ) );  
-  this.key_triggered_button("End turn", ["e"], () => { this.movesLeft = 0});
-  this.key_triggered_button("Disable/Enable multipass", ["4"], () => this.enable_multi = !this.enable_multi);
-  this.key_triggered_button("Disable/Enable camera animation default", ["1"], () => this.setup_trigger = 1);
-  this.key_triggered_button("Play sound", ["3"], () => this.audio_sources.Stronk.play());
+  this.key_triggered_button("Play sound", ["1"], () => this.audio_sources.Stronk.play());
   }
 
   // Handles intersection with arena and calculates area to place cursor
@@ -191,11 +179,6 @@ class Arena_Scene extends Scene_Component {
   display( graphics_state ) { 
     graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
     const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
-    // Animate battle scene
-    // if (this.setup_trigger == 1) {
-    //   this.battle_scene_manager.initiate_battle_sequence(this.geese['g1'], this.geese['g2'], this.menu_manager, this.camera_animations_manager);
-    //   this.setup_trigger = 0;
-    // }
 
     // remove dead geese
     
@@ -223,8 +206,6 @@ class Arena_Scene extends Scene_Component {
             this.geese[g].state.hasMoved = false;
             this.movesLeft++;
           }
-          else
-            this.geese[g].state.hasMoved = true;
       }
 
       if (this.turn == 'blue') {
@@ -233,13 +214,11 @@ class Arena_Scene extends Scene_Component {
             this.geese[g].state.hasMoved = false;
             this.movesLeft++;
           }
-          else
-            this.geese[g].state.hasMoved = true;
       }
 
       this.selected_unit = undefined;
-      //this.clicked_tile.x = undefined;
-      //this.clicked_tile.z = undefined;
+      this.clicked_tile.x = undefined;
+      this.clicked_tile.z = undefined;
       this.last_selected_unit = undefined;
       this.forecast = undefined;
     }
@@ -252,7 +231,7 @@ class Arena_Scene extends Scene_Component {
             
         }
 
-      if (this.geese[g].state.hasMoved == false) {
+      if (this.geese[g].state.hasMoved == false && this.geese[g].getTeam() == this.turn) {
         let tile = Vec.of(this.geese[g].translation.x, 0, this.geese[g].translation.z);
         this.shapes.menu_quad.draw(graphics_state, Mat4.translation([tile[0], 0.05, tile[2]]).times(this.marker_tile_def_transform), this.materials.can_move_tile);
       }
@@ -338,11 +317,6 @@ class Arena_Scene extends Scene_Component {
               break;
           }
         }
-
-        // If no geese were selected, then clear menu
-        // if (!this.selected_unit) {
-        //   this.menu_manager.clear_menus(true);
-        // }
       }
       this.click_ray = undefined;
     }
