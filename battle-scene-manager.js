@@ -310,7 +310,7 @@ class Battle_Scene_Manager {
             + Math.abs(this.atk_goose.tile_position.z - this.def_goose.tile_position.z);
         if (manhattan_distance <= def_goose_stats.attack_range) {
             this.actions.push({goose: this.def_goose, action: "attack", other_goose: this.atk_goose});
-            if (atk_goose_stats.health - def_goose_stats.attack + atk_goose_stats.defense < 0) {
+            if (atk_goose_stats.health - def_goose_stats.attack + atk_goose_stats.defense <= 0) {
                 this.actions.push({goose: this.def_goose, action: "dead"});
                 this.actions.push({goose: this.atk_goose, other_goose: this.def_goose, action: "camera zoom out"});
                 return;

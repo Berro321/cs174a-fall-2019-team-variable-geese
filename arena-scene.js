@@ -41,8 +41,8 @@ class Arena_Scene extends Scene_Component {
 
       // red team geese
       r1: new Honk(0,6,3,1),
-      r2: new Honk(2,9,14,1),
-      r3: new Honk(4,10,14,1),
+      r2: new Honk(2,9,3,1),
+      r3: new Honk(4,10,3,1),
       r4: new Honk(6,13,3,1),
       r5: new Lonk(8,6,2,1),
       r6: new Lonk(10,13,2,1),
