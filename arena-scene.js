@@ -421,6 +421,7 @@ class Arena_Scene extends Scene_Component {
     }
 
     if (this.battle_scene_manager.battle_ongoing) {
+      this.forecast = undefined;
       graphics_state.camera_transform = this.battle_scene_manager.animate_battle(graphics_state, this.context);
       // If it finishes this frame, reset the selected and last selected
       if (!this.battle_scene_manager.battle_ongoing) {

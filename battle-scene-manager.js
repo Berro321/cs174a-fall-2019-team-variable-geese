@@ -75,7 +75,6 @@ class Battle_Scene_Manager {
                 // this.menu_manager.clear_menus(true, {});
             }
         } else if (this.queued_action.action == "dead") {
-            console.log("dead");
             this.queued_action = undefined;
         } else if (this.queued_action.action == "camera zoom in") {
             // Initial setup

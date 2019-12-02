@@ -87,7 +87,6 @@ class Sonk extends Goose {
             .times(Mat4.rotation(Math.PI / 100 / 2.25, Vec.of(0,0,1)))
             .times(Mat4.translation([4,6.75,0]));
 
-        console.log(this.state.game_over);
         if (this.state.frameNumber == t_frames && !this.state.game_over) {
             this.attack_sound.play();
         }

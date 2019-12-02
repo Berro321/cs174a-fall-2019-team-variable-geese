@@ -116,7 +116,6 @@ class Stronk extends Goose {
             .times(Mat4.rotation(-Math.PI / 100 / (2.25/3), Vec.of(0,0,1)))
             .times(Mat4.translation([4,3.25,0]));
  
-        console.log(this.state.game_over);       
         if (this.state.frameNumber == 80 && !this.state.game_over) {
             this.attack_sound.play();
         }
