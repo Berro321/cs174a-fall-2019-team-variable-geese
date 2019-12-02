@@ -80,6 +80,10 @@ class Lonk extends Goose {
             .times(Mat4.rotation(Math.PI / 100 / 3, Vec.of(0,0,1)))
             .times(Mat4.translation([4,6.75,0]));
 
+        if (this.state.frameNumber == t_frames) {
+            this.attack_sound.play();
+        }
+
         if (this.state.frameNumber > t_frames * 12/14) {
             this.transforms[left_eyebrow] = Mat4.translation([ 0.5, 0.75 + 4 * (this.scale_factor - 1),-0.4])
                 .times(Mat4.rotation( Math.PI/6, Vec.of(0,1,0)))

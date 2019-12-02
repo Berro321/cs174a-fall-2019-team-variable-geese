@@ -115,6 +115,10 @@ class Stronk extends Goose {
         let leg_down_transform = Mat4.translation([-4,-3.25, 0])
             .times(Mat4.rotation(-Math.PI / 100 / (2.25/3), Vec.of(0,0,1)))
             .times(Mat4.translation([4,3.25,0]));
+        
+        if (this.state.frameNumber == t_frames) {
+            this.attack_sound.play();
+        }
 
         if (this.state.frameNumber > t_frames * 12/14) {
             this.transforms[left_eyebrow] = Mat4.translation([ 0.5, 4.25,-0.4])

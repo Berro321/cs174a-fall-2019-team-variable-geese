@@ -21,7 +21,7 @@ class Chonk extends Goose {
         this.transforms[neck]         = Mat4.identity().times(Mat4.translation([ -0.4, 0, 0])).times(Mat4.rotation( Math.PI/2, Vec.of(1,0,0))).times(Mat4.scale([ 1, 1, 0.8])); // 'neck'
         this.transforms[left_wing]    = Mat4.identity().times(Mat4.translation([ -7, -7.5,-3])).times(Mat4.scale([ 1.2, 1.2,-1.2])); // 'left_wing'
         this.transforms[body]         = Mat4.identity().times(Mat4.translation([ -6, -7.5, 3])).times(Mat4.scale([ 1, 1.3, 3])); // 'body'
-        this.transforms[marker_strip] = Mat4.identity().times(Mat4.translation([-1,-2.65,0])).times(Mat4.rotation(Math.PI/14, Vec.of(0,0,1))).times(Mat4.translation([-3.2,0,0])).times(Mat4.scale([4, 0.01, 0.5])), //'marker_strip'
+        this.transforms[marker_strip] = Mat4.identity().times(Mat4.translation([-1,-2.625,0])).times(Mat4.rotation(Math.PI/14, Vec.of(0,0,1))).times(Mat4.translation([-3.2,0,0])).times(Mat4.scale([4, 0.01, 0.5])), //'marker_strip'
         this.transforms[right_wing]   = Mat4.identity().times(Mat4.translation([ -7, -7.5, 3])).times(Mat4.scale([ 1.2, 1.2, 1.2])); // 'right_wing''
 
         // Add 'attack_ball.'
@@ -63,6 +63,10 @@ class Chonk extends Goose {
 
         let ball_factor = Math.pow(4.625, 1/60);
         let size_factor = Math.pow(4.625/3.5, 1/60);
+
+        if (this.state.frameNumber == t_frames) {
+            this.attack_sound.play();
+        }
 
         if (this.state.frameNumber > t_frames * 18/20) {
             this.transforms[left_eyebrow] = Mat4.translation([ 0.5, 0.75,-0.4])
