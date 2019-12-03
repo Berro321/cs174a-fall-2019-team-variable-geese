@@ -60,6 +60,32 @@ Following that process, I did also work on a chunk of the game mechanics as was 
 
 ### Citations:
 
+#### [Quaternion.js](https://github.com/infusion/Quaternion.js)
+This class was written by the user above, provides an interface to use Quaternions for calculations.
+
+#### utility.js:
+[function calculate_click_ray_2](https://stackoverflow.com/questions/20140711/picking-in-3d-with-ray-tracing-using-ninevehgl-or-opengl-i-phone/20143963#20143963)
+
+Followed this StackOverflow question to implement picking with the tile selection.
+
+[function calculate_click_ray](http://antongerdelan.net/opengl/raycasting.html)
+
+Original implementation  for picking that uses a method similar to the one above.
+
+#### Tile-generator.js
+Refer to Betto Cerrillos’ HW4 Bump map implementation (HW4)
+
+#### Dependencies.js: 
+[Class Radial Blur Shader](https://stackoverflow.com/questions/4579020/how-do-i-use-a-glsl-shader-to-apply-a-radial-blur-to-an-entire-scene)
+
+Shader code for creating the radial blur effect when zooming in and out of battles.
+
+#### Tiny-graphics.js:
+
+[Class Canvas_Manager](https://webglfundamentals.org/webgl/lessons/webgl-render-to-texture.html)
+
+Followed tutorial to get the rendering to texture to allow for multipass rendering.
+
 
 ### Statistics:
 | Character | Health | Attack | Defense | Movement Range | Attack Range |
