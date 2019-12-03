@@ -3,17 +3,21 @@
 ## Due: December 1, 2019 at 11:50pm
 
 ### Overview:
-Two groups/teams of geese must battle for control of the land. The game involves a player controlling each team in a turn-based tile-based fashion. The game is played in an arena made up of grass, dirt and stone tiles, where each team of geese begins on opposite sides of the field. There are 6 different characters and a team of geese is comprised of a specific number of each character type of these geese:
-- Honk (x4): Basic, well-rounded.
+Two teams of geese must battle for control of the land. The game involves two players controlling their respective team of geese and is played in an arena made up of grass, dirt and stone tiles, where each team begins on opposite sides of the field. There are 6 different geese flavors and a team of geese is comprised of a specific number of each character type of these geese:
+- Honk (x4): Basic, well-rounded, scout.
 - Lonk (x2): Has longer neck for longer range attacks.
-- Chonk (x2): Chonky, which gives it higher defense ability at the cost of lesser movement.
+- Chonk (x2): Chonky, which gives it higher defense ability at the cost of lesser movement and lesser attack.
 - Stronk (x2): Has thick, muscular legs for more powerful attacks, at the cost of lesser movement.
 - Sonk (x1): Has musical attack.
 - Monk (x1): Has magic attack with extensive range, low defense and normal movement.
+A chart with exact numbers for all our goose stats (health points, attack, defense, movement range, attack range) is included at the bottom of the README.
+The game is turn-based upon which each side has the ability to act with all units before proceeding to the opponent’s turn. Each goose unit moves in a tile-based pattern and can attack any enemy unit in range. The goal is to defeat all the enemy units before losing all your units.
+The game is a 3D game with chess-like elements, but once a unit initiates an attack with an enemy unit, it zooms in and does a little battle simulation between the two units with nice animations in which the initiating unit first attacks and the enemy unit can then retalliate with its own attack, if its attack range allows it to. Damage value taken by the defending unit is calculated as the attacking unit's attack value minus the defending unit's defense value.
 
-[![Image from Gyazo](https://i.gyazo.com/e27253475252d3dbf4e732dd320697e2.gif)](https://gyazo.com/e27253475252d3dbf4e732dd320697e2)
+![Goose Move](https://media.giphy.com/media/cgfGtIi1jrmKpUblJn/giphy.gif)
 
-[![Image from Gyazo](https://i.gyazo.com/96fe90668ecb9aec0bc4c0802b229a61.gif)](https://gyazo.com/96fe90668ecb9aec0bc4c0802b229a61)
+![Goose Attack](https://media.giphy.com/media/QyhRS4svqSXXAlfbeT/giphy.gif)
+
 
 ### Individual Tasks:
 #### Ben:
