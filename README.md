@@ -83,15 +83,15 @@ Followed this StackOverflow question to implement picking with the tile selectio
 
 Original implementation  for picking that uses a method similar to the one above.
 
-#### Tile-generator.js
+#### tile-generator.js
 Refer to Betto Cerrillos’ HW4 Bump map implementation (HW4)
 
-#### Dependencies.js: 
+#### dependencies.js: 
 [Class Radial Blur Shader](https://stackoverflow.com/questions/4579020/how-do-i-use-a-glsl-shader-to-apply-a-radial-blur-to-an-entire-scene)
 
 Shader code for creating the radial blur effect when zooming in and out of battles.
 
-#### Tiny-graphics.js:
+#### tiny-graphics.js:
 
 [Class Canvas_Manager](https://webglfundamentals.org/webgl/lessons/webgl-render-to-texture.html)
 
