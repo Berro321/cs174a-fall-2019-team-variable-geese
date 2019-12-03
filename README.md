@@ -15,10 +15,27 @@ A chart with exact numbers for all our goose stats (health points, attack, defen
 The game is turn-based upon which each side has the ability to act with all units before proceeding to the opponent’s turn. Each goose unit moves in a tile-based pattern and can attack any enemy unit in range. The goal is to defeat all the enemy units before losing all your units.
 The game is a 3D game with chess-like elements, but once a unit initiates an attack with an enemy unit, it zooms in and does a little battle simulation between the two units with nice animations in which the initiating unit first attacks and the enemy unit can then retalliate with its own attack, if its attack range allows it to. Damage value taken by the defending unit is calculated as the attacking unit's attack value minus the defending unit's defense value.
 
+### How to Play
+The game starts with the red team and switches to the blue team once the player has moved all their geese or they manually end the turn by pressing the bottom on the top right of the screen. 
+
+#### Mouse and Goose Movement
+A yellow marker tile appears above the tile the user's mouse is currently hovering above. Users can then hover above a tile a goose on their team is standing on and left mouse click them to select them. Selecting a goose spawns blue movement tiles that indicate the location the goose can move to (including moving in place if they click on themselves). After clicking on a blue tile to move to that location, a menu pops up on the left that allows them to take actions: either to attack, wait (ending the goose's action turn), or go back (which places the goose back to their position at the beginning of the turn to move again).
+
 ![Goose Move](https://media.giphy.com/media/cgfGtIi1jrmKpUblJn/giphy.gif)
+
+Geese can move on the dirt and grass tiles, but are unable to move through the stone tiles. Geese can also block other geese, so position of your own geese is very important as you not only block the enemy, but may also block yourself!
+
+#### Attacking
+After moving, selecting the Attack option from the action menu spawns red attack tiles around the gooose, which indicate their attack range. Any enemy goose standing on these red tiles can be selected, which initiates a cool battle sequence between them. At the end of the attack sequence, the goose cannot be selected again for another action for the rest of the turn.
 
 ![Goose Attack](https://media.giphy.com/media/QyhRS4svqSXXAlfbeT/giphy.gif)
 
+Attacking does not come without its own consequences, attacking a goose within its own attack range allows the enemy goose to also attack you after you attack it. Take advantage of your ranged geese!
+
+During the attack selection, hovering above an enemy unit shows a battle broadcast that indicates how much damage each geese will deal each other. For example, the blue menu shows the damage the goose in the blue team will deal to the enemy, and the bar shows how much hp will be lost if it attacks the other goose. So make a wise attack!
+
+#### The End Goal
+Each team must battle one another until no geese are left on the opposing team. The team that defeats all the other team's geese wins the game!
 
 ### Individual Tasks:
 #### Ben:
@@ -37,7 +54,7 @@ intense. In terms of data structures, I worked with arrays and matrices to keep 
 
 #### Jorge:
 My main work on the project was comprised of creating all our goose character models, and attack animations. I used a lot of matrix math in order to compose new shapes in our dependencies to use in these models, and to ensure that these looked appropriate with the lights sources we applied. Additionally, all within the model's space, I had to position the shapes correctly with respect to each other and ensure they interacted with the correct transformations during our animations which is definitely where most of my time was spent, putting all that logic together. These transformation states/shapes were generally stored in data structures such as arrays and maps.
-Following that process, I did also work on a chunk of the game mechanics as was deemed necessary for the team, some logic with the menu buttons for example, but mostly to tasks related to the attack animations. A couple of these tasks were to line up battle damage logic/effect and sound effects (which were refined with MP3 editing technology) to the appropriate frames in our animations.
+Following that process, I did also work on a chunk of the game mechanics as was deemed necessary for the team, some logic with the menu buttons for example, but mostly to tasks related to the attack animations. A couple of these tasks were to line up battle damage logic/effect and sound effects to the appropriate frames in our animations, and also generally check that the attack animations involving contact (i.e. the Chonk body roll) were accurate and looked good.
 
 
 
