@@ -59,7 +59,7 @@ For this project I implemented the bump mapping (based on my assignment 4 code) 
 to world space). I also implemented screen to texture rendering by using renderbuffers and framebuffers to save the current frame and then run shaders on
 them (multipass-rendering) such as the radial blur during the camera zoom or the monk attack. I also implemented the tile class that renders the appropriate
 tiles at their appropriate locations based on a 2D array indicating tile placement. I also worked on implementing smooth camera movements and integrating
-the battle animations into one thing.
+the battle animations into one sequence with camera movement.
 I also worked on organizing the tile textures and writing shader code for effects (like radial blur and the negative effect) that make the battles more
 intense. In terms of data structures, I worked with arrays and matrices to keep track of several elements of an object (like the tiles or several UI elements). I also worked with maps to keep easy access to certain elements of an object (goose to audio sources).
 
