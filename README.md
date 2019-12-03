@@ -11,7 +11,7 @@ Two teams of geese must battle for control of the land. The game involves two pl
 - Sonk (x1): Has musical attack.
 - Monk (x1): Has magic attack with extensive range, low defense and normal movement.
 
-A chart with exact numbers for all our goose stats (health points, attack, defense, movement range, attack range) is included at the bottom of the README.
+A chart with exact numbers for all our goose statistics (health points, attack, defense, movement range, attack range) is included at the end of this section.
 The game is turn-based upon which each side has the ability to act with all units before proceeding to the opponent’s turn. Each goose unit moves in a tile-based pattern and can attack any enemy unit in range. The goal is to defeat all the enemy units before losing all your units.
 The game is a 3D game with chess-like elements, but once a unit initiates an attack with an enemy unit, it zooms in and does a little battle simulation between the two units with nice animations in which the initiating unit first attacks and the enemy unit can then retalliate with its own attack, if its attack range allows it to. Damage value taken by the defending unit is calculated as the attacking unit's attack value minus the defending unit's defense value.
 
@@ -36,6 +36,17 @@ During the attack selection, hovering above an enemy unit shows a battle broadca
 
 #### The End Goal
 Each team must battle one another until no geese are left on the opposing team. The team that defeats all the other team's geese wins the game!
+
+#### Statistics
+| Character | Health | Attack | Defense | Movement Range | Attack Range |
+| ------- | ----- | ------ | ------- | ------- | ------- |
+| Honk | 100 | 75 | 25 | 6 | 1 |
+| Lonk | 100 | 75 | 25 | 4 | 2 |
+| Stronk | 100 | 125 | 25 | 4 | 1 |
+| Chonk | 100 | 50 | 50 | 3 | 1 |
+| Sonk | 100 | 75 | 25 | 3 | 1 |
+| Monk | 100 | 100 | 0 | 3 | 3 |
+
 
 ### Individual Tasks:
 #### Ben:
@@ -85,14 +96,3 @@ Shader code for creating the radial blur effect when zooming in and out of battl
 [Class Canvas_Manager](https://webglfundamentals.org/webgl/lessons/webgl-render-to-texture.html)
 
 Followed tutorial to get the rendering to texture to allow for multipass rendering.
-
-
-### Statistics:
-| Character | Health | Attack | Defense | Movement Range | Attack Range |
-| ------- | ----- | ------ | ------- | ------- | ------- |
-| Honk | 100 | 75 | 25 | 6 | 1 |
-| Lonk | 100 | 75 | 25 | 4 | 2 |
-| Stronk | 100 | 125 | 25 | 4 | 1 |
-| Chonk | 100 | 50 | 50 | 3 | 1 |
-| Sonk | 100 | 75 | 25 | 3 | 1 |
-| Monk | 100 | 100 | 0 | 3 | 3 |
