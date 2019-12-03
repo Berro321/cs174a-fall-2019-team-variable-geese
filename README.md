@@ -10,6 +10,7 @@ Two teams of geese must battle for control of the land. The game involves two pl
 - Stronk (x2): Has thick, muscular legs for more powerful attacks, at the cost of lesser movement.
 - Sonk (x1): Has musical attack.
 - Monk (x1): Has magic attack with extensive range, low defense and normal movement.
+
 A chart with exact numbers for all our goose stats (health points, attack, defense, movement range, attack range) is included at the bottom of the README.
 The game is turn-based upon which each side has the ability to act with all units before proceeding to the opponent’s turn. Each goose unit moves in a tile-based pattern and can attack any enemy unit in range. The goal is to defeat all the enemy units before losing all your units.
 The game is a 3D game with chess-like elements, but once a unit initiates an attack with an enemy unit, it zooms in and does a little battle simulation between the two units with nice animations in which the initiating unit first attacks and the enemy unit can then retalliate with its own attack, if its attack range allows it to. Damage value taken by the defending unit is calculated as the attacking unit's attack value minus the defending unit's defense value.
