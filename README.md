@@ -6,8 +6,8 @@
 Two teams of geese must battle for control of the land. The game involves two players controlling their respective team of geese and is played in an arena made up of grass, dirt and stone tiles, where each team begins on opposite sides of the field. There are 6 different geese flavors and a team of geese is comprised of a specific number of each character type of these geese:
 - Honk (x4): Basic, well-rounded, scout.
 - Lonk (x2): Has longer neck for longer range attacks.
-- Chonk (x2): Chonky, which gives it higher defense ability at the cost of lesser movement and lesser attack.
 - Stronk (x2): Has thick, muscular legs for more powerful attacks, at the cost of lesser movement.
+- Chonk (x2): Chonky, which gives it higher defense ability at the cost of lesser movement and lesser attack.
 - Sonk (x1): Has musical attack.
 - Monk (x1): Has magic attack with extensive range, low defense and normal movement.
 
@@ -59,3 +59,14 @@ Following that process, I did also work on a chunk of the game mechanics as was 
 
 
 ### Citations:
+
+
+### Statistics:
+| Character | Health | Attack | Defense | Movement Range | Attack Range |
+| ------- | ----- | ------ | ------- | ------- | ------- |
+| Honk | 100 | 75 | 25 | 6 | 1 |
+| Lonk | 100 | 75 | 25 | 4 | 2 |
+| Stronk | 100 | 125 | 25 | 4 | 1 |
+| Chonk | 100 | 50 | 50 | 3 | 1 |
+| Sonk | 100 | 75 | 25 | 3 | 1 |
+| Monk | 100 | 100 | 0 | 3 | 3 |
