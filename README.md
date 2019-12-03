@@ -87,12 +87,12 @@ Original implementation  for picking that uses a method similar to the one above
 Refer to Betto Cerrillos’ HW4 Bump map implementation (HW4)
 
 #### dependencies.js: 
-[Class Radial Blur Shader](https://stackoverflow.com/questions/4579020/how-do-i-use-a-glsl-shader-to-apply-a-radial-blur-to-an-entire-scene)
+[class Radial_Blur_Shader/Multi](https://stackoverflow.com/questions/4579020/how-do-i-use-a-glsl-shader-to-apply-a-radial-blur-to-an-entire-scene)
 
 Shader code for creating the radial blur effect when zooming in and out of battles.
 
 #### tiny-graphics.js:
 
-[Class Canvas_Manager](https://webglfundamentals.org/webgl/lessons/webgl-render-to-texture.html)
+[class Canvas_Manager](https://webglfundamentals.org/webgl/lessons/webgl-render-to-texture.html)
 
 Followed tutorial to get the rendering to texture to allow for multipass rendering.
